@@ -1,0 +1,6 @@
+#include "base.xcconfig"
+#include "version.xcconfig"
+
+INFOPLIST_KEY_CFBundleDisplayName = DEV 식스센스;
+PRODUCT_NAME = DEV 식스센스;
+OTHER_SWIFT_FLAGS = -D DEBUG;
