@@ -99,3 +99,6 @@ iOSInjectionProject/
 SixthSense/SixthSense.xcworkspace/.tuist-generated
 *.xcodeproj
 *.xcworkspace
+SixthSense/Derived
+SixthSense/SixthSense.xcodeproj
+SixthSense/SixthSense.xcworkspace
