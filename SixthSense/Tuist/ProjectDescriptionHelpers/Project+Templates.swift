@@ -18,6 +18,7 @@ public extension TargetDependency {
     static let then: TargetDependency = .external(name: "Then")
     static let kingfisher: TargetDependency = .external(name: "Kingfisher")
     static let swiftyBeaver: TargetDependency = .external(name: "SwiftyBeaver")
+    static let objectMapper: TargetDependency = .external(name: "ObjectMapper")
 }
 
 extension Project {
@@ -43,6 +44,7 @@ extension Project {
                     .then,
                     .kingfisher,
                     .swiftyBeaver,
+                    .objectMapper,
             ]
         )
 

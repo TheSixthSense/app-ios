@@ -17,6 +17,7 @@ let dependencies = Dependencies(
             .then,
             .kingfisher,
             .swiftyBeaver,
+            .objectMapper
     ],
     platforms: [.iOS]
 )
@@ -31,4 +32,5 @@ public extension Package {
     static let then: Package = .remote(url: "https://github.com/devxoul/Then", requirement: .upToNextMajor(from: "2.7.0"))
     static let kingfisher: Package = .remote(url: "https://github.com/onevcat/Kingfisher", requirement: .upToNextMajor(from: "5.15.6"))
     static let swiftyBeaver: Package = .remote(url: "https://github.com/SwiftyBeaver/SwiftyBeaver", requirement: .upToNextMajor(from: "1.9.0"))
+    static let objectMapper: Package = .remote(url: "https://github.com/tristanhimmelman/ObjectMapper.git", requirement: .upToNextMajor(from: "4.1.0"))
 }
