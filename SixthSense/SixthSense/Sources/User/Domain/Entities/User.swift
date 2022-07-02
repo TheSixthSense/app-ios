@@ -7,44 +7,134 @@
 //
 
 import Foundation
+import ObjectMapper
 
-struct User: Identifiable {
+struct User: Identifiable, Mappable {
     typealias Identifier = String
 
-    let id: Identifier
-    let name: String
-    let username: String
-    let email: String
-    let address: UserAddress
-    let phone: String
-    let website: String
-    let company: UserCompany
+    public var id: Identifier
+    public var name: String
+    public var username: String
+    public var email: String
+    public var address: UserAddress
+    public var phone: String
+    public var website: String
+    public var company: UserCompany
+
+    init() {
+        id = "-1"
+        name = ""
+        username = ""
+        email = ""
+        address = UserAddress()
+        phone = ""
+        website = ""
+        company = UserCompany()
+    }
+
+    init?(map: Map) {
+        id = "-1"
+        name = ""
+        username = ""
+        email = ""
+        address = UserAddress()
+        phone = ""
+        website = ""
+        company = UserCompany()
+    }
+
+    public mutating func mapping(map: Map) {
+        id <- map["id"]
+        name <- map["name"]
+        username <- map["username"]
+        email <- map["email"]
+        address <- map["address"]
+        phone <- map["phone"]
+        website <- map["website"]
+        company <- map["company"]
+    }
 }
 
 extension User: Equatable {
-    static func == (lhs: User, rhs: User) -> Bool {
+    public static func == (lhs: User, rhs: User) -> Bool {
         return lhs.id == rhs.id
     }
 }
 
-// ???: - 아래 부분들은 User Entities에서 쓰이는 것들인데 따로 파일 분리 하는게 좋을까요?
+struct UserAddress: Mappable {
 
-struct UserAddress {
-    let street: String
-    let suite: String
-    let city: String
-    let zipcode: String
-    let geo: Geo
+    public var street: String
+    public var suite: String
+    public var city: String
+    public var zipcode: String
+    public var geo: Geo
+
+    init() {
+        street = ""
+        suite = ""
+        city = ""
+        zipcode = ""
+        geo = Geo()
+    }
+
+    init?(map: Map) {
+        street = ""
+        suite = ""
+        city = ""
+        zipcode = ""
+        geo = Geo()
+    }
+
+    public mutating func mapping(map: Map) {
+        street <- map["street"]
+        suite <- map["suite"]
+        city <- map["city"]
+        zipcode <- map["zipcode"]
+        geo <- map["geo"]
+    }
+
 }
 
-struct Geo {
-    let lat: String
-    let lng: String
+struct Geo: Mappable {
+    public var lat: String
+    public var lng: String
+
+    init() {
+        lat = ""
+        lng = ""
+    }
+
+    init?(map: Map) {
+        lat = ""
+        lng = ""
+    }
+
+    public mutating func mapping(map: Map) {
+        lat <- map["lat"]
+        lng <- map["lng"]
+    }
 }
 
-struct UserCompany {
-    let name: String
-    let catchPhrase: String
-    let bs: String
-}
+struct UserCompany: Mappable {
+    public var companyName: String
+    public var catchPhrase: String
+    public var bs: String
 
+    init() {
+        companyName = ""
+        catchPhrase = ""
+        bs = ""
+    }
+
+    init?(map: Map) {
+        companyName = ""
+        catchPhrase = ""
+        bs = ""
+    }
+
+    public mutating func mapping(map: Map) {
+        companyName <- map["name"]
+        catchPhrase <- map["catchPhrase"]
+        bs <- map["bs"]
+    }
+}
