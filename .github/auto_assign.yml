@@ -1,0 +1,19 @@
+# 풀 요청에 리뷰어를 추가하려면 true로 설정
+addReviewers: true
+
+# pull 요청에 할당자를 추가하려면 true로 설정
+# 여기를 author 로 하면 풀리퀘 작성자를 어사이너로 등록함.
+addAssignees: author
+
+# 풀 리퀘스트 (GitHub 사용자 이름)
+reviewers:
+  - allie0147  # 김도희
+  - MOON-HJ    # 문효재
+
+# pull 요청에 리뷰어를 추가하는 과정에서 건너 뛸 키워드 목록
+skipKeywords:
+  - wip
+
+# 풀 요청에 추가 된 리뷰어 수
+# 모든 리뷰어를 추가하려면 0으로 설정 (기본값 : 0)
+numberOfReviewers: 0
