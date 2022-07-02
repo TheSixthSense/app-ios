@@ -9,8 +9,10 @@
 import Foundation
 
 public final class LocalPersistenceImpl: LocalPersistence {
-  private var source: UserDefaults {
-    return UserDefaults.standard
+  private var source: Persistable
+  
+  public init(source: Persistable) {
+    self.source = source
   }
   
   public func value<T: Storable>(on key: LocalPersistenceKey) -> T? {
@@ -26,3 +28,12 @@ public final class LocalPersistenceImpl: LocalPersistence {
     self.source.removeObject(forKey: key.rawValue)
   }
 }
+
+// TODO: 모듈분리 이후 파일로 분리할 예정이에요
+public protocol Persistable {
+  func value(forKey key: String) -> Any?
+  func set(_ value: Any?, forKey defaultName: String)
+  func removeObject(forKey defaultName: String)
+}
+extension UserDefaults: Persistable { }
+
