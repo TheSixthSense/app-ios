@@ -7,14 +7,24 @@
 //
 #if DEBUG
 import netfox
+import SwiftyBeaver
 #endif
-
 import Foundation
+
+let log: Loggable = {
+#if DEBUG
+  return SwiftyLogger()
+#else
+  return PrintLogger()
+#endif
+}()
+
 
 extension AppDelegate {
   func configureDebug() {
+    let configuration: Configuration = MainConfiguration()
+    log.configure(with: configuration)
     #if DEBUG
-    
     NFX.sharedInstance().start()
     #endif
   }

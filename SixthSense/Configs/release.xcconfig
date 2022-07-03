@@ -1,5 +1,0 @@
-#include "base.xcconfig"
-#include "version.xcconfig"
-
-INFOPLIST_KEY_CFBundleDisplayName = 식스센스;
-PRODUCT_NAME = 식스센스;
