@@ -19,3 +19,18 @@ protocol Configuration {
   func value(_ key: ConfigurationKey) -> String
 }
 
+
+public class MainConfiguration: Configuration {
+  var url: URL {
+    return Bundle.main.url(forResource: "Info", withExtension: "plist")!
+  }
+  
+  var infoDict: [String: Any] {
+    return Bundle.main.infoDictionary!
+  }
+  
+  func value(_ key: ConfigurationKey) -> String {
+    guard let value = infoDict[key.rawValue] as? String else { return .init() }
+    return value
+  }
+}
