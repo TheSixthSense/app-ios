@@ -102,3 +102,4 @@ SixthSense/SixthSense.xcworkspace/.tuist-generated
 SixthSense/Derived
 SixthSense/SixthSense.xcodeproj
 SixthSense/SixthSense.xcworkspace
+*.xcconfig
