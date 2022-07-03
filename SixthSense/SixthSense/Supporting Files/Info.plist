@@ -7,5 +7,11 @@
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+  <key>SWIFTYBEAVER_APP_ID</key>
+  <string>$(SWIFTYBEAVER_APP_ID)</string>
+  <key>SWIFTYBEAVER_APP_SECRET</key>
+  <string>$(SWIFTYBEAVER_APP_SECRET)</string>
+  <key>SWIFTYBEAVER_ENCRYPT_KEY</key>
+  <string>$(SWIFTYBEAVER_ENCRYPT_KEY)</string>
 </dict>
 </plist>
