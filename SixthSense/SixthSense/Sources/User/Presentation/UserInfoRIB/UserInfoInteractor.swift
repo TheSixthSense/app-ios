@@ -22,28 +22,38 @@ protocol UserInfoListener: AnyObject {
 
 final class UserInfoInteractor: PresentableInteractor<UserInfoPresentable>, UserInfoInteractable, UserInfoPresentableListener {
 
-    var userInfo: BehaviorRelay<[UserItemsSection]>
+    var userInfoRelay: BehaviorRelay<[UserItemsSection]>
 
     weak var router: UserInfoRouting?
     weak var listener: UserInfoListener?
 
     override init(presenter: UserInfoPresentable) {
-        self.userInfo = BehaviorRelay(value: [])
+        self.userInfoRelay = BehaviorRelay(value: [])
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
     override func didBecomeActive() {
         super.didBecomeActive()
+        
+        fetchUserInfo()
     }
-
+    
     override func willResignActive() {
         super.willResignActive()
     }
 
     private func fetchUserInfo() {
-
-
-
+        let sectionModels = [
+            UserItemsSection(
+                model: 0,
+                items: [
+                    UserTableViewModel(model: User()),
+                    UserTableViewModel(model: User()),
+                    UserTableViewModel(model: User()),
+                    UserTableViewModel(model: User()),
+                ]
+            )]
+        userInfoRelay.accept(sectionModels)
     }
 }

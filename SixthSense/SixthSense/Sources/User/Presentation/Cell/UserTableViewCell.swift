@@ -22,7 +22,7 @@ class UserTableViewCell: UITableViewCell {
     private let userStackView = UIStackView().then { stack in
         stack.axis = .horizontal
         stack.alignment = .center
-        stack.distribution = .fillEqually
+        stack.distribution = .equalSpacing
     }
 
     private lazy var emailLabel = UILabel()

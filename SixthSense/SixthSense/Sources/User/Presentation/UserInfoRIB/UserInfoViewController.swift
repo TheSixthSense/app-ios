@@ -15,7 +15,7 @@ import UIKit
 
 protocol UserInfoPresentableListener: AnyObject {
 
-    var userInfo: BehaviorRelay<[UserItemsSection]> { get }
+    var userInfoRelay: BehaviorRelay<[UserItemsSection]> { get }
 }
 
 final class UserInfoViewController: UIViewController, UserInfoPresentable, UserInfoViewControllable {
@@ -25,16 +25,19 @@ final class UserInfoViewController: UIViewController, UserInfoPresentable, UserI
     private let disposeBag = DisposeBag()
 
     private let userTableView = UITableView().then { table in
-        table.estimatedRowHeight = 100
-        table.separatorStyle = .none
+        table.estimatedRowHeight = 500
+        table.rowHeight = 500
+        table.separatorStyle = .singleLine
+        table.separatorInset = .zero
         table.backgroundColor = .clear
-        table.showsVerticalScrollIndicator = false
+        table.showsVerticalScrollIndicator = true
         table.showsHorizontalScrollIndicator = false
     }
 
     private let userDataSource = RxTableViewSectionedReloadDataSource<UserItemsSection>(
         configureCell: { _, tableView, index, item in
-            let userCell = tableView.dequeueReusableCell(with: UserTableViewCell.self, for: index)
+            let userCell = tableView.dequeueReusableCell(withIdentifier: UserTableViewCell.className, for: index) as? UserTableViewCell
+            guard let userCell = userCell else { return UITableViewCell() }
             userCell.configure()
             return userCell
         }
@@ -65,11 +68,12 @@ final class UserInfoViewController: UIViewController, UserInfoPresentable, UserI
 extension UserInfoViewController {
 
     private func bindUI() {
-        userTableView.register(cellType: UserTableViewCell.self)
+        userTableView.register(UserTableViewCell.self,
+                               forCellReuseIdentifier: UserTableViewCell.className)
 
         guard let listener = listener else { return }
 
-        listener.userInfo
+        listener.userInfoRelay
             .bind(to: userTableView.rx.items(dataSource: userDataSource))
             .disposed(by: disposeBag)
     }
