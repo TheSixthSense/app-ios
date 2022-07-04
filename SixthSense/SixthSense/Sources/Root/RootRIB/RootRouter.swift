@@ -8,7 +8,7 @@
 
 import RIBs
 
-protocol RootInteractable: Interactable, UserInfoListener {
+protocol RootInteractable: Interactable {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
@@ -20,30 +20,17 @@ protocol RootViewControllable: NavigateViewControllable {
 
 final class RootRouter: LaunchRouter<RootInteractable, RootViewControllable>, RootRouting {
 
-    private let userInfoBuilder: UserInfoBuilder
-
     private var userInfoRouter: ViewableRouting?
 
-    init(
+    override init(
         interactor: RootInteractable,
-        viewController: RootViewControllable,
-        userInfoBuilder: UserInfoBuilder
+        viewController: RootViewControllable
     ) {
-        self.userInfoBuilder = userInfoBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
 
     override func didLoad() {
         super.didLoad()
-
-        routeToUserInfo()
-    }
-
-    private func routeToUserInfo() {
-        let userInfoRouter = userInfoBuilder.build(withListener: interactor)
-        self.userInfoRouter = userInfoRouter
-        attachChild(userInfoRouter)
-        viewController.push(viewController: userInfoRouter.viewControllable, animation: true)
     }
 }
