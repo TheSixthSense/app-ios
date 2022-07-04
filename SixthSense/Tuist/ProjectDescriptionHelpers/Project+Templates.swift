@@ -6,7 +6,7 @@ import ProjectDescription
 /// See https://docs.tuist.io/guides/helpers/
 
 public extension TargetDependency {
-    static let ribs: TargetDependency = .external(name: "ribs")
+    static let ribs: TargetDependency = .external(name: "RIBs")
     static let rxSwift: TargetDependency = .external(name: "RxSwift")
     static let rxCocoa: TargetDependency = .external(name: "RxCocoa")
     static let rxRelay: TargetDependency = .external(name: "RxRelay")
@@ -34,6 +34,7 @@ extension Project {
             name: name,
             platform: platform,
             dependencies: [
+                    .ribs,
                     .rxSwift,
                     .rxCocoa,
                     .rxRelay,
