@@ -11,5 +11,5 @@ import RIBs
 protocol RootDependencyUserInfo: Dependency {
 }
 
-extension RootComponent: UserInfoDependency {
-}
+//extension RootComponent: UserInfoDependency {
+//}
