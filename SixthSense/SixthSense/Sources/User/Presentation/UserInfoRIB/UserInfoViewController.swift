@@ -25,8 +25,8 @@ final class UserInfoViewController: UIViewController, UserInfoPresentable, UserI
     private let disposeBag = DisposeBag()
 
     private let userTableView = UITableView().then { table in
-        table.estimatedRowHeight = 500
-        table.rowHeight = 500
+        table.estimatedRowHeight = 450
+        table.rowHeight = 450
         table.separatorStyle = .singleLine
         table.separatorInset = .zero
         table.backgroundColor = .clear
@@ -38,7 +38,7 @@ final class UserInfoViewController: UIViewController, UserInfoPresentable, UserI
         configureCell: { _, tableView, index, item in
             let userCell = tableView.dequeueReusableCell(withIdentifier: UserTableViewCell.className, for: index) as? UserTableViewCell
             guard let userCell = userCell else { return UITableViewCell() }
-            userCell.configure()
+            userCell.configure(using: item)
             return userCell
         }
     )
