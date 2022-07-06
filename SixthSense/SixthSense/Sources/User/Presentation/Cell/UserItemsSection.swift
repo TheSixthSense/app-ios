@@ -35,7 +35,7 @@ struct UserTableViewModel: UserTableViewPresentable {
 
 
     init(model user: User) {
-        userId = Int(user.id) ?? -1
+        userId = user.id
         name = user.name
         username = user.username
         email = user.email
