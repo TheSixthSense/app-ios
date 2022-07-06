@@ -9,6 +9,7 @@
 import RIBs
 import RxCocoa
 import RxSwift
+import ObjectMapper
 
 protocol UserInfoRouting: ViewableRouting {
 }
@@ -22,38 +23,44 @@ protocol UserInfoListener: AnyObject {
 
 final class UserInfoInteractor: PresentableInteractor<UserInfoPresentable>, UserInfoInteractable, UserInfoPresentableListener {
 
-    var userInfoRelay: BehaviorRelay<[UserItemsSection]>
+    var userInfoDriver: Driver<[UserItemsSection]>
 
     weak var router: UserInfoRouting?
     weak var listener: UserInfoListener?
 
-    override init(presenter: UserInfoPresentable) {
-        self.userInfoRelay = BehaviorRelay(value: [])
+    private let userUseCase: UserUseCaseable
+    private var userInfoRelay: PublishRelay<[UserItemsSection]>
+    private let disposeBag: DisposeBag = DisposeBag()
+
+    init(presenter: UserInfoPresentable, useCase: UserUseCaseable) {
+        self.userUseCase = useCase
+        self.userInfoRelay = PublishRelay()
+        self.userInfoDriver = userInfoRelay.asDriver(onErrorDriveWith: .empty())
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
     override func didBecomeActive() {
         super.didBecomeActive()
-        
+
         fetchUserInfo()
     }
-    
+
     override func willResignActive() {
         super.willResignActive()
     }
 
     private func fetchUserInfo() {
-        let sectionModels = [
-            UserItemsSection(
-                model: 0,
-                items: [
-                    UserTableViewModel(model: User()),
-                    UserTableViewModel(model: User()),
-                    UserTableViewModel(model: User()),
-                    UserTableViewModel(model: User()),
-                ]
-            )]
-        userInfoRelay.accept(sectionModels)
+        userUseCase.fetch()
+        // json -> [UserEntity]
+        .map({ Mapper<User>().mapArray(JSONString: $0) })
+            .debug()
+        // [UserEntity] -> [UserTableViewModel]
+        .compactMap({ $0?.compactMap({ UserTableViewModel(model: $0) })
+        })
+        // UserTableViewModel -> [UserItemsSection]
+        .map({ [UserItemsSection(model: 0, items: $0)] })
+            .bind(to: userInfoRelay)
+            .disposed(by: disposeBag)
     }
 }

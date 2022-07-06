@@ -15,7 +15,7 @@ import UIKit
 
 protocol UserInfoPresentableListener: AnyObject {
 
-    var userInfoRelay: BehaviorRelay<[UserItemsSection]> { get }
+    var userInfoDriver: Driver<[UserItemsSection]> { get }
 }
 
 final class UserInfoViewController: UIViewController, UserInfoPresentable, UserInfoViewControllable {
@@ -73,8 +73,8 @@ extension UserInfoViewController {
 
         guard let listener = listener else { return }
 
-        listener.userInfoRelay
-            .bind(to: userTableView.rx.items(dataSource: userDataSource))
+        listener.userInfoDriver
+            .drive(userTableView.rx.items(dataSource: userDataSource))
             .disposed(by: disposeBag)
     }
 

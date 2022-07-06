@@ -28,10 +28,15 @@ final class UserInfoBuilder: Builder<UserInfoDependency>, UserInfoBuildable {
     }
 
     func build(withListener listener: UserInfoListener) -> UserInfoRouting {
-        let component = UserInfoComponent(dependency: dependency)
+        let _ = UserInfoComponent(dependency: dependency)
         let viewController = UserInfoViewController()
-        let interactor = UserInfoInteractor(presenter: viewController)
-        interactor.listener = listener
-        return UserInfoRouter(interactor: interactor, viewController: viewController)
+
+        let network = NetworkImpl(intercepter: NetworkInterceptableImpl(), logger: SwiftyLogger())
+        let userRepository = UserRepositoryImpl(network: network)
+        let userUseCase = UserUseCase(userRepository: userRepository)
+
+        let userInteractor = UserInfoInteractor(presenter: viewController, useCase: userUseCase)
+        userInteractor.listener = listener
+        return UserInfoRouter(interactor: userInteractor, viewController: viewController)
     }
 }
