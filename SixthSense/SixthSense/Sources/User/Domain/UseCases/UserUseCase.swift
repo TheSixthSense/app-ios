@@ -9,18 +9,19 @@
 import Foundation
 import RxSwift
 
-protocol UserUseCaseable {
-//    func fetch() -> Single<String>?
+public protocol UserUseCaseable {
+    func fetch() -> Observable<String>
 }
 
 final class UserUseCase: UserUseCaseable {
 
-//    private let userRepository: UserRepository
-//
-//    init(userRepository: UserRepository) {
-//        self.userRepository = userRepository
-//    }
-//
-//    func fetch() -> Single<String>? {
-//    }
+    private let userRepository: UserRepository
+
+    init(userRepository: UserRepository) {
+        self.userRepository = userRepository
+    }
+
+    func fetch() -> Observable<String> {
+        return userRepository.user().asObservable()
+    }
 }
