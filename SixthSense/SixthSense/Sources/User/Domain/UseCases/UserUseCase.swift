@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import ObjectMapper
 import RxSwift
 
 public protocol UserUseCaseable {
-    func fetch() -> Observable<String>
+    func fetch() -> Observable<[User]>
 }
 
 final class UserUseCase: UserUseCaseable {
@@ -21,7 +22,10 @@ final class UserUseCase: UserUseCaseable {
         self.userRepository = userRepository
     }
 
-    func fetch() -> Observable<String> {
-        return userRepository.user().asObservable()
+    func fetch() -> Observable<[User]> {
+        return userRepository.user()
+            .asObservable()
+        // json -> [UserEntity]
+        .map({ [User](JSONString: $0) ?? [] })
     }
 }

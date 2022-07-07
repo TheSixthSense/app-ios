@@ -9,7 +9,6 @@
 import RIBs
 import RxCocoa
 import RxSwift
-import ObjectMapper
 
 protocol UserInfoRouting: ViewableRouting {
 }
@@ -52,12 +51,8 @@ final class UserInfoInteractor: PresentableInteractor<UserInfoPresentable>, User
 
     private func fetchUserInfo() {
         userUseCase.fetch()
-        // json -> [UserEntity]
-        .map({ Mapper<User>().mapArray(JSONString: $0) })
-            .debug()
         // [UserEntity] -> [UserTableViewModel]
-        .compactMap({ $0?.compactMap({ UserTableViewModel(model: $0) })
-        })
+        .compactMap({ $0.compactMap({ UserTableViewModel(model: $0) }) })
         // UserTableViewModel -> [UserItemsSection]
         .map({ [UserItemsSection(model: 0, items: $0)] })
             .bind(to: userInfoRelay)
