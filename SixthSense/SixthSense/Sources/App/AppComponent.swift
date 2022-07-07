@@ -10,7 +10,11 @@ import RIBs
 
 class AppComponent: Component<EmptyDependency>, RootDependency {
 
+    var network: Network
+
     init() {
+        self.network = NetworkImpl(intercepter: NetworkInterceptableImpl(), logger: SwiftyLogger())
         super.init(dependency: EmptyComponent())
     }
 }
+

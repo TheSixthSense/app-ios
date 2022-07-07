@@ -8,8 +8,9 @@
 
 import RIBs
 
-protocol RootDependencyUserInfo: Dependency {
-}
-
 extension RootComponent: UserInfoDependency {
+
+    var network: Network {
+        return self.dependency.network
+    }
 }

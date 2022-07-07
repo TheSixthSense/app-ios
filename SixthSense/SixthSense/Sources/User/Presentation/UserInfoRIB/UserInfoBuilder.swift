@@ -9,6 +9,7 @@
 import RIBs
 
 protocol UserInfoDependency: Dependency {
+    var network: Network { get }
 }
 
 final class UserInfoComponent: Component<UserInfoDependency> {
