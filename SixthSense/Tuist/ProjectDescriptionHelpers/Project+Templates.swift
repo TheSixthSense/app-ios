@@ -99,7 +99,7 @@ extension Project {
             name: "\(name)Dev",
             platform: platform,
             product: .app,
-            bundleId: "kr.co.thesixthsense",
+            bundleId: "kr.co.thesixthsense.dev",
             deploymentTarget: .iOS(targetVersion: "13.0",
                                    devices: [.iphone]),
             infoPlist: .file(path: "\(name)/Supporting Files/Info.plist"),
