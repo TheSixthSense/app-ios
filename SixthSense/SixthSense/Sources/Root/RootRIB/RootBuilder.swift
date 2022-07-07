@@ -9,6 +9,7 @@
 import RIBs
 
 protocol RootDependency: Dependency {
+    var network: Network { get }
 }
 
 final class RootComponent: Component<RootDependency> {

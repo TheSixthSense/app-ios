@@ -14,28 +14,35 @@ import UIKit
 
 class UserTableViewCell: UITableViewCell {
 
-    private var disposeBag = DisposeBag()
+    private var disposeBag: DisposeBag = DisposeBag()
 
-    private lazy var userIdLabel = UILabel()
-    private lazy var idLabel = UILabel()
+    private lazy var userIdLabel = UILabel().then { label in
+        label.frame.size.width = 10
+    }
     private lazy var usernameLabel = UILabel()
     private let userStackView = UIStackView().then { stack in
         stack.axis = .horizontal
         stack.alignment = .center
-        stack.distribution = .equalSpacing
+        stack.distribution = .fillProportionally
     }
 
-    private lazy var emailLabel = UILabel()
-    private lazy var addressLabel = UILabel()
+    private lazy var emailLabel = UILabel().then { label in
+        label.frame.size.height = 20
+    }
+    private lazy var addressLabel = UILabel().then { label in
+        label.numberOfLines = 0
+    }
     private lazy var phoneLabel = UILabel()
     private let userContactStackView = UIStackView().then { stack in
         stack.axis = .vertical
         stack.alignment = .leading
-        stack.distribution = .fillEqually
+        stack.distribution = .fillProportionally
     }
 
     private lazy var websiteLabel = UILabel()
-    private lazy var companyLabel = UILabel()
+    private lazy var companyLabel = UILabel().then { label in
+        label.numberOfLines = 0
+    }
     private let userCompanyStackView = UIStackView().then { stack in
         stack.axis = .vertical
         stack.alignment = .leading
@@ -54,17 +61,19 @@ class UserTableViewCell: UITableViewCell {
 
     override func prepareForReuse() {
         disposeBag = DisposeBag()
+        configure(using: UserTableViewModel(model: User()))
     }
 
-    func configure() {
-        userIdLabel.text = "USER ID"
-        idLabel.text = "ID"
-        usernameLabel.text = "USER NAME"
-        emailLabel.text = "EMAIL"
-        addressLabel.text = "ADDRESS"
-        phoneLabel.text = "PHONE"
-        websiteLabel.text = "WEBSITE"
-        companyLabel.text = "COMPANY"
+    func configure(using viewModel: UserTableViewModel) {
+        userIdLabel.text = "ID: \(viewModel.userId)"
+        usernameLabel.text = "NAME: \(viewModel.username)"
+        emailLabel.text = "EMAIL: \(viewModel.email)"
+        let address = viewModel.address
+        addressLabel.text = "ADDRESS: [\(address.zipcode)]\n\(address.city), \(address.street), \(address.suite)\n- lat: \(address.geo.lat)\n- lon: \(address.geo.lng)"
+        phoneLabel.text = "PHONE: \(viewModel.phone)"
+        websiteLabel.text = "WEBSITE: \(viewModel.website)"
+        let company = viewModel.company
+        companyLabel.text = "COMPANY: \(company.companyName)\n\(company.catchPhrase)\n\(company.bs)"
     }
 
     override func layoutSubviews() {
@@ -74,39 +83,38 @@ class UserTableViewCell: UITableViewCell {
     }
 
     private func addSubViews() {
-        addSubview(userStackView)
-        addSubview(userContactStackView)
-        addSubview(userCompanyStackView)
+        let stackViews = [userStackView, userContactStackView, userCompanyStackView]
+        addSubviews(stackViews)
     }
 
     private func arrangedSubViews() {
-        userStackView.addArrangedSubview(userIdLabel)
-        userStackView.addArrangedSubview(idLabel)
-        userStackView.addArrangedSubview(usernameLabel)
+        let userLabels = [userIdLabel, usernameLabel]
+        userStackView.addArrangedSubviews(userLabels)
 
-        userContactStackView.addArrangedSubview(emailLabel)
-        userContactStackView.addArrangedSubview(addressLabel)
-        userContactStackView.addArrangedSubview(phoneLabel)
+        let userContactLabels = [emailLabel, addressLabel, phoneLabel]
+        userContactStackView.addArrangedSubviews(userContactLabels)
 
-        userCompanyStackView.addArrangedSubview(websiteLabel)
-        userCompanyStackView.addArrangedSubview(companyLabel)
+        let userCompanyLabels = [websiteLabel, companyLabel]
+        userCompanyStackView.addArrangedSubviews(userCompanyLabels)
     }
 
     private func bindLayout() {
+        userIdLabel.frame.size.width = 20
+
         userStackView.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
-            make.height.equalTo(150)
+            make.leading.trailing.top.equalToSuperview().inset(20)
+            make.height.equalTo(50)
         }
 
         userContactStackView.snp.makeConstraints { make in
             make.top.equalTo(userStackView.snp.bottom)
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(userStackView)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(200)
         }
 
         userCompanyStackView.snp.makeConstraints { make in
-            make.top.equalTo(userContactStackView.snp.bottom)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(userContactStackView.snp.bottom).offset(10)
+            make.leading.trailing.bottom.equalToSuperview().inset(20)
         }
     }
 }

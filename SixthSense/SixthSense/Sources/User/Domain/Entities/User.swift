@@ -9,8 +9,8 @@
 import Foundation
 import ObjectMapper
 
-struct User: Identifiable, Mappable {
-    typealias Identifier = String
+public struct User: Identifiable, Mappable {
+    public typealias Identifier = Int
 
     public var id: Identifier
     public var name: String
@@ -22,7 +22,7 @@ struct User: Identifiable, Mappable {
     public var company: UserCompany
 
     init() {
-        id = "-1"
+        id = -1
         name = ""
         username = ""
         email = ""
@@ -32,8 +32,8 @@ struct User: Identifiable, Mappable {
         company = UserCompany()
     }
 
-    init?(map: Map) {
-        id = "-1"
+    public init?(map: Map) {
+        id = -1
         name = ""
         username = ""
         email = ""
@@ -61,7 +61,7 @@ extension User: Equatable {
     }
 }
 
-struct UserAddress: Mappable {
+public struct UserAddress: Mappable {
 
     public var street: String
     public var suite: String
@@ -77,7 +77,7 @@ struct UserAddress: Mappable {
         geo = Geo()
     }
 
-    init?(map: Map) {
+    public init?(map: Map) {
         street = ""
         suite = ""
         city = ""
@@ -95,7 +95,7 @@ struct UserAddress: Mappable {
 
 }
 
-struct Geo: Mappable {
+public struct Geo: Mappable {
     public var lat: String
     public var lng: String
 
@@ -104,7 +104,7 @@ struct Geo: Mappable {
         lng = ""
     }
 
-    init?(map: Map) {
+    public init?(map: Map) {
         lat = ""
         lng = ""
     }
@@ -115,7 +115,7 @@ struct Geo: Mappable {
     }
 }
 
-struct UserCompany: Mappable {
+public struct UserCompany: Mappable {
     public var companyName: String
     public var catchPhrase: String
     public var bs: String
@@ -126,7 +126,7 @@ struct UserCompany: Mappable {
         bs = ""
     }
 
-    init?(map: Map) {
+    public init?(map: Map) {
         companyName = ""
         catchPhrase = ""
         bs = ""
