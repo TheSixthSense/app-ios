@@ -16,7 +16,7 @@ class UserTableViewCell: UITableViewCell {
 
     private var disposeBag: DisposeBag = DisposeBag()
 
-    private lazy var userIdLabel =  UILabel().then { label in
+    private lazy var userIdLabel = UILabel().then { label in
         label.frame.size.width = 10
     }
     private lazy var usernameLabel = UILabel()
@@ -83,26 +83,24 @@ class UserTableViewCell: UITableViewCell {
     }
 
     private func addSubViews() {
-        addSubview(userStackView)
-        addSubview(userContactStackView)
-        addSubview(userCompanyStackView)
+        let stackViews = [userStackView, userContactStackView, userCompanyStackView]
+        addSubviews(stackViews)
     }
 
     private func arrangedSubViews() {
-        userStackView.addArrangedSubview(userIdLabel)
-        userStackView.addArrangedSubview(usernameLabel)
+        let userLabels = [userIdLabel, usernameLabel]
+        userStackView.addArrangedSubviews(userLabels)
 
-        userContactStackView.addArrangedSubview(emailLabel)
-        userContactStackView.addArrangedSubview(addressLabel)
-        userContactStackView.addArrangedSubview(phoneLabel)
+        let userContactLabels = [emailLabel, addressLabel, phoneLabel]
+        userContactStackView.addArrangedSubviews(userContactLabels)
 
-        userCompanyStackView.addArrangedSubview(websiteLabel)
-        userCompanyStackView.addArrangedSubview(companyLabel)
+        let userCompanyLabels = [websiteLabel, companyLabel]
+        userCompanyStackView.addArrangedSubviews(userCompanyLabels)
     }
 
     private func bindLayout() {
         userIdLabel.frame.size.width = 20
-        
+
         userStackView.snp.makeConstraints { make in
             make.leading.trailing.top.equalToSuperview().inset(20)
             make.height.equalTo(50)
