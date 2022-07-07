@@ -13,7 +13,14 @@ protocol UserInfoDependency: Dependency {
 }
 
 final class UserInfoComponent: Component<UserInfoDependency> {
+    let userUseCase: UserUseCaseable
+    let userRepository: UserRepository
 
+    override init(dependency: UserInfoDependency) {
+        self.userRepository = UserRepositoryImpl(network: dependency.network)
+        self.userUseCase = UserUseCase(userRepository: userRepository)
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
@@ -29,14 +36,9 @@ final class UserInfoBuilder: Builder<UserInfoDependency>, UserInfoBuildable {
     }
 
     func build(withListener listener: UserInfoListener) -> UserInfoRouting {
-        let _ = UserInfoComponent(dependency: dependency)
+        let component = UserInfoComponent(dependency: dependency)
         let viewController = UserInfoViewController()
-
-        let network = NetworkImpl(intercepter: NetworkInterceptableImpl(), logger: SwiftyLogger())
-        let userRepository = UserRepositoryImpl(network: network)
-        let userUseCase = UserUseCase(userRepository: userRepository)
-
-        let userInteractor = UserInfoInteractor(presenter: viewController, useCase: userUseCase)
+        let userInteractor = UserInfoInteractor(presenter: viewController, useCase: component.userUseCase)
         userInteractor.listener = listener
         return UserInfoRouter(interactor: userInteractor, viewController: viewController)
     }
