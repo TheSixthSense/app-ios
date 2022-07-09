@@ -31,29 +31,14 @@ extension Project {
     public static func app(
         name: String,
         platform: Platform,
+        dependencies: [TargetDependency],
         additionalTargets: [String]
     ) -> Project {
 
         let targets = makeAppTargets(
             name: name,
             platform: platform,
-            dependencies: [
-                    .ribs,
-                    .rxSwift,
-                    .rxCocoa,
-                    .rxRelay,
-                    .rxDataSources,
-                    .alamofire,
-                    .moya,
-                    .rxMoya,
-                    .snapKit,
-                    .then,
-                    .kingfisher,
-                    .swiftyBeaver,
-                    .objectMapper,
-                    .netfox
-            ]
-        )
+            dependencies: dependencies)
 
         let schemes = makeAppScheme(name: name)
 
