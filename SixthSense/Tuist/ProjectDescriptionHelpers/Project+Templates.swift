@@ -169,3 +169,48 @@ extension Project {
         return Settings.settings(configurations: [debug, release])
     }
 }
+
+// MARK: - Framework
+extension Project {
+  public static func framework(
+    name: String,
+    dependencies: [TargetDependency],
+    additionalTargets: [String]
+  ) -> Project {
+    let settings: Settings = makeAppSettings()
+    
+    let targets: [Target] = [
+      Target(
+        name: name,
+        platform: .iOS,
+        product: .framework,
+        bundleId: organizationName + "\(name)",
+        deploymentTarget: .iOS(targetVersion: "13.0",
+                               devices: [.iphone]),
+        infoPlist: .file(path: "Supporting Files/Info.plist"),
+        sources: ["Sources/**"],
+        dependencies: dependencies,
+        settings: settings
+      )
+    ]
+    
+    let schemes: [Scheme] = [
+      Scheme(
+        name: "\(name)",
+        shared: true,
+        buildAction: .buildAction(targets: [".\(name)"]),
+        testAction: .targets(["\(name)Tests"]),
+        runAction: .runAction(configuration: .debug,
+                              executable: "\(name)"),
+        archiveAction: .archiveAction(configuration: .debug)
+      )
+    ]
+    
+    
+    return Project(name: name,
+                   organizationName: organizationName,
+                   settings: settings,
+                   targets: targets,
+                   schemes: schemes)
+  }
+}
