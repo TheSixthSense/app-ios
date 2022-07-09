@@ -23,40 +23,29 @@ public extension TargetDependency {
 }
 
 extension Project {
+  static let organizationName = "kr.co.thesixthsense"
+}
+
+extension Project {
     /// Helper function to create the Project for this ExampleApp
     public static func app(
         name: String,
         platform: Platform,
+        dependencies: [TargetDependency],
         additionalTargets: [String]
     ) -> Project {
 
         let targets = makeAppTargets(
             name: name,
             platform: platform,
-            dependencies: [
-                    .ribs,
-                    .rxSwift,
-                    .rxCocoa,
-                    .rxRelay,
-                    .rxDataSources,
-                    .alamofire,
-                    .moya,
-                    .rxMoya,
-                    .snapKit,
-                    .then,
-                    .kingfisher,
-                    .swiftyBeaver,
-                    .objectMapper,
-                    .netfox
-            ]
-        )
+            dependencies: dependencies)
 
         let schemes = makeAppScheme(name: name)
 
         let settings = makeAppSettings()
 
         return Project(name: name,
-                       organizationName: "kr.co.thesixthsense",
+                       organizationName: organizationName,
                        settings: settings,
                        targets: targets,
                        schemes: schemes)
@@ -85,12 +74,12 @@ extension Project {
             name: name,
             platform: platform,
             product: .app,
-            bundleId: "kr.co.thesixthsense",
+            bundleId: organizationName,
             deploymentTarget: .iOS(targetVersion: "13.0",
                                    devices: [.iphone]),
-            infoPlist: .file(path: "\(name)/Supporting Files/Info.plist"),
-            sources: ["\(name)/Sources/**"],
-            resources: ["\(name)/Resources/**"],
+            infoPlist: .file(path: "Supporting Files/Info.plist"),
+            sources: ["Sources/**"],
+            resources: ["Resources/**"],
             dependencies: dependencies,
             settings: settings
         )
@@ -99,12 +88,12 @@ extension Project {
             name: "\(name)Dev",
             platform: platform,
             product: .app,
-            bundleId: "kr.co.thesixthsense.dev",
+            bundleId: "\(organizationName).dev",
             deploymentTarget: .iOS(targetVersion: "13.0",
                                    devices: [.iphone]),
-            infoPlist: .file(path: "\(name)/Supporting Files/Info.plist"),
-            sources: ["\(name)/Sources/**"],
-            resources: ["\(name)/Resources/**"],
+            infoPlist: .file(path: "Supporting Files/Info.plist"),
+            sources: ["Sources/**"],
+            resources: ["Resources/**"],
             dependencies: dependencies,
             settings: settings
         )
@@ -168,4 +157,49 @@ extension Project {
 
         return Settings.settings(configurations: [debug, release])
     }
+}
+
+// MARK: - Framework
+extension Project {
+  public static func framework(
+    name: String,
+    dependencies: [TargetDependency],
+    additionalTargets: [String]
+  ) -> Project {
+    let settings: Settings = makeAppSettings()
+    
+    let targets: [Target] = [
+      Target(
+        name: name,
+        platform: .iOS,
+        product: .framework,
+        bundleId: "\(organizationName)\(name)",
+        deploymentTarget: .iOS(targetVersion: "13.0",
+                               devices: [.iphone]),
+        infoPlist: .file(path: "Supporting Files/Info.plist"),
+        sources: ["Sources/**"],
+        dependencies: dependencies,
+        settings: settings
+      )
+    ]
+    
+    let schemes: [Scheme] = [
+      Scheme(
+        name: "\(name)",
+        shared: true,
+        buildAction: .buildAction(targets: [".\(name)"]),
+        testAction: .targets(["\(name)Tests"]),
+        runAction: .runAction(configuration: .debug,
+                              executable: "\(name)"),
+        archiveAction: .archiveAction(configuration: .debug)
+      )
+    ]
+    
+    
+    return Project(name: name,
+                   organizationName: organizationName,
+                   settings: settings,
+                   targets: targets,
+                   schemes: schemes)
+  }
 }
