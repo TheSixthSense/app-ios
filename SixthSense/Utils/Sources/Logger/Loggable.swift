@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol Loggable {
+public protocol Loggable {
   func configure(with configuration: Configuration?)
   func verbose(_ message: Any)
   func debug(_ message: Any)
