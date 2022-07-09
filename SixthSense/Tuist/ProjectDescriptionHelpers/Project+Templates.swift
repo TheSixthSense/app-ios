@@ -23,6 +23,10 @@ public extension TargetDependency {
 }
 
 extension Project {
+  static let organizationName = "kr.co.thesixthsense"
+}
+
+extension Project {
     /// Helper function to create the Project for this ExampleApp
     public static func app(
         name: String,
@@ -56,7 +60,7 @@ extension Project {
         let settings = makeAppSettings()
 
         return Project(name: name,
-                       organizationName: "kr.co.thesixthsense",
+                       organizationName: organizationName,
                        settings: settings,
                        targets: targets,
                        schemes: schemes)
@@ -85,7 +89,7 @@ extension Project {
             name: name,
             platform: platform,
             product: .app,
-            bundleId: "kr.co.thesixthsense",
+            bundleId: organizationName,
             deploymentTarget: .iOS(targetVersion: "13.0",
                                    devices: [.iphone]),
             infoPlist: .file(path: "Supporting Files/Info.plist"),
@@ -99,7 +103,7 @@ extension Project {
             name: "\(name)Dev",
             platform: platform,
             product: .app,
-            bundleId: "kr.co.thesixthsense.dev",
+            bundleId: organizationName + ".dev",
             deploymentTarget: .iOS(targetVersion: "13.0",
                                    devices: [.iphone]),
             infoPlist: .file(path: "Supporting Files/Info.plist"),
