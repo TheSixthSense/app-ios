@@ -161,7 +161,7 @@ extension Project {
 
 // MARK: - Framework
 extension Project {
-  public static func framework(
+  public static func library(
     name: String,
     dependencies: [TargetDependency],
     additionalTargets: [String]
@@ -172,11 +172,11 @@ extension Project {
       Target(
         name: name,
         platform: .iOS,
-        product: .framework,
+        product: .staticLibrary,
         bundleId: "\(organizationName)\(name)",
         deploymentTarget: .iOS(targetVersion: "13.0",
                                devices: [.iphone]),
-        infoPlist: .file(path: "Supporting Files/Info.plist"),
+        infoPlist: .file(path: .relativeToRoot("Supporting Files/Info.plist")),
         sources: ["Sources/**"],
         dependencies: dependencies,
         settings: settings
