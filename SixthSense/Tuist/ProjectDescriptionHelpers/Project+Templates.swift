@@ -88,9 +88,9 @@ extension Project {
             bundleId: "kr.co.thesixthsense",
             deploymentTarget: .iOS(targetVersion: "13.0",
                                    devices: [.iphone]),
-            infoPlist: .file(path: "\(name)/Supporting Files/Info.plist"),
-            sources: ["\(name)/Sources/**"],
-            resources: ["\(name)/Resources/**"],
+            infoPlist: .file(path: "Supporting Files/Info.plist"),
+            sources: ["Sources/**"],
+            resources: ["Resources/**"],
             dependencies: dependencies,
             settings: settings
         )
@@ -102,9 +102,9 @@ extension Project {
             bundleId: "kr.co.thesixthsense.dev",
             deploymentTarget: .iOS(targetVersion: "13.0",
                                    devices: [.iphone]),
-            infoPlist: .file(path: "\(name)/Supporting Files/Info.plist"),
-            sources: ["\(name)/Sources/**"],
-            resources: ["\(name)/Resources/**"],
+            infoPlist: .file(path: "Supporting Files/Info.plist"),
+            sources: ["Sources/**"],
+            resources: ["Resources/**"],
             dependencies: dependencies,
             settings: settings
         )
