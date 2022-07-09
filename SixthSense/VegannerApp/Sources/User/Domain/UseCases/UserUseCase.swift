@@ -9,6 +9,7 @@
 import Foundation
 import ObjectMapper
 import RxSwift
+import Repository
 
 public protocol UserUseCaseable {
     func fetch() -> Observable<[User]>
