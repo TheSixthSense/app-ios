@@ -173,7 +173,7 @@ extension Project {
         name: name,
         platform: .iOS,
         product: .staticLibrary,
-        bundleId: "\(organizationName)\(name)",
+        bundleId: "\(organizationName).\(name)",
         deploymentTarget: .iOS(targetVersion: "13.0",
                                devices: [.iphone]),
         infoPlist: .file(path: .relativeToRoot("Supporting Files/Info.plist")),
