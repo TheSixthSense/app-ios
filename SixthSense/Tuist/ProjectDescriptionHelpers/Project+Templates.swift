@@ -180,6 +180,7 @@ extension Project {
                     bundleId: "\(organizationName).\(name)",
                     deploymentTarget: .iOS(targetVersion: "13.0",
                                            devices: [.iphone]),
+                    infoPlist: .file(path: "Supporting Files/Info.plist"),
                     sources: ["Sources/**"],
                     resources: ["Resources/**"],
                     dependencies: dependencies,
@@ -195,6 +196,7 @@ extension Project {
                     bundleId: "\(organizationName).\(name)",
                     deploymentTarget: .iOS(targetVersion: "13.0",
                                            devices: [.iphone]),
+                    infoPlist: .file(path: "Supporting Files/Info.plist"),
                     sources: ["Sources/**"],
                     dependencies: dependencies,
                     settings: settings
