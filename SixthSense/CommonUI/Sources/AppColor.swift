@@ -92,7 +92,7 @@ extension AppColor {
         return #colorLiteral(red: 0.2784313725, green: 0.2784313725, blue: 0.2705882353, alpha: 1)
     }
 
-    public static var black: AppColor {
+    public static var systemBlack: AppColor {
         return #colorLiteral(red: 0.1333333333, green: 0.1333333333, blue: 0.1333333333, alpha: 1)
     }
 }
