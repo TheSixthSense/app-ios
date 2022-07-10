@@ -23,7 +23,7 @@ public extension TargetDependency {
 }
 
 extension Project {
-  static let organizationName = "kr.co.thesixthsense"
+    static let organizationName = "kr.co.thesixthsense"
 }
 
 extension Project {
@@ -161,45 +161,65 @@ extension Project {
 
 // MARK: - Framework
 extension Project {
-  public static func library(
-    name: String,
-    dependencies: [TargetDependency],
-    additionalTargets: [String]
-  ) -> Project {
-    let settings: Settings = makeAppSettings()
-    
-    let targets: [Target] = [
-      Target(
-        name: name,
-        platform: .iOS,
-        product: .staticLibrary,
-        bundleId: "\(organizationName).\(name)",
-        deploymentTarget: .iOS(targetVersion: "13.0",
-                               devices: [.iphone]),
-        infoPlist: .file(path: .relativeToRoot("Supporting Files/Info.plist")),
-        sources: ["Sources/**"],
-        dependencies: dependencies,
-        settings: settings
-      )
-    ]
-    
-    let schemes: [Scheme] = [
-      Scheme(
-        name: "\(name)",
-        shared: true,
-        buildAction: .buildAction(targets: [".\(name)"]),
-        testAction: .targets(["\(name)Tests"]),
-        runAction: .runAction(configuration: .debug,
-                              executable: "\(name)"),
-        archiveAction: .archiveAction(configuration: .debug)
-      )
-    ]
-    
-    
-    return Project(name: name,
-                   organizationName: organizationName,
-                   settings: settings,
-                   targets: targets,
-                   schemes: schemes)
-  }
+    public static func library(
+        name: String,
+        dependencies: [TargetDependency],
+        additionalTargets: [String],
+        hasResources: Bool = false
+    ) -> Project {
+        let settings: Settings = makeAppSettings()
+
+        var targets: [Target]
+
+        if hasResources {
+            targets = [
+                Target(
+                    name: name,
+                    platform: .iOS,
+                    product: .staticLibrary,
+                    bundleId: "\(organizationName).\(name)",
+                    deploymentTarget: .iOS(targetVersion: "13.0",
+                                           devices: [.iphone]),
+                    sources: ["Sources/**"],
+                    resources: ["Resources/**"],
+                    dependencies: dependencies,
+                    settings: settings
+                )
+            ]
+        } else {
+            targets = [
+                Target(
+                    name: name,
+                    platform: .iOS,
+                    product: .staticLibrary,
+                    bundleId: "\(organizationName).\(name)",
+                    deploymentTarget: .iOS(targetVersion: "13.0",
+                                           devices: [.iphone]),
+                    sources: ["Sources/**"],
+                    dependencies: dependencies,
+                    settings: settings
+                )
+            ]
+        }
+
+
+        let schemes: [Scheme] = [
+            Scheme(
+                name: "\(name)",
+                shared: true,
+                buildAction: .buildAction(targets: [".\(name)"]),
+                testAction: .targets(["\(name)Tests"]),
+                runAction: .runAction(configuration: .debug,
+                                      executable: "\(name)"),
+                archiveAction: .archiveAction(configuration: .debug)
+            )
+        ]
+
+
+        return Project(name: name,
+                       organizationName: organizationName,
+                       settings: settings,
+                       targets: targets,
+                       schemes: schemes)
+    }
 }
