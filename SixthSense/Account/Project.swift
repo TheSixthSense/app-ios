@@ -15,8 +15,7 @@ let project = Project.library(
     .rxCocoa,
     .rxRelay,
     .rxDataSources,
-    .ribs,
-    Module.utils.project
-  ],
+    .ribs
+  ] + [Module.utils, .repository].map(\.project),
   additionalTargets: []
 )

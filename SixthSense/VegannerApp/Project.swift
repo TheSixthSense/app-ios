@@ -14,10 +14,7 @@ let project = Project.app(
     .then,
     .kingfisher,
     .objectMapper,
-    .netfox,
-    Module.storage.project,
-    Module.repository.project,
-    Module.utils.project
-  ],
+    .netfox
+  ] + [Module.storage, .repository, .utils, .account].map(\.project),
   additionalTargets: []
 )
