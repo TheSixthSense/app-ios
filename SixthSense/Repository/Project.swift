@@ -8,12 +8,14 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let project = Project.library(name: "Repository",
-                                dependencies: [
-                                  .rxSwift,
-                                  .alamofire,
-                                  .moya,
-                                  .rxMoya,
-                                  .project(target: "Utils", path: .relativeToRoot("Utils")),
-                                ],
-                                additionalTargets: [])
+let project = Project.library(
+  name: Module.repository.name,
+  dependencies: [
+    .rxSwift,
+    .alamofire,
+    .moya,
+    .rxMoya,
+    Module.utils.project
+  ],
+  additionalTargets: []
+)

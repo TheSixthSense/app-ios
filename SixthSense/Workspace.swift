@@ -6,10 +6,9 @@
 //
 
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let workspace = Workspace(
     name: "SixthSense",
-    projects: [
-        "VegannerApp", "Storage", "Utils", "Repository"
-    ]
+    projects: Module.allCases.map(\.path)
 )

@@ -8,6 +8,8 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let project = Project.library(name: "Storage",
-                                dependencies: [],
-                                additionalTargets: [])
+let project = Project.library(
+  name: Module.storage.name,
+  dependencies: [],
+  additionalTargets: []
+)
