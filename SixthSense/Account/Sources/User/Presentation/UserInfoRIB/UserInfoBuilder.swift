@@ -9,7 +9,7 @@
 import RIBs
 import Repository
 
-protocol UserInfoDependency: Dependency {
+public protocol UserInfoDependency: Dependency {
     var network: Network { get }
 }
 
@@ -30,13 +30,13 @@ protocol UserInfoBuildable: Buildable {
     func build(withListener listener: UserInfoListener) -> UserInfoRouting
 }
 
-final class UserInfoBuilder: Builder<UserInfoDependency>, UserInfoBuildable {
+public final class UserInfoBuilder: Builder<UserInfoDependency>, UserInfoBuildable {
 
-    override init(dependency: UserInfoDependency) {
+    public override init(dependency: UserInfoDependency) {
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: UserInfoListener) -> UserInfoRouting {
+    public func build(withListener listener: UserInfoListener) -> UserInfoRouting {
         let component = UserInfoComponent(dependency: dependency)
         let viewController = UserInfoViewController()
         let userInteractor = UserInfoInteractor(presenter: viewController, useCase: component.userUseCase)
