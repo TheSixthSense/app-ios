@@ -8,7 +8,7 @@
 
 import UIKit
 
-public typealias AppFont = CommonUIFontFamily
+public typealias AppFont = DesignSystemFontFamily
 
 extension AppFont {
 

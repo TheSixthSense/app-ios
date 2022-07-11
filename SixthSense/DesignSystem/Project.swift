@@ -8,7 +8,7 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let project = Project.library(name: "CommonUI",
+let project = Project.library(name: "DesignSystem",
                               dependencies: [],
                               additionalTargets: [],
                               hasResources: true)
