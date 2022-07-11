@@ -7,6 +7,7 @@
 //
 
 import RIBs
+import Repository
 
 protocol UserInfoDependency: Dependency {
     var network: Network { get }

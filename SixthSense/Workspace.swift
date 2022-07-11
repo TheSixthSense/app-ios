@@ -10,6 +10,6 @@ import ProjectDescription
 let workspace = Workspace(
     name: "SixthSense",
     projects: [
-        "VegannerApp", "Storage"
+        "VegannerApp", "Storage", "Utils", "Repository"
     ]
 )

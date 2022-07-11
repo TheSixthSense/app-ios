@@ -10,11 +10,11 @@ import Foundation
 #if DEBUG
 import SwiftyBeaver
 
-final class SwiftyLogger: Loggable {
+public final class SwiftyLogger: Loggable {
   private let log = SwiftyBeaver.self
   
-  init() { }
-  func configure(with configuration: Configuration?) {
+  public init() { }
+  public func configure(with configuration: Configuration?) {
     let console = ConsoleDestination()  // log to Xcode Console
     guard let configuration = configuration else { return }
     let cloud = SBPlatformDestination(appID: configuration.value(.swiftyBeaverAppID),
@@ -25,23 +25,23 @@ final class SwiftyLogger: Loggable {
     log.addDestination(cloud)
   }
 
-  func verbose(_ message: Any) {
+  public func verbose(_ message: Any) {
     log.verbose(message)
   }
   
-  func debug(_ message: Any) {
+  public func debug(_ message: Any) {
     log.info(message)
   }
   
-  func info(_ message: Any) {
+  public func info(_ message: Any) {
     log.info(message)
   }
 
-  func warning(_ message: Any) {
+  public func warning(_ message: Any) {
     log.warning(message)
   }
 
-  func error(_ message: Any) {
+  public func error(_ message: Any) {
     log.error(message)
   }
 }

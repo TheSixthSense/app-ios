@@ -8,6 +8,6 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let project = Project.library(name: "Storage",
-                                dependencies: [],
+let project = Project.library(name: "Utils",
+                                dependencies: [.swiftyBeaver],
                                 additionalTargets: [])

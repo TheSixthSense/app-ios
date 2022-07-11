@@ -9,15 +9,13 @@ let project = Project.app(name: "VegannerApp",
                             .rxCocoa,
                             .rxRelay,
                             .rxDataSources,
-                            .alamofire,
-                            .moya,
-                            .rxMoya,
                             .snapKit,
                             .then,
                             .kingfisher,
-                            .swiftyBeaver,
                             .objectMapper,
                             .netfox,
-                            .project(target: "Storage", path: .relativeToRoot("Storage"))
+                            .project(target: "Storage", path: .relativeToRoot("Storage")),
+                            .project(target: "Repository", path: .relativeToRoot("Repository")),
+                            .project(target: "Utils", path: .relativeToRoot("Utils"))
                           ],
                           additionalTargets: [])

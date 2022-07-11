@@ -7,6 +7,8 @@
 //
 
 import RIBs
+import Repository
+import Utils
 
 class AppComponent: Component<EmptyDependency>, RootDependency {
 

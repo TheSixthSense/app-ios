@@ -7,6 +7,7 @@
 //
 
 import RIBs
+import Repository
 
 protocol RootDependency: Dependency {
     var network: Network { get }

@@ -9,6 +9,7 @@
 import netfox
 import SwiftyBeaver
 #endif
+import Utils
 import Foundation
 
 let log: Loggable = {

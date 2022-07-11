@@ -12,12 +12,13 @@ import Moya
 import RxMoya
 import RxSwift
 import Then
+import Utils
 
-final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
+public final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
   private let disposeBag: DisposeBag = DisposeBag()
   private let log: Loggable
   
-  init(intercepter: NetworkInterceptable?, logger: Loggable) {
+  public init(intercepter: NetworkInterceptable?, logger: Loggable) {
     self.log = logger
     let session = MoyaProvider<MultiTarget>.defaultAlamofireSession()
     session.sessionConfiguration.timeoutIntervalForRequest = 10
@@ -36,7 +37,7 @@ final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
     }, session: session, plugins: [])
   }
   
-  func request(_ target: TargetType,
+  public func request(_ target: TargetType,
                file: StaticString = #file,
                function: StaticString = #function,
                line: UInt = #line) -> Single<Response> {
