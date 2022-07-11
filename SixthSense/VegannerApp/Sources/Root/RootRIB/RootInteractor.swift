@@ -12,28 +12,28 @@ import RxSwift
 protocol RootRouting: ViewableRouting {
 }
 
-protocol RootPresentable: Presentable {
+public protocol RootPresentable: Presentable {
     var listener: RootPresentableListener? { get set }
 }
 
 protocol RootListener: AnyObject {
 }
 
-final class RootInteractor: PresentableInteractor<RootPresentable>, RootInteractable, RootPresentableListener {
+public final class RootInteractor: PresentableInteractor<RootPresentable>, RootInteractable, RootPresentableListener {
 
     weak var router: RootRouting?
     weak var listener: RootListener?
 
-    override init(presenter: RootPresentable) {
+    public override init(presenter: RootPresentable) {
         super.init(presenter: presenter)
         presenter.listener = self
     }
 
-    override func didBecomeActive() {
+    public override func didBecomeActive() {
         super.didBecomeActive()
     }
 
-    override func willResignActive() {
+    public override func willResignActive() {
         super.willResignActive()
     }
 }
