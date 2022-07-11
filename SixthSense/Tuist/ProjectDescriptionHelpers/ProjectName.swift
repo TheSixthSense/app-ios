@@ -15,6 +15,7 @@ public enum Module {
   case storage
   
   // Features
+  case account
   
   // Utils
   case utils
@@ -26,6 +27,7 @@ extension Module {
       case .app: return "VegannerApp"
       case .repository: return "Repository"
       case .storage: return "Storage"
+      case .account: return "Account"
       case .utils: return "Utils"
     }
   }
