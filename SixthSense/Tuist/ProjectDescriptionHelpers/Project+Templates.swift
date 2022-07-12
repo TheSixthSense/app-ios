@@ -20,6 +20,7 @@ public extension TargetDependency {
     static let swiftyBeaver: TargetDependency = .external(name: "SwiftyBeaver")
     static let objectMapper: TargetDependency = .external(name: "ObjectMapper")
     static let netfox: TargetDependency = .external(name: "netfox")
+    static let rxKeyboard: TargetDependency = .external(name: "RxKeyboard")
 }
 
 extension Project {
