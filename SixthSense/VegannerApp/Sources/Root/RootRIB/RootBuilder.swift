@@ -8,6 +8,7 @@
 
 import RIBs
 import Repository
+import Account
 
 protocol RootDependency: Dependency {
     var network: Network { get }

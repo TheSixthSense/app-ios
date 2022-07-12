@@ -10,14 +10,14 @@ import RIBs
 import RxCocoa
 import RxSwift
 
-protocol UserInfoRouting: ViewableRouting {
+public protocol UserInfoRouting: ViewableRouting {
 }
 
 protocol UserInfoPresentable: Presentable {
     var listener: UserInfoPresentableListener? { get set }
 }
 
-protocol UserInfoListener: AnyObject {
+public protocol UserInfoListener: AnyObject {
 }
 
 final class UserInfoInteractor: PresentableInteractor<UserInfoPresentable>, UserInfoInteractable, UserInfoPresentableListener {

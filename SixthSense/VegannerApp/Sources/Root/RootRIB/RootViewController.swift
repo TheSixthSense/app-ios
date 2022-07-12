@@ -10,7 +10,7 @@ import RIBs
 import RxSwift
 import UIKit
 
-protocol RootPresentableListener: AnyObject {
+public protocol RootPresentableListener: AnyObject {
 }
 
 final class RootViewController: UINavigationController, RootPresentable, RootViewControllable {

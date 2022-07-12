@@ -8,6 +8,7 @@
 
 import RIBs
 import Repository
+import Account
 
 extension RootComponent: UserInfoDependency {
 

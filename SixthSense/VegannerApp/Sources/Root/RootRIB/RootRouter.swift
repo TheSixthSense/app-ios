@@ -7,6 +7,7 @@
 //
 
 import RIBs
+import Account
 
 protocol RootInteractable: Interactable, UserInfoListener {
     var router: RootRouting? { get set }
