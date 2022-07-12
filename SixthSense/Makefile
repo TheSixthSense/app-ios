@@ -8,7 +8,7 @@ update:
 	tuist generate
 
 open:
-	open SixthSense.xcworkspace
+	tuist generate
 
 clean:
 	tuist clean
