@@ -10,7 +10,21 @@ import UIKit
 
 public final class AppTextField: UITextField {
 
-    public override init(frame: CGRect) {
+    /// placeholder 적용
+    public var placeholderString: String = "" {
+        willSet {
+            attributedPlaceholder = NSAttributedString(
+                string: newValue,
+                attributes: [.foregroundColor: AppColor.systemGray500, .font: AppFont.body1]
+            )
+        }
+    }
+
+    public convenience init() {
+        self.init(frame: .zero)
+    }
+
+    override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
     }
@@ -27,7 +41,7 @@ public final class AppTextField: UITextField {
     }
 }
 
-extension AppTextField {
+private extension AppTextField {
 
     private func configure() {
         textColor = .systemBlack
