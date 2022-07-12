@@ -170,41 +170,13 @@ extension Project {
     ) -> Project {
         let settings: Settings = makeAppSettings()
 
-        var targets: [Target]
-
-        if hasResources {
-            targets = [
-                Target(
-                    name: name,
-                    platform: .iOS,
-                    product: .staticLibrary,
-                    bundleId: "\(organizationName).\(name)",
-                    deploymentTarget: .iOS(targetVersion: "13.0",
-                                           devices: [.iphone]),
-                    infoPlist: .file(path: .relativeToRoot("Supporting Files/Info.plist")),
-                    sources: ["Sources/**"],
-                    resources: ["Resources/**"],
-                    dependencies: dependencies,
-                    settings: settings
-                )
-            ]
-        } else {
-            targets = [
-                Target(
-                    name: name,
-                    platform: .iOS,
-                    product: .staticLibrary,
-                    bundleId: "\(organizationName).\(name)",
-                    deploymentTarget: .iOS(targetVersion: "13.0",
-                                           devices: [.iphone]),
-                    infoPlist: .file(path: .relativeToRoot("Supporting Files/Info.plist")),
-                    sources: ["Sources/**"],
-                    dependencies: dependencies,
-                    settings: settings
-                )
-            ]
-        }
-
+        let targets: [Target] = makeLibraryTargets(
+            name: name,
+            dependencies: dependencies,
+            additionalTargets: additionalTargets,
+            settings: settings,
+            hasResources: hasResources
+        )
 
         let schemes: [Scheme] = [
             Scheme(
@@ -224,5 +196,48 @@ extension Project {
                        settings: settings,
                        targets: targets,
                        schemes: schemes)
+    }
+
+
+    private static func makeLibraryTargets(
+        name: String,
+        dependencies: [TargetDependency],
+        additionalTargets: [String],
+        settings: Settings,
+        hasResources: Bool
+    ) -> [Target] {
+
+        if !hasResources {
+            return [
+                Target(
+                    name: name,
+                    platform: .iOS,
+                    product: .staticLibrary,
+                    bundleId: "\(Project.organizationName).\(name)",
+                    deploymentTarget: .iOS(targetVersion: "13.0",
+                                           devices: [.iphone]),
+                    infoPlist: .file(path: .relativeToRoot("Supporting Files/Info.plist")),
+                    sources: ["Sources/**"],
+                    dependencies: dependencies,
+                    settings: settings
+                )
+            ]
+        } else {
+            return [
+                Target(
+                    name: name,
+                    platform: .iOS,
+                    product: .staticLibrary,
+                    bundleId: "\(Project.organizationName).\(name)",
+                    deploymentTarget: .iOS(targetVersion: "13.0",
+                                           devices: [.iphone]),
+                    infoPlist: .file(path: .relativeToRoot("Supporting Files/Info.plist")),
+                    sources: ["Sources/**"],
+                    resources: ["Resources/**"],
+                    dependencies: dependencies,
+                    settings: settings
+                )
+            ]
+        }
     }
 }
