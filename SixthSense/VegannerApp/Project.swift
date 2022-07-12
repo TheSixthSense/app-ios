@@ -14,7 +14,8 @@ let project = Project.app(
     .then,
     .kingfisher,
     .objectMapper,
-    .netfox
-  ] + [Module.storage, .repository, .utils, .account].map(\.project),
+    .netfox,
+    .rxKeyboard
+  ] + [Module.storage, .repository, .utils, .account, .designSystem].map(\.project),
   additionalTargets: []
 )

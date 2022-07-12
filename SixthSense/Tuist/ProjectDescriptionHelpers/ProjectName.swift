@@ -19,6 +19,9 @@ public enum Module {
   
   // Utils
   case utils
+
+  // Design
+  case designSystem
 }
 
 extension Module {
@@ -29,6 +32,7 @@ extension Module {
       case .storage: return "Storage"
       case .account: return "Account"
       case .utils: return "Utils"
+      case .designSystem : return "DesignSystem"
     }
   }
   

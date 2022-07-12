@@ -8,7 +8,8 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let project = Project.library(name: "DesignSystem",
-                              dependencies: [],
-                              additionalTargets: [],
-                              hasResources: true)
+let project = Project.library(
+    name: Module.designSystem.name,
+    dependencies: [],
+    additionalTargets: [],
+    hasResources: true)
