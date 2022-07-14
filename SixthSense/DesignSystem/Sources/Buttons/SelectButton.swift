@@ -16,10 +16,15 @@ public enum SelectButtonType {
 public final class SelectButton: UIButton, ButtonProtocol {
 
     public var hasFocused: Bool = false {
-        willSet {
-            backgroundColor = newValue ? .green100 : .white
-            titleColor = newValue ? .green700 : .systemGray500
-            borderColor = newValue ? .main : .systemGray300
+        didSet {
+            _hasFocused = hasFocused
+        }
+    }
+
+    private var _hasFocused: Bool = false {
+        didSet {
+            let title = titleLabel?.text ?? ""
+            _hasFocused ? setButtonTitle(with: title) : setButtonTitleFocused(with: title)
         }
     }
 
@@ -39,7 +44,7 @@ public final class SelectButton: UIButton, ButtonProtocol {
         super.init(frame: frame)
     }
 
-    public convenience init(title: String, type: SelectButtonType) {
+    public convenience init(title: String, type: SelectButtonType = .singleLine) {
         self.init(frame: .zero)
         layer.borderWidth = 1
         layer.cornerRadius = 5
@@ -53,10 +58,29 @@ public final class SelectButton: UIButton, ButtonProtocol {
     }
 
     func setButtonTitle(with string: String) {
+
+        backgroundColor = .white
+        titleColor = .systemGray500
+        borderColor = .systemGray300
+
+        setAttributedTitle(NSAttributedString(
+            string: string,
+            attributes: [.font: AppFont.body1]
+        ), for: .normal)
+
+        setTitleColor(titleColor, for: .normal)
+    }
+
+    func setButtonTitleFocused(with string: String) {
+        backgroundColor = .green100
+        titleColor = .green700
+        borderColor = .main
+
         setAttributedTitle(NSAttributedString(
             string: string,
             attributes: [.font: AppFont.body1Bold]
         ), for: .normal)
+
         setTitleColor(titleColor, for: .normal)
     }
 }
