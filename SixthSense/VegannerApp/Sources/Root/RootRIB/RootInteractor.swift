@@ -9,8 +9,7 @@
 import RIBs
 import RxSwift
 
-protocol RootRouting: ViewableRouting {
-}
+protocol RootRouting: ViewableRouting {}
 
 public protocol RootPresentable: Presentable {
     var listener: RootPresentableListener? { get set }

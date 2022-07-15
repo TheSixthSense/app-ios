@@ -1,5 +1,5 @@
 //
-//  RootComponent+UserInfo.swift
+//  RootComponent+Splash.swift
 //  SixthSense
 //
 //  Created by Allie Kim on 2022/07/03.
@@ -9,10 +9,8 @@
 import RIBs
 import Repository
 import Account
+import Splash
 
-extension RootComponent: UserInfoDependency {
-
-    var network: Network {
-        return self.dependency.network
-    }
+extension RootComponent: SplashDependency {
+    var network: Network { dependency.network }
 }
