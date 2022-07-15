@@ -12,4 +12,5 @@ let project = Project.library(
     name: Module.designSystem.name,
     dependencies: [],
     additionalTargets: [],
-    hasResources: true)
+    resources: .default
+)
