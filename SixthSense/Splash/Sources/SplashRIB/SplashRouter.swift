@@ -1,0 +1,45 @@
+//
+//  SplashRouter.swift
+//  VegannerAppDev
+//
+//  Created by 문효재 on 2022/07/12.
+//  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
+//
+
+import RIBs
+import UIKit
+import Account
+
+protocol SplashInteractable: Interactable, UserInfoListener, SignInListener {
+    var router: SplashRouting? { get set }
+    var listener: SplashListener? { get set }
+}
+
+protocol SplashViewControllable: ViewControllable { }
+
+final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControllable>, SplashRouting {
+    private let userInfoBuilder: UserInfoBuildable
+    
+    private var userInfoRouting: ViewableRouting?
+    
+    public init(
+        interactor: SplashInteractable,
+        viewController: SplashViewControllable,
+        userInfoBuilder: UserInfoBuildable,
+    ) {
+        self.userInfoBuilder = userInfoBuilder
+        super.init(interactor: interactor, viewController: viewController)
+        interactor.router = self
+    }
+    
+    func attachUserInfo() {
+        if userInfoRouting != nil { return }
+        
+        let router = userInfoBuilder.build(withListener: interactor)
+        let viewController = router.viewControllable
+        viewController.uiviewController.modalPresentationStyle = .fullScreen
+        viewControllable.present(viewController, animated: false)
+        attachChild(router)
+        self.userInfoRouting = router
+    }
+}

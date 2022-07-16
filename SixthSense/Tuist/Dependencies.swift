@@ -19,6 +19,7 @@ let dependencies = Dependencies(
             .swiftyBeaver,
             .objectMapper,
             .netfox,
+            .lottie,
             .rxKeyboard
     ],
     platforms: [.iOS]
@@ -36,5 +37,6 @@ public extension Package {
     static let swiftyBeaver: Package = .remote(url: "https://github.com/SwiftyBeaver/SwiftyBeaver", requirement: .upToNextMajor(from: "1.9.0"))
     static let objectMapper: Package = .remote(url: "https://github.com/tristanhimmelman/ObjectMapper.git", requirement: .upToNextMajor(from: "4.1.0"))
     static let netfox: Package = .remote(url: "https://github.com/kasketis/netfox.git", requirement: .upToNextMajor(from: "1.21.0"))
+    static let lottie: Package = .remote(url: "https://github.com/airbnb/lottie-ios.git", requirement: .upToNextMajor(from: "3.2.1"))
     static let rxKeyboard: Package = .remote(url: "https://github.com/RxSwiftCommunity/RxKeyboard", requirement: .upToNextMajor(from: "2.0.0"))
 }

@@ -16,6 +16,6 @@ let project = Project.app(
     .objectMapper,
     .netfox,
     .rxKeyboard
-  ] + [Module.storage, .repository, .utils, .account, .designSystem].map(\.project),
+  ] + [Module.storage, .repository, .utils, .account, .designSystem, .splash].map(\.project),
   additionalTargets: []
 )

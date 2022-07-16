@@ -16,6 +16,7 @@ public enum Module {
   
   // Features
   case account
+  case splash
   
   // Utils
   case utils
@@ -32,6 +33,7 @@ extension Module {
       case .storage: return "Storage"
       case .account: return "Account"
       case .utils: return "Utils"
+      case .splash: return "Splash"
       case .designSystem : return "DesignSystem"
     }
   }

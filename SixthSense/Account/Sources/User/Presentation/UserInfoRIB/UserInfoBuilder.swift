@@ -26,7 +26,7 @@ final class UserInfoComponent: Component<UserInfoDependency> {
 
 // MARK: - Builder
 
-protocol UserInfoBuildable: Buildable {
+public protocol UserInfoBuildable: Buildable {
     func build(withListener listener: UserInfoListener) -> UserInfoRouting
 }
 

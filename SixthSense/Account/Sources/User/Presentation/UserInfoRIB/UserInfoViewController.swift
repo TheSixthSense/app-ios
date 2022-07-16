@@ -53,7 +53,7 @@ final class UserInfoViewController: UIViewController, UserInfoPresentable, UserI
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        view.backgroundColor = .white
         view.addSubview(userTableView)
         bindUI()
     }

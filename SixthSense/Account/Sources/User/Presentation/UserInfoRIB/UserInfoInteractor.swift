@@ -17,8 +17,7 @@ protocol UserInfoPresentable: Presentable {
     var listener: UserInfoPresentableListener? { get set }
 }
 
-public protocol UserInfoListener: AnyObject {
-}
+public protocol UserInfoListener: AnyObject {}
 
 final class UserInfoInteractor: PresentableInteractor<UserInfoPresentable>, UserInfoInteractable, UserInfoPresentableListener {
 
@@ -55,7 +54,9 @@ final class UserInfoInteractor: PresentableInteractor<UserInfoPresentable>, User
         .compactMap({ $0.compactMap({ UserTableViewModel(model: $0) }) })
         // UserTableViewModel -> [UserItemsSection]
         .map({ [UserItemsSection(model: 0, items: $0)] })
-            .bind(to: userInfoRelay)
-            .disposed(by: disposeBag)
+        .subscribe(onNext: { [weak self] in
+            self?.userInfoRelay.accept($0)
+        })
+        .disposeOnDeactivate(interactor: self)
     }
 }

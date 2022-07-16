@@ -8,43 +8,49 @@
 
 import RIBs
 import Account
+import Then
+import Splash
 
-protocol RootInteractable: Interactable, UserInfoListener {
+protocol RootInteractable: Interactable, SplashListener {
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
 
-protocol RootViewControllable: NavigateViewControllable {
-    func push(viewController: ViewControllable, animation: Bool)
-    func pop(viewController: ViewControllable, animation: Bool)
-}
+protocol RootViewControllable: ViewControllable {}
 
 final class RootRouter: LaunchRouter<RootInteractable, RootViewControllable>, RootRouting {
 
-    private let userInfoBuilder: UserInfoBuilder
+    private let splashBuilder: SplashBuildable
 
-    private var userInfoRouter: ViewableRouting?
-
+    private var splashRouter: SplashRouting?
+    
     init(
         interactor: RootInteractable,
         viewController: RootViewControllable,
-        userInfoBuilder: UserInfoBuilder
+        splashBuilder: SplashBuildable
     ) {
-        self.userInfoBuilder = userInfoBuilder
+        self.splashBuilder = splashBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
-
+    
     override func didLoad() {
         super.didLoad()
 
-        routeToUserInfo()
+        attachSplash()
     }
 
-    private func routeToUserInfo() {
-        let userInfoRouter = userInfoBuilder.build(withListener: interactor)
-        self.userInfoRouter = userInfoRouter
-        attachChild(userInfoRouter)
-        viewController.push(viewController: userInfoRouter.viewControllable, animation: true)
+    
+    private func attachSplash() {
+        if splashRouter != nil { return }
+        
+        let router = splashBuilder.build(withListener: interactor)
+        let viewController = router.viewControllable
+        viewController.uiviewController.modalPresentationStyle = .fullScreen
+        
+        viewControllable.present(viewController, animated: false)
+        attachChild(router)
+        self.splashRouter = router
+
     }
 }
