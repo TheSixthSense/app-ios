@@ -20,7 +20,8 @@ let dependencies = Dependencies(
             .objectMapper,
             .netfox,
             .lottie,
-            .rxKeyboard
+            .rxKeyboard,
+			.rxAppState,
     ],
     platforms: [.iOS]
 )
@@ -39,4 +40,5 @@ public extension Package {
     static let netfox: Package = .remote(url: "https://github.com/kasketis/netfox.git", requirement: .upToNextMajor(from: "1.21.0"))
     static let lottie: Package = .remote(url: "https://github.com/airbnb/lottie-ios.git", requirement: .upToNextMajor(from: "3.2.1"))
     static let rxKeyboard: Package = .remote(url: "https://github.com/RxSwiftCommunity/RxKeyboard", requirement: .upToNextMajor(from: "2.0.0"))
+    static let rxAppState: Package = .remote(url: "https://github.com/pixeldock/RxAppState", requirement: .upToNextMajor(from: "1.7.1"))
 }
