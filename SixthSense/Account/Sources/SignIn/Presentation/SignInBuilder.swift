@@ -11,6 +11,7 @@ import Repository
 
 public protocol SignInDependency: Dependency {
     var network: Network { get }
+    var usecase: SignInUseCase { get }
 }
 
 final class SignInComponent: Component<SignInDependency> {

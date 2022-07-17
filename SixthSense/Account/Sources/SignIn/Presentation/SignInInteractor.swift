@@ -8,6 +8,7 @@
 
 import RIBs
 import RxSwift
+import AuthenticationServices
 
 public protocol SignInRouting: ViewableRouting {
 }
@@ -40,4 +41,16 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
         super.willResignActive()
     }
     
+    func signIn() {
+        dependency.usecase
+            .signInWithApple()
+            .subscribe(onNext: {
+                guard let identityToken = $0.identityToken else { return }
+                // FIXME: 테스트를 위한 로그들입니다 추후 제거 예정
+                print("🦊\(String(data: identityToken, encoding: .utf8))")
+                print("🦊\($0.email)")
+                print("🦊\($0.fullName)")
+            })
+            .disposeOnDeactivate(interactor: self)
+    }
 }
