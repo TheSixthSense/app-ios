@@ -17,6 +17,7 @@ import AuthenticationServices
 
 protocol SignInPresentableListener: AnyObject {
     func signIn()
+    func skip()
 }
 
 final class SignInViewController: UIViewController, SignInPresentable, SignInViewControllable {
@@ -51,6 +52,7 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
         $0.titleLabel?.textColor = .white
         $0.backgroundColor = .main
         $0.layer.cornerRadius = 5
+        $0.addTarget(self, action: #selector(skipButtonDidTap), for: .touchUpInside)
     }
     
     override func viewDidLoad() {
@@ -99,5 +101,10 @@ extension SignInViewController {
     @objc
     private func signInWithApple() {
         self.listener?.signIn()
+    }
+    
+    @objc
+    private func skipButtonDidTap() {
+        self.listener?.skip()
     }
 }

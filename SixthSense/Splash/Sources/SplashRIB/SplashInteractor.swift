@@ -12,6 +12,7 @@ import RxSwift
 public protocol SplashRouting: ViewableRouting {
     func attachUserInfo()
     func attachSignIn()
+    func detachSignIn()
 }
 
 protocol SplashPresentable: Presentable {
@@ -60,5 +61,10 @@ extension SplashInteractor {
     // FIXME: 아직 구현이 안된 메소드입니다
     private func shouldShowSignInView() -> Bool {
         return true
+    }
+    
+    func SignInDidTapClose() {
+        router?.detachSignIn()
+        router?.attachUserInfo()
     }
 }

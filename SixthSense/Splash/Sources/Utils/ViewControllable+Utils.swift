@@ -30,8 +30,8 @@ public extension ViewControllable {
         self.uiviewController.present(viewControllable.uiviewController, animated: animated, completion: completion)
     }
     
-    func dismiss(completion: (() -> Void)?) {
-        self.uiviewController.dismiss(animated: true, completion: completion)
+    func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
+        self.uiviewController.dismiss(animated: animated, completion: completion)
     }
     
     func pushViewController(_ viewControllable: ViewControllable, animated: Bool) {

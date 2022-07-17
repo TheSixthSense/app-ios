@@ -57,4 +57,11 @@ final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControlla
         attachChild(router)
         self.signInRouting = router
     }
+    
+    func detachSignIn() {
+        guard let router = signInRouting else { return }
+        router.viewControllable.dismiss(animated: false)
+        detachChild(router)
+        self.signInRouting = nil
+    }
 }
