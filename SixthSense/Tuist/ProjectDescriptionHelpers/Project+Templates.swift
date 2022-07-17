@@ -22,6 +22,7 @@ public extension TargetDependency {
     static let netfox: TargetDependency = .external(name: "netfox")
     static let rxKeyboard: TargetDependency = .external(name: "RxKeyboard")
     static let lottie: TargetDependency = .external(name: "Lottie")
+    static let rxAppState: TargetDependency = .external(name: "RxAppState")
 }
 
 extension Project {
