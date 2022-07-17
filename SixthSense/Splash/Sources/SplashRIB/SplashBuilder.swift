@@ -36,12 +36,14 @@ public final class SplashBuilder: Builder<SplashDependency>, SplashBuildable {
         let interactor = SplashInteractor(presenter: viewController)
         
         let userInfoBuilder = UserInfoBuilder(dependency: component)
+        let signInBuilder = SignInBuilder(dependency: component)
         
         interactor.listener = listener
         return SplashRouter(
             interactor: interactor,
             viewController: viewController,
             userInfoBuilder: userInfoBuilder,
+            signInBuilder: signInBuilder
         )
     }
 }
