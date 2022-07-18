@@ -36,13 +36,13 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
     private var signUpPageView: SignUpPageViewController
 
     private lazy var stepIconImageView = UIImageView().then { view in
-        view.image = UIImage(asset: VegannerAppDevAsset.iconStep01)
+        view.image = AppImage.signUpIcon1.image
         view.contentMode = .scaleAspectFit
         view.clipsToBounds = true
     }
 
     private lazy var backButton = UIButton().then { button in
-        button.setImage(VegannerAppDevAsset.backButton.image, for: .normal)
+        button.setImage(AppIcon.back, for: .normal)
     }
 
     private lazy var navigationTitle = AppLabel().then { label in
@@ -77,7 +77,7 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-        
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -210,22 +210,22 @@ extension SignUpViewController {
         switch step {
         case .one:
             navigationTitle.text = "step 1"
-            stepIconImageView.image = UIImage(asset: VegannerAppDevAsset.iconStep01)
+            stepIconImageView.image = AppImage.signUpIcon1.image
             stepProgressBar.setProgress(0.25, animated: true)
             stepProgressLabel.text = "25%"
         case .two:
             navigationTitle.text = "step 2"
-            stepIconImageView.image = UIImage(asset: VegannerAppDevAsset.iconStep02)
+            stepIconImageView.image = AppImage.signUpIcon2.image
             stepProgressBar.setProgress(0.5, animated: true)
             stepProgressLabel.text = "50%"
         case .three:
             navigationTitle.text = "step 3"
-            stepIconImageView.image = UIImage(asset: VegannerAppDevAsset.iconStep03)
+            stepIconImageView.image = AppImage.signUpIcon3.image
             stepProgressBar.setProgress(0.75, animated: true)
             stepProgressLabel.text = "75%"
         case .four:
             navigationTitle.text = "step 4"
-            stepIconImageView.image = UIImage(asset: VegannerAppDevAsset.iconStep04)
+            stepIconImageView.image = AppImage.signUpIcon4.image
             stepProgressBar.setProgress(1.0, animated: true)
             stepProgressLabel.text = "100%"
         }
