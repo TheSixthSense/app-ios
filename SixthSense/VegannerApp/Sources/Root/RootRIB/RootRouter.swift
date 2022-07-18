@@ -22,7 +22,7 @@ final class RootRouter: LaunchRouter<RootInteractable, RootViewControllable>, Ro
 
     private let splashBuilder: SplashBuildable
 
-    private var splashRouter: SplashRouting?
+    private var childRouting: SplashRouting?
     
     init(
         interactor: RootInteractable,
@@ -42,7 +42,7 @@ final class RootRouter: LaunchRouter<RootInteractable, RootViewControllable>, Ro
 
     
     private func attachSplash() {
-        if splashRouter != nil { return }
+        if childRouting != nil { return }
         
         let router = splashBuilder.build(withListener: interactor)
         let viewController = router.viewControllable
@@ -50,7 +50,7 @@ final class RootRouter: LaunchRouter<RootInteractable, RootViewControllable>, Ro
         
         viewControllable.present(viewController, animated: false)
         attachChild(router)
-        self.splashRouter = router
+        self.childRouting = router
 
     }
 }

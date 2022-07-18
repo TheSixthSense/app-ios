@@ -96,6 +96,7 @@ extension Project {
             infoPlist: .file(path: "Supporting Files/Info.plist"),
             sources: ["Sources/**"],
             resources: ["Resources/**"],
+            entitlements: .relativeToRoot("\(name)/\(name)Dev.entitlements"),
             dependencies: dependencies,
             settings: settings
         )

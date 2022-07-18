@@ -16,6 +16,13 @@ public protocol SplashDependency: Dependency {
 
 final class SplashComponent: Component<SplashDependency>, UserInfoDependency, SignInDependency {
     var network: Network { dependency.network }
+    var usecase: SignInUseCase
+    
+    override init(dependency: SplashDependency) {
+        // TODO: SignInUseCase는 어디서 주입해야할지 고민해보기
+        self.usecase = SignInUseCaseImpl()
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
@@ -36,12 +43,14 @@ public final class SplashBuilder: Builder<SplashDependency>, SplashBuildable {
         let interactor = SplashInteractor(presenter: viewController)
         
         let userInfoBuilder = UserInfoBuilder(dependency: component)
+        let signInBuilder = SignInBuilder(dependency: component)
         
         interactor.listener = listener
         return SplashRouter(
             interactor: interactor,
             viewController: viewController,
             userInfoBuilder: userInfoBuilder,
+            signInBuilder: signInBuilder
         )
     }
 }

@@ -26,11 +26,6 @@ final class SplashViewController: UIViewController, SplashPresentable, SplashVie
         $0.play()
     }
     
-//    private let logoImage = UIImageView().then {
-//        $0.contentMode = .scaleAspectFit
-//        $0.image = .init(systemName:  "plus.rectangle")
-//    }
-    
     override func viewDidLoad() {
         configureUI()
     }

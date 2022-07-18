@@ -10,7 +10,7 @@ import ProjectDescriptionHelpers
 
 let project = Project.library(
     name: Module.designSystem.name,
-    dependencies: [],
+    dependencies: [.lottie],
     additionalTargets: [],
     resources: .default
 )
