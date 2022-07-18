@@ -88,8 +88,7 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
         }
         
         skipButton.snp.makeConstraints {
-            $0.left.equalToSuperview().offset(16)
-            $0.right.equalToSuperview().offset(-16)
+            $0.left.right.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().offset(-92)
             $0.height.equalTo(50)
         }

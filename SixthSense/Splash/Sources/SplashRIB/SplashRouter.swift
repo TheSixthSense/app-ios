@@ -21,8 +21,7 @@ final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControlla
     private let userInfoBuilder: UserInfoBuildable
     private let signInBuilder: SignInBuildable
     
-    private var userInfoRouting: ViewableRouting?
-    private var signInRouting: ViewableRouting?
+    private var childRouting: ViewableRouting?
     
     public init(
         interactor: SplashInteractable,
@@ -37,31 +36,31 @@ final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControlla
     }
     
     func attachUserInfo() {
-        if userInfoRouting != nil { return }
+        if childRouting != nil { return }
         
         let router = userInfoBuilder.build(withListener: interactor)
         let viewController = router.viewControllable
         viewController.uiviewController.modalPresentationStyle = .fullScreen
         viewControllable.present(viewController, animated: false)
         attachChild(router)
-        self.userInfoRouting = router
+        self.childRouting = router
     }
     
     func attachSignIn() {
-        if signInRouting != nil { return }
+        if childRouting != nil { return }
         
         let router = signInBuilder.build(withListener: interactor)
         let viewController = router.viewControllable
         viewController.uiviewController.modalPresentationStyle = .fullScreen
         viewControllable.present(viewController, animated: false)
         attachChild(router)
-        self.signInRouting = router
+        self.childRouting = router
     }
     
     func detachSignIn() {
-        guard let router = signInRouting else { return }
+        guard let router = childRouting else { return }
         router.viewControllable.dismiss(animated: false)
         detachChild(router)
-        self.signInRouting = nil
+        self.childRouting = nil
     }
 }
