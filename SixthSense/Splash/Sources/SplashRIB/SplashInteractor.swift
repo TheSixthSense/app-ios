@@ -63,7 +63,7 @@ extension SplashInteractor {
         return true
     }
     
-    func SignInDidTapClose() {
+    func signInDidTapClose() {
         router?.detachSignIn()
         router?.attachUserInfo()
     }

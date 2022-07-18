@@ -18,7 +18,7 @@ protocol SignInPresentable: Presentable {
 }
 
 public protocol SignInListener: AnyObject {
-    func SignInDidTapClose()
+    func signInDidTapClose()
 }
 
 final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInInteractable, SignInPresentableListener {
@@ -55,6 +55,6 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
     }
     
     func skip() {
-        listener?.SignInDidTapClose()
+        listener?.signInDidTapClose()
     }
 }
