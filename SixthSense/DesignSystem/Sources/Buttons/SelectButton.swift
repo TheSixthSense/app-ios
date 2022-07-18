@@ -17,14 +17,8 @@ public final class SelectButton: UIButton, ButtonProtocol {
 
     public var hasFocused: Bool = false {
         didSet {
-            _hasFocused = hasFocused
-        }
-    }
-
-    private var _hasFocused: Bool = false {
-        didSet {
             let title = titleLabel?.text ?? ""
-            _hasFocused ? setButtonTitle(with: title) : setButtonTitleFocused(with: title)
+            hasFocused ? setButtonTitle(with: title) : setButtonTitleFocused(with: title)
         }
     }
 

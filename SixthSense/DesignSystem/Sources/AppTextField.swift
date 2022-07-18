@@ -10,11 +10,7 @@ import UIKit
 
 public final class AppTextField: UITextField {
 
-    public var maxLength: Int = 0 {
-        willSet {
-            _maxLength = newValue
-        }
-    }
+    public var maxLength: Int = 0
 
     public var isValidText: Bool = true {
         willSet {
@@ -39,8 +35,6 @@ public final class AppTextField: UITextField {
             )
         }
     }
-
-    private var _maxLength: Int = 0
 
     private lazy var errorLabel: UILabel = {
         let label = UILabel()
@@ -107,7 +101,7 @@ private extension AppTextField {
     @objc
     private func checkMaxLength() {
         guard let text = self.text else { return }
-        if text.count > _maxLength {
+        if text.count > maxLength {
             deleteBackward()
         }
     }

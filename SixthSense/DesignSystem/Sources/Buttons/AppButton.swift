@@ -13,14 +13,8 @@ public final class AppButton: UIButton, ButtonProtocol {
     /// .touchUpInside event때 사용
     public var hasFocused: Bool = false {
         didSet {
-            _hasFocused = hasFocused
-        }
-    }
-
-    private var _hasFocused: Bool = false {
-        didSet {
-            backgroundColor = _hasFocused ? .main : .systemGray100
-            titleColor = _hasFocused ? .white : .systemGray300
+            backgroundColor = hasFocused ? .main : .systemGray100
+            titleColor = hasFocused ? .white : .systemGray300
         }
     }
 
