@@ -15,7 +15,7 @@ public protocol SplashDependency: Dependency {
     var userRepository: UserRepository { get }
 }
 
-final class SplashComponent: Component<SplashDependency>, SignUpDependency, SignInDependency {
+final class SplashComponent: Component<SplashDependency>, UserInfoDependency, SignInDependency {
     var network: Network { dependency.network }
     var usecase: SignInUseCase
     
@@ -43,14 +43,14 @@ public final class SplashBuilder: Builder<SplashDependency>, SplashBuildable {
         let viewController = SplashViewController()
         let interactor = SplashInteractor(presenter: viewController)
         
-        let signUpBuilder = SignUpBuilder(dependency: component)
+        let userInfoBuilder = UserInfoBuilder(dependency: component)
         let signInBuilder = SignInBuilder(dependency: component)
         
         interactor.listener = listener
         return SplashRouter(
             interactor: interactor,
             viewController: viewController,
-            signUpBuilder: signUpBuilder,
+            userInfoBuilder: userInfoBuilder,
             signInBuilder: signInBuilder
         )
     }
