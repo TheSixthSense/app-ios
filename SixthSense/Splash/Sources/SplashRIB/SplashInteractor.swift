@@ -10,7 +10,7 @@ import RIBs
 import RxSwift
 
 public protocol SplashRouting: ViewableRouting {
-    func attachSignUp()
+    func attachUserInfo()
     func attachSignIn()
     func detachSignIn()
 }
@@ -54,7 +54,7 @@ extension SplashInteractor {
         if shouldShowSignInView() {
             router?.attachSignIn()
         } else {
-            router?.attachSignUp()
+            router?.attachUserInfo()
         }
     }
     
@@ -65,6 +65,6 @@ extension SplashInteractor {
     
     func signInDidTapClose() {
         router?.detachSignIn()
-        router?.attachSignUp()
+        router?.attachUserInfo()
     }
 }

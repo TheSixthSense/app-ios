@@ -10,7 +10,7 @@ import RIBs
 import UIKit
 import Account
 
-protocol SplashInteractable: Interactable, SignUpListener, SignInListener {
+protocol SplashInteractable: Interactable, UserInfoListener, SignInListener {
     var router: SplashRouting? { get set }
     var listener: SplashListener? { get set }
 }
@@ -18,7 +18,7 @@ protocol SplashInteractable: Interactable, SignUpListener, SignInListener {
 protocol SplashViewControllable: ViewControllable { }
 
 final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControllable>, SplashRouting {
-    private let signUpBuilder: SignUpBuildable
+    private let userInfoBuilder: UserInfoBuildable
     private let signInBuilder: SignInBuildable
     
     private var childRouting: ViewableRouting?
@@ -26,19 +26,19 @@ final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControlla
     public init(
         interactor: SplashInteractable,
         viewController: SplashViewControllable,
-        signUpBuilder: SignUpBuildable,
+        userInfoBuilder: UserInfoBuildable,
         signInBuilder: SignInBuildable
     ) {
-        self.signUpBuilder = signUpBuilder
+        self.userInfoBuilder = userInfoBuilder
         self.signInBuilder = signInBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
     
-    func attachSignUp() {
+    func attachUserInfo() {
         if childRouting != nil { return }
         
-        let router = signUpBuilder.build(withListener: interactor)
+        let router = userInfoBuilder.build(withListener: interactor)
         let viewController = router.viewControllable
         viewController.uiviewController.modalPresentationStyle = .fullScreen
         viewControllable.present(viewController, animated: false)
