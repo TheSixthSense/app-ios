@@ -8,15 +8,9 @@
 
 import RIBs
 
-public protocol SignUpDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
-}
+public protocol SignUpDependency: Dependency { }
 
-final class SignUpComponent: Component<SignUpDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
-}
+final class SignUpComponent: Component<SignUpDependency> { }
 
 // MARK: - Builder
 

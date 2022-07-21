@@ -15,30 +15,18 @@ import RxKeyboard
 import Then
 import UIKit
 
-enum SignUpStep {
-    case one
-    case two
-    case three
-    case four
-}
-
-protocol SignUpPresentableListener: AnyObject {
-}
+protocol SignUpPresentableListener: AnyObject { }
 
 final class SignUpViewController: UIViewController, SignUpPresentable, SignUpViewControllable {
 
-    func changeButtonState(_ state: Bool) {
-        bottomButton.hasFocused = state
-    }
-
-    weak var listener: SignUpPresentableListener?
+    // MARK: - UI
 
     private var signUpPageView: SignUpPageViewController
 
     private lazy var stepIconImageView = UIImageView().then { view in
         view.image = AppImage.signUpIcon1.image
         view.contentMode = .scaleAspectFit
-        view.clipsToBounds = true
+        view.clipsToBounds = false
     }
 
     private lazy var backButton = UIButton().then { button in
@@ -55,19 +43,32 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
     }
 
     private lazy var stepProgressBar = UIProgressView().then { view in
-        view.progress = 0.25
+        view.layer.sublayers![1].cornerRadius = 5
+        view.subviews[1].clipsToBounds = true
+        view.progress = progressPositions[0]
         view.progressTintColor = .main
-        view.progressViewStyle = .default
+        view.layer.backgroundColor = AppColor.systemGray100.cgColor
     }
 
     private lazy var stepProgressLabel = AppLabel().then { label in
-        label.setText("25%", font: AppFont.caption)
+        label.setText("\(Int(progressPositions[0] * 100))%", font: AppFont.caption)
         label.textColor = .main
     }
 
-    private lazy var bottomButton = AppButton(title: "다음")
+    private lazy var bottomButton = AppButton(title: "다음").then { button in
+        button.hasFocused = false
+    }
 
+    // MARK: - Vars
+
+    weak var listener: SignUpPresentableListener?
+
+    private let progressPositions: [Float] = [0.25, 0.5, 0.75, 1]
     private let disposeBag = DisposeBag()
+
+    private var signUpRequestModel: SignUpRequestModel?
+
+    // MARK: - LifeCycle
 
     init() {
         signUpPageView = SignUpPageViewController()
@@ -83,20 +84,10 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
 
         configureUI()
         bindUI()
-
-        NotificationCenter.default.rx
-            .notification(.bottomButtonState)
-            .asDriver(onErrorDriveWith: .empty())
-            .drive(onNext: { noti in
-
-            let state = noti.object as? Bool ?? false
-            self.bottomButton.hasFocused = state
-
-        }).disposed(by: disposeBag)
     }
 }
 
-extension SignUpViewController {
+private extension SignUpViewController {
 
     private func configureUI() {
         navigationController?.navigationBar.isHidden = true
@@ -139,10 +130,12 @@ extension SignUpViewController {
 
         stepProgressLabel.snp.makeConstraints { make in
             make.top.equalTo(stepProgressBar.snp.bottom).offset(2)
+            make.centerX.equalTo(stepProgressBar.subviews[1].snp.right)
         }
 
         stepIconImageView.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(32)
+            make.size.equalTo(80)
             make.top.equalTo(stepProgressBar.snp.bottom).offset(40)
         }
 
@@ -158,6 +151,7 @@ extension SignUpViewController {
     }
 
     private func bindUI() {
+
         rx.viewDidLayoutSubviews
             .take(1)
             .bind(onNext: {
@@ -170,11 +164,38 @@ extension SignUpViewController {
                 self?.stepChanged(step)
             }).disposed(by: disposeBag)
 
-        updateBottomButton()
+        bottomButton.rx.tap
+            .bind(onNext: { [weak self] in
+            guard self?.signUpPageView.goToNextPage() == true else {
+                // 확인 버튼
+                // TODO: - request API
 
+                return
+            }
+        }).disposed(by: disposeBag)
+
+        backButton.rx
+            .tap
+            .bind(onNext: { [weak self] in
+            self?.signUpPageView.goToPreviousPage()
+        }).disposed(by: disposeBag)
+
+        NotificationCenter.default.rx
+            .notification(.bottomButtonState)
+            .distinctUntilChanged()
+            .asDriver(onErrorDriveWith: .empty())
+            .drive(onNext: { noti in
+                
+            let state = noti.object as? Bool ?? false
+            self.bottomButton.hasFocused = state
+                
+        }).disposed(by: disposeBag)
+
+        updateBottomButtonLayout()
     }
 
-    private func updateBottomButton() {
+    /// rxKeyboard를 사용해서 keyboard height 만큼 view의 constratint을 업데이트 한다.
+    private func updateBottomButtonLayout() {
         getKeyboardHeight { [weak self] height in
             guard let self = self else { return }
 
@@ -200,38 +221,95 @@ extension SignUpViewController {
     private func getKeyboardHeight(completion: @escaping (_ height: CGFloat) -> Void) {
         RxKeyboard.instance
             .visibleHeight
+            .distinctUntilChanged()
             .skip(1)
             .drive(onNext: { height in
             completion(height)
         }).disposed(by: disposeBag)
     }
 
+    /// SignUpPageViewController의 화면 전환에 관련된 UI 수행을 한다.
     private func stepChanged(_ step: SignUpStep) {
+        updateProgressBar(when: step)
+        updateLabels(when: step)
+        updateIcon(when: step)
+    }
+
+    private func updateProgressBar(when step: SignUpStep) {
         switch step {
+        case .exit:
+            // TODO: SignIn RIB 연결
+            return
         case .one:
-            navigationTitle.text = "step 1"
-            stepIconImageView.image = AppImage.signUpIcon1.image
-            stepProgressBar.setProgress(0.25, animated: true)
-            stepProgressLabel.text = "25%"
+            stepProgressLabel.text = "\(Int(progressPositions[0] * 100))%"
+            stepProgressBar.progress = progressPositions[0]
+            stepProgressLabel.snp.updateConstraints { make in
+                make.centerX.equalTo(stepProgressBar.subviews[1].snp.right)
+            }
         case .two:
-            navigationTitle.text = "step 2"
-            stepIconImageView.image = AppImage.signUpIcon2.image
-            stepProgressBar.setProgress(0.5, animated: true)
-            stepProgressLabel.text = "50%"
+            stepProgressLabel.text = "\(Int(progressPositions[1] * 100))%"
+            stepProgressBar.progress = progressPositions[1]
+            stepProgressLabel.snp.updateConstraints { make in
+                make.centerX.equalTo(stepProgressBar.subviews[1].snp.right)
+            }
         case .three:
-            navigationTitle.text = "step 3"
-            stepIconImageView.image = AppImage.signUpIcon3.image
-            stepProgressBar.setProgress(0.75, animated: true)
-            stepProgressLabel.text = "75%"
+            stepProgressLabel.text = "\(Int(progressPositions[2] * 100))%"
+            stepProgressBar.progress = progressPositions[2]
+            stepProgressLabel.snp.updateConstraints { make in
+                make.centerX.equalTo(stepProgressBar.subviews[1].snp.right)
+            }
         case .four:
-            navigationTitle.text = "step 4"
-            stepIconImageView.image = AppImage.signUpIcon4.image
-            stepProgressBar.setProgress(1.0, animated: true)
-            stepProgressLabel.text = "100%"
+            stepProgressLabel.text = "\(Int(progressPositions[3] * 100))%"
+            stepProgressBar.progress = progressPositions[3]
+            stepProgressLabel.snp.updateConstraints { make in
+                make.centerX.equalTo(stepProgressBar.subviews[1].snp.right).inset(26)
+            }
+        }
+
+        UIView.animate(withDuration: 0.2) {
+            self.view.layoutIfNeeded()
         }
     }
-}
 
-extension Notification.Name {
-    static let bottomButtonState = NSNotification.Name("signUpBottomButtonState")
+    private func updateLabels(when step: SignUpStep) {
+        switch step {
+        case .exit:
+            return
+        case .one:
+            bottomButton.titleText = "다음"
+            navigationTitle.text = "step 1"
+            return
+        case .two:
+            bottomButton.titleText = "다음"
+            navigationTitle.text = "step 2"
+            return
+        case .three:
+            bottomButton.titleText = "다음"
+            navigationTitle.text = "step 3"
+            return
+        case .four:
+            bottomButton.titleText = "완료"
+            navigationTitle.text = "step 4"
+            return
+        }
+    }
+
+    private func updateIcon(when step: SignUpStep) {
+        switch step {
+        case .exit:
+            return
+        case .one:
+            stepIconImageView.image = AppImage.signUpIcon1.image
+            return
+        case .two:
+            stepIconImageView.image = AppImage.signUpIcon2.image
+            return
+        case .three:
+            stepIconImageView.image = AppImage.signUpIcon3.image
+            return
+        case .four:
+            stepIconImageView.image = AppImage.signUpIcon4.image
+            return
+        }
+    }
 }
