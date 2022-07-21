@@ -13,13 +13,10 @@ protocol SignUpInteractable: Interactable {
     var listener: SignUpListener? { get set }
 }
 
-protocol SignUpViewControllable: ViewControllable {
-    // TODO: Declare methods the router invokes to manipulate the view hierarchy.
-}
+protocol SignUpViewControllable: ViewControllable { }
 
 final class SignUpRouter: ViewableRouter<SignUpInteractable, SignUpViewControllable>, SignUpRouting {
 
-    // TODO: Constructor inject child builder protocols to allow building children.
     override init(interactor: SignUpInteractable, viewController: SignUpViewControllable) {
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
