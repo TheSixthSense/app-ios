@@ -14,7 +14,7 @@ public protocol SignInDependency: Dependency {
     var usecase: SignInUseCase { get }
 }
 
-final class SignInComponent: Component<SignInDependency> {
+final class SignInComponent: Component<SignInDependency>, SignUpDependency {
     var network: Network { dependency.network }
 }
 
@@ -33,8 +33,11 @@ public final class SignInBuilder: Builder<SignInDependency>, SignInBuildable {
     public func build(withListener listener: SignInListener) -> SignInRouting {
         let component = SignInComponent(dependency: dependency)
         let viewController = SignInViewController()
+        let signUpBuilder = SignUpBuilder(dependency: component)
         let interactor = SignInInteractor(presenter: viewController, dependency: dependency)
         interactor.listener = listener
-        return SignInRouter(interactor: interactor, viewController: viewController)
+        return SignInRouter(interactor: interactor,
+                            viewController: viewController,
+                            signUpBuilder: signUpBuilder)
     }
 }
