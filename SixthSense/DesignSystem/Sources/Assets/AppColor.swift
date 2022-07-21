@@ -55,6 +55,11 @@ extension AppColor {
     public static var sub700: AppColor {
         return #colorLiteral(red: 0.6117647059, green: 0.6, blue: 0.5215686275, alpha: 1)
     }
+    
+    /// #767462
+    public static var sub900: AppColor {
+        return #colorLiteral(red: 0.462745098, green: 0.4549019608, blue: 0.3843137255, alpha: 1)
+    }
 
     // MARK: - Sub Color 2
 
