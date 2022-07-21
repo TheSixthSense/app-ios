@@ -23,6 +23,7 @@ public extension TargetDependency {
     static let rxKeyboard: TargetDependency = .external(name: "RxKeyboard")
     static let lottie: TargetDependency = .external(name: "Lottie")
     static let rxAppState: TargetDependency = .external(name: "RxAppState")
+    static let rxGesture: TargetDependency = .external(name: "RxGesture")
 }
 
 extension Project {
