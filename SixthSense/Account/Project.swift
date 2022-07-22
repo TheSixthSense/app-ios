@@ -17,5 +17,6 @@ let project = Project.library(
     .rxDataSources,
     .ribs
   ] + [Module.utils, .repository, .designSystem].map(\.project),
-  additionalTargets: []
+  additionalTargets: [],
+  resources: .default
 )

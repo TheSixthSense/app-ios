@@ -11,7 +11,6 @@ import RxSwift
 import RxCocoa
 import UIKit
 import SnapKit
-import Lottie
 import DesignSystem
 import AuthenticationServices
 
@@ -25,38 +24,33 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
     weak var listener: SignInPresentableListener?
     private let disposeBag: DisposeBag = .init()
     
-    private let logoImage = AnimationView().then {
+    private let logoImage = UIImageView().then {
         $0.contentMode = .scaleToFill
-        $0.animation = .logo
-        $0.loopMode = .loop
-        $0.play()
+        $0.image = UIImage(asset: AccountAsset.onboardTitle)
     }
     
     private let catchphraseLabel = UILabel().then {
         $0.text = "브랜드 관련 캐치프라이즈 영역\n두줄정도면 좋을 것 같아요"
         $0.textAlignment = .center
-        $0.font = AppFont.body1Bold
-        $0.textColor = AppColor.systemBlack
+        $0.font = AppFont.body1
+        $0.textColor = .sub900
         $0.numberOfLines = 2
         $0.sizeToFit()
     }
     
-    private lazy var signInButton = ASAuthorizationAppleIDButton(type: .signIn, style: .black).then {
+    private lazy var signInButton = ASAuthorizationAppleIDButton(type: .signIn, style: .white).then {
         $0.addTarget(self, action: #selector(signInWithApple), for: .touchUpInside)
     }
     
-    // FIXME: - 추후 디자인시스템으로 변경해요
     private let skipButton = UIButton().then {
         $0.setTitle("회원가입 없이 시작하기", for: .normal)
-        $0.titleLabel?.font = AppFont.body1Bold
-        $0.titleLabel?.textColor = .white
-        $0.backgroundColor = .main
-        $0.layer.cornerRadius = 5
+        $0.titleLabel?.font = AppFont.body2
+        $0.setTitleColor(.systemGray500, for: .normal)
         $0.addTarget(self, action: #selector(skipButtonDidTap), for: .touchUpInside)
     }
     
     override func viewDidLoad() {
-        view.backgroundColor = .white
+        view.backgroundColor = .sub100
         configureUI()
     }
         
@@ -70,9 +64,9 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
     
     func configureConstraints() {
         logoImage.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(188)
             $0.centerX.equalToSuperview()
-            $0.size.equalTo(150)
+            $0.centerY.equalToSuperview().multipliedBy(0.562)
+            $0.width.equalTo(242)
         }
         
         catchphraseLabel.snp.makeConstraints {
