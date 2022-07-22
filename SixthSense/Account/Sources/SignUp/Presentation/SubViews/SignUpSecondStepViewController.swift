@@ -14,7 +14,7 @@ import Then
 import UIKit
 
 final class SignUpSecondStepViewController: UIViewController {
-    
+
     // MARK: - UI
 
     private var stepLabel = AppLabel().then { label in
@@ -39,15 +39,21 @@ final class SignUpSecondStepViewController: UIViewController {
     private let noneButton = SelectButton(title: "선택 안 함").then {
         $0.tag = 3
     }
-    
+
     // MARK: - Vars
-    
+
     private let selectButtons: [SelectButton]
     private let selectButtonState: Observable<SelectButton>
-    private var selectedButton: Gender? // 유저가 선택한 버튼
+    private var selectedButton: Gender? { // 유저가 선택한 버튼
+        didSet {
+            genderData = selectedButton?.rawValue ?? ""
+        }
+    }
+
+    var genderData: String = ""
 
     private let disposeBag = DisposeBag()
-    
+
     // MARK: - LifeCycle
 
     init() {

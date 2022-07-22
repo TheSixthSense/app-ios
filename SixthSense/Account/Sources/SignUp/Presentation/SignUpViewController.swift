@@ -66,12 +66,13 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
     private let progressPositions: [Float] = [0.25, 0.5, 0.75, 1]
     private let disposeBag = DisposeBag()
 
-    private var signUpRequestModel: SignUpRequestModel?
+    private var signUpRequestModel: SignUpRequestModel
 
     // MARK: - LifeCycle
 
     init() {
         signUpPageView = SignUpPageViewController()
+        signUpRequestModel = SignUpRequestModel()
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -158,11 +159,13 @@ private extension SignUpViewController {
             self.configureLayout()
         }).disposed(by: disposeBag)
 
-        signUpPageView.stepDrvier
-            .drive(
-            onNext: { [weak self] step in
-                self?.stepChanged(step)
-            }).disposed(by: disposeBag)
+        Observable.combineLatest(signUpPageView.stepDrvier.asObservable(),
+                                 signUpPageView.stepDataDriver.asObservable())
+            .bind { [weak self] step, data in
+            guard let self = self else { return }
+            self.stepChanged(step)
+            self.applyData(data)
+        }.disposed(by: disposeBag)
 
         bottomButton.rx.tap
             .bind(onNext: { [weak self] in
@@ -185,10 +188,10 @@ private extension SignUpViewController {
             .distinctUntilChanged()
             .asDriver(onErrorDriveWith: .empty())
             .drive(onNext: { noti in
-                
+
             let state = noti.object as? Bool ?? false
             self.bottomButton.hasFocused = state
-                
+
         }).disposed(by: disposeBag)
 
         updateBottomButtonLayout()
@@ -226,6 +229,23 @@ private extension SignUpViewController {
             .drive(onNext: { height in
             completion(height)
         }).disposed(by: disposeBag)
+    }
+
+    private func applyData(_ data: [SignUpStep: String]) {
+        guard let step = data.keys.first else { return }
+        guard let value = data.values.first else { return }
+
+        switch step {
+        case .exit: return
+        case .one:
+            signUpRequestModel.nickName = value
+        case .two:
+            signUpRequestModel.gender = value
+        case .three:
+            signUpRequestModel.birthDay = value
+        case .four:
+            signUpRequestModel.vegannerStage = value
+        }
     }
 
     /// SignUpPageViewController의 화면 전환에 관련된 UI 수행을 한다.
