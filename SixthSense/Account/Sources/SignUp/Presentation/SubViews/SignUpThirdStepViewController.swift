@@ -58,6 +58,8 @@ final class SignUpThirdStepViewController: UIViewController {
 
     // MARK: - Vars
 
+    var birthData: String = ""
+
     private let disposeBag = DisposeBag()
 
     // MARK: - LifeCycle
@@ -123,10 +125,11 @@ private extension SignUpThirdStepViewController {
                 && (day.count > 1 && !day.isEmpty)
         }
             .distinctUntilChanged()
-            .debug()
-            .bind { isNotEmpty in
+            .bind { [weak self] isNotEmpty in
+            guard let self = self else { return }
             NotificationCenter.default.post(name: .bottomButtonState,
                                             object: isNotEmpty)
+            self.birthData = "\(self.yearTextField.text!)\(self.monthTextField.text!)\(self.dayTextField.text!)"
         }.disposed(by: disposeBag)
     }
 }

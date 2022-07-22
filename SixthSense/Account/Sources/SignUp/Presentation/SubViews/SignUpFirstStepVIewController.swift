@@ -32,6 +32,7 @@ final class SignUpFirstStepViewController: UIViewController {
     }
 
     // MARK: - Vars
+    var nicknameData: String = ""
 
     private let disposeBag = DisposeBag()
 
@@ -91,7 +92,9 @@ private extension SignUpFirstStepViewController {
             self.nicknameTextField.isValidText = isValid
             NotificationCenter.default.post(name: .bottomButtonState,
                                             object: isValid)
-                
+            if isValid {
+                self.nicknameData = text
+            }
         }.disposed(by: disposeBag)
     }
 

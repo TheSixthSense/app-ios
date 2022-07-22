@@ -49,7 +49,13 @@ final class SignUpLastStepViewController: UIViewController {
 
     private let imageButtons: [ImageButton]
     private let imageButtonState: Observable<ImageButton>
-    private var userVeganStage: VeganStage? // 유저가 선택한 버튼
+    private var userVeganStage: VeganStage? { // 유저가 선택한 버튼
+        didSet {
+            veganStageData = userVeganStage?.rawValue ?? ""
+        }
+    }
+
+    var veganStageData: String = ""
 
     private let disposeBag = DisposeBag()
 
