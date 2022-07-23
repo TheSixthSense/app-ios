@@ -22,4 +22,12 @@ public final class UserRepositoryImpl: UserRepository {
         return .just(data)
       }
   }
+    
+    public func login(request: LoginRequest) -> Single<String> {
+        return network.request(UserAPI.login(request))
+            .mapString()
+            .flatMap { data -> Single<String> in
+                return .just(data)
+            }
+    }
 }

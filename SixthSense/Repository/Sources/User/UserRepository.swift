@@ -10,4 +10,5 @@ import RxSwift
 
 public protocol UserRepository: AnyObject {
   func user() -> Single<String>
+  func login(request: LoginRequest) -> Single<String>
 }

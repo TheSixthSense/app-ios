@@ -21,12 +21,17 @@ extension UserAPI: BaseAPI {
       switch self {
           case .user:
               return API.EndPoint.temp.url
+          case .login:
+              return API.EndPoint.base.url
+      }
   }
   
   var path: String {
     switch self {
       case .user:
         return "/users"
+      case .login:
+        return "/auth/login"
     }
   }
   
@@ -34,6 +39,8 @@ extension UserAPI: BaseAPI {
     switch self {
       case .user:
         return .get
+      case .login:
+        return .post
     }
   }
   
@@ -42,6 +49,8 @@ extension UserAPI: BaseAPI {
     let body: [String: Any] = [:]
     
     switch self {
+      case .login(let request):
+        return .requestCompositeParameters(bodyParameters: request.asBody(body), bodyEncoding: parameterEncoding, urlParameters: parameters)
       default:
         return .requestPlain
     }
@@ -57,6 +66,8 @@ extension UserAPI: BaseAPI {
   
   var parameterEncoding: ParameterEncoding {
     switch self {
+      case .login:
+        return JSONEncoding.default
       default:
         return URLEncoding.queryString
     }
