@@ -8,18 +8,19 @@
 
 import Foundation
 import Moya
+import Utils
 
 enum UserAPI {
   case user
+  case login(LoginRequest)
 }
 
-extension UserAPI: TargetType {
-  var headers: [String: String]? {
-    return ["Content-Type": "application/json"]
-  }
-
+extension UserAPI: BaseAPI {
+  // FIXME: 추후 UserInfo 제거 하면서 tempURL도 제거
   var baseURL: URL {
-    return URL(string: "https://jsonplaceholder.typicode.com")!
+      switch self {
+          case .user:
+              return API.EndPoint.temp.url
   }
   
   var path: String {
@@ -37,6 +38,9 @@ extension UserAPI: TargetType {
   }
   
   var task: Task {
+    guard let parameters = parameters else { return .requestPlain }
+    let body: [String: Any] = [:]
+    
     switch self {
       default:
         return .requestPlain
@@ -44,9 +48,10 @@ extension UserAPI: TargetType {
   }
   
   var parameters: [String: Any]? {
+      let defaultParameter: [String: Any] = [:]
     switch self {
-      default:
-        return [:]
+        case .user, .login:
+        return defaultParameter
     }
   }
   
