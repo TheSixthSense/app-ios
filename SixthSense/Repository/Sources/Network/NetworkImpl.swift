@@ -109,7 +109,3 @@ public final class NetworkInterceptableImpl: NetworkInterceptable {
     }
   }
 }
-
-enum APIError: Error {
-  case unknown
-}
