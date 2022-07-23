@@ -13,6 +13,8 @@ public enum ConfigurationKey: String {
   case swiftyBeaverAppID = "SWIFTYBEAVER_APP_ID"
   case swiftyBeaverAppSecret = "SWIFTYBEAVER_APP_SECRET"
   case swiftyBeaverEncryptKey = "SWIFTYBEAVER_ENCRYPT_KEY"
+  case baseURL = "SERVER_BASE_URL"
+  case tempURL = "TEMP_URL"
 }
 
 public protocol Configuration {
