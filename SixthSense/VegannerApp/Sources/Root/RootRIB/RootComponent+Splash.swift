@@ -13,4 +13,5 @@ import Splash
 
 extension RootComponent: SplashDependency {
     var network: Network { dependency.network }
+    var userRepository: UserRepository { UserRepositoryImpl(network: dependency.network) }
 }

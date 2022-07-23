@@ -12,6 +12,7 @@ import Repository
 
 public protocol SplashDependency: Dependency {
     var network: Network { get }
+    var userRepository: UserRepository { get }
 }
 
 final class SplashComponent: Component<SplashDependency>, UserInfoDependency, SignInDependency {
@@ -20,7 +21,7 @@ final class SplashComponent: Component<SplashDependency>, UserInfoDependency, Si
     
     override init(dependency: SplashDependency) {
         // TODO: SignInUseCase는 어디서 주입해야할지 고민해보기
-        self.usecase = SignInUseCaseImpl()
+        self.usecase = SignInUseCaseImpl(userRepository: dependency.userRepository)
         super.init(dependency: dependency)
     }
 }

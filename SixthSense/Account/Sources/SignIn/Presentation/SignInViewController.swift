@@ -38,11 +38,11 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
         $0.sizeToFit()
     }
     
-    private lazy var signInButton = ASAuthorizationAppleIDButton(type: .signIn, style: .white).then {
+    private lazy var signInButton = ASAuthorizationAppleIDButton(type: .continue, style: .white).then {
         $0.addTarget(self, action: #selector(signInWithApple), for: .touchUpInside)
     }
     
-    private let skipButton = UIButton().then {
+    private lazy var skipButton = UIButton().then {
         $0.setTitle("회원가입 없이 시작하기", for: .normal)
         $0.titleLabel?.font = AppFont.body2
         $0.setTitleColor(.systemGray500, for: .normal)
@@ -99,5 +99,12 @@ extension SignInViewController {
     @objc
     private func skipButtonDidTap() {
         self.listener?.skip()
+    }
+    
+    func showAlert(title: String?, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let closeAction = UIAlertAction(title: "확인", style: UIAlertAction.Style.default)
+        alert.addAction(closeAction)
+        present(alert, animated: true, completion: nil)
     }
 }
