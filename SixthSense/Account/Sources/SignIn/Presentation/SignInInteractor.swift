@@ -15,6 +15,7 @@ public protocol SignInRouting: ViewableRouting {
 
 protocol SignInPresentable: Presentable {
     var listener: SignInPresentableListener? { get set }
+    func showAlert(title: String?, message: String)
 }
 
 public protocol SignInListener: AnyObject {
