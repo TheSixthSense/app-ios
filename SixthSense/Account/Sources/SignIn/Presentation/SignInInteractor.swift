@@ -43,13 +43,22 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
     
     func signIn() {
         dependency.usecase
-            .signInWithApple()
-            .subscribe(onNext: {
-                guard let identityToken = $0.identityToken else { return }
-                // FIXME: 테스트를 위한 로그들입니다 추후 제거 예정
-                print("🦊\(String(data: identityToken, encoding: .utf8))")
-                print("🦊\($0.email)")
-                print("🦊\($0.fullName)")
+            .continueWithApple()
+            .catch { [weak self] error in
+                self?.presenter.showAlert(title: nil, message: error.localizedDescription)
+                return .empty()
+            }
+            .subscribe(onNext: { [weak self] in
+                switch $0 {
+                    case .signIn:
+                        // FIXME: 임시로 적용한 로직입니다. 추후 제거
+                        print("🦊 signIn")
+                        self?.listener?.signInDidTapClose()
+                    case .signUp:
+                        // FIXME: 임시로 적용한 로직입니다. 추후 제거
+                        print("🦊 signUp")
+                        self?.listener?.signInDidTapClose()
+                }
             })
             .disposeOnDeactivate(interactor: self)
     }

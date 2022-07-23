@@ -11,7 +11,7 @@ import RxSwift
 import AuthenticationServices
 
 public protocol SignInUseCase {
-    func signInWithApple() -> Observable<ASAuthorizationAppleIDCredential>
+    func continueWithApple() -> Observable<SignType>
 }
 
 public struct SignInUseCaseImpl: SignInUseCase {
@@ -25,4 +25,8 @@ public struct SignInUseCaseImpl: SignInUseCase {
             }
             .compactMap { $0.credential as? ASAuthorizationAppleIDCredential }
     }
+
+public enum SignType {
+    case signIn
+    case signUp
 }
