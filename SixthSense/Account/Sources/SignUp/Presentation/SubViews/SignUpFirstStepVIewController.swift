@@ -37,7 +37,14 @@ final class SignUpFirstStepViewController: UIViewController {
     private let disposeBag = DisposeBag()
 
     // MARK: - LifeCycle
-
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
@@ -69,39 +76,11 @@ private extension SignUpFirstStepViewController {
     }
 
     private func bindUI() {
-
+        
         view.rx.tapGesture()
             .when(.recognized)
             .bind(onNext: { [weak self] _ in
             self?.view.endEditing(true)
         }).disposed(by: disposeBag)
-
-        nicknameTextField.rx.text.orEmpty
-            .changed
-            .skip(1)
-            .bind { [weak self] text in
-            guard let self = self else { return }
-            guard !text.isEmpty else {
-                // 빈 스트링일때 error text 지우기
-                self.nicknameTextField.isValidText = true
-                NotificationCenter.default.post(name: .bottomButtonState,
-                                                object: false)
-                return
-            }
-            let isValid = self.isValidNickname(text)
-            self.nicknameTextField.isValidText = isValid
-            NotificationCenter.default.post(name: .bottomButtonState,
-                                            object: isValid)
-            if isValid {
-                self.nicknameData = text
-            }
-        }.disposed(by: disposeBag)
-    }
-
-    private func isValidNickname(_ nickname: String) -> Bool {
-        let nicknameRegex = "^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9]+$"
-        let nicknameTest = NSPredicate(format: "SELF MATCHES %@",
-                                       nicknameRegex)
-        return nicknameTest.evaluate(with: nickname)
     }
 }
