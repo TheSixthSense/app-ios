@@ -24,7 +24,7 @@ final class SignUpFirstStepViewController: UIViewController {
         label.setText("비거너!\n너의 닉네임을 알려줘", font: AppFont.title2)
     }
 
-    private var nicknameTextField = AppTextField().then { textfield in
+    let nicknameTextField = AppTextField().then { textfield in
         textfield.placeholderString = "2~10자 사이로 입력해 주세요"
         // TODO: - 기획: validation 문구 수정
         textfield.errorString = "필수항목을 선택해 주세요.(벨리데이션 문구 필요)"

@@ -21,7 +21,7 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
 
     // MARK: - UI
 
-    private var signUpPageView: SignUpPageViewController
+    var signUpPageView: SignUpPageViewController
 
     private lazy var stepIconImageView = UIImageView().then { view in
         view.image = AppImage.signUpIcon1.image
