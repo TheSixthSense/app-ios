@@ -1,6 +1,6 @@
 //
 //  SignUpPageViewController.swift
-//  VegannerApp
+//  Account
 //
 //  Created by Allie Kim on 2022/07/17.
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
@@ -13,24 +13,26 @@ import UIKit
 class SignUpPageViewController: UIPageViewController {
 
     // MARK: - UI
+    let nickNameInputView: NicknameStepViewController = .init()
+    let genderInputView: GenderStepViewController = .init()
+    let birthInputView: BirthStepViewController = .init()
+    let veganInputView: VeganStepViewController = .init()
 
     private lazy var pageViews: [UIViewController] = {
         var subViews = [UIViewController]()
         subViews.append(contentsOf: [
-            SignUpFirstStepViewController(),
-            SignUpSecondStepViewController(),
-            SignUpThirdStepViewController(),
-            SignUpLastStepViewController()
+            nickNameInputView,
+            genderInputView,
+            birthInputView,
+            veganInputView
         ])
         return subViews
     }()
 
     // MARK: - Rx
 
-    lazy var stepDrvier: Driver<SignUpStep> = stepRelay.asDriver(onErrorJustReturn: SignUpStep.one)
-    lazy var stepDataDriver: Driver<[SignUpStep:String]> = stepDataRelay.asDriver(onErrorDriveWith: .empty())
-    private var stepRelay: PublishRelay<SignUpStep>
-    private var stepDataRelay: PublishRelay<[SignUpStep: String]>
+    lazy var stepDrvier: Driver<SignUpSteps> = stepRelay.asDriver(onErrorJustReturn: SignUpSteps.nickname)
+    private var stepRelay: PublishRelay<SignUpSteps>
 
     // MARK: - LifeCycle
 
@@ -38,13 +40,11 @@ class SignUpPageViewController: UIPageViewController {
                   navigationOrientation: UIPageViewController.NavigationOrientation,
                   options: [UIPageViewController.OptionsKey: Any]? = nil) {
         stepRelay = PublishRelay()
-        stepDataRelay = PublishRelay()
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     }
 
     required init?(coder: NSCoder) {
         stepRelay = PublishRelay()
-        stepDataRelay = PublishRelay()
         super.init(coder: coder)
     }
 
@@ -77,7 +77,7 @@ extension SignUpPageViewController {
     func goToPreviousPage() {
         if let currentViewController = viewControllers?[0] {
 
-            guard currentViewController is SignUpFirstStepViewController == false else {
+            guard currentViewController is NicknameStepViewController == false else {
                 sendRelay(where: nil)
                 return
             }
@@ -91,34 +91,18 @@ extension SignUpPageViewController {
 
     private func sendRelay(where nextPage: UIViewController?) {
         guard let nextPage = nextPage else {
-            stepRelay.accept(SignUpStep.exit)
+            stepRelay.accept(SignUpSteps.exit)
             return
         }
 
-        if nextPage is SignUpFirstStepViewController {
-            stepRelay.accept(SignUpStep.one)
-        } else if nextPage is SignUpSecondStepViewController {
-            stepRelay.accept(SignUpStep.two)
-        } else if nextPage is SignUpThirdStepViewController {
-            stepRelay.accept(SignUpStep.three)
+        if nextPage is NicknameStepViewController {
+            stepRelay.accept(SignUpSteps.nickname)
+        } else if nextPage is GenderStepViewController {
+            stepRelay.accept(SignUpSteps.gender)
+        } else if nextPage is BirthStepViewController {
+            stepRelay.accept(SignUpSteps.birthday)
         } else {
-            stepRelay.accept(SignUpStep.four)
-        }
-    }
-
-    private func sendData(where currentPage: UIViewController?) {
-        guard let currentPage = currentPage else {
-            return
-        }
-
-        if let page = currentPage as? SignUpFirstStepViewController {
-            stepDataRelay.accept([SignUpStep.one: page.nicknameData])
-        } else if let page = currentPage as? SignUpSecondStepViewController {
-            stepDataRelay.accept([SignUpStep.two: page.genderData])
-        } else if let page = currentPage as? SignUpThirdStepViewController {
-            stepDataRelay.accept([SignUpStep.three: page.birthData])
-        } else if let page = currentPage as? SignUpLastStepViewController {
-            stepDataRelay.accept([SignUpStep.four: page.veganStageData])
+            stepRelay.accept(SignUpSteps.veganStage)
         }
     }
 }
@@ -136,10 +120,6 @@ extension SignUpPageViewController: UIPageViewControllerDataSource {
 
         let previousIndex = viewControllerIndex - 1
 
-        guard previousIndex >= 0 else { return nil }
-
-        guard pageViews.count > previousIndex else { return nil }
-
         return pageViews[previousIndex]
     }
 
@@ -149,15 +129,9 @@ extension SignUpPageViewController: UIPageViewControllerDataSource {
     ) -> UIViewController? {
         guard let viewControllerIndex = pageViews.firstIndex(of: viewController) else { return nil }
 
-        sendData(where: viewController)
-        
         let nextIndex = viewControllerIndex + 1
 
-        guard nextIndex < pageViews.count else { return nil }
-
-        guard pageViews.count > nextIndex else { return nil }
-
-        return pageViews[nextIndex]
+        return pageViews[safe: nextIndex]
     }
 }
 

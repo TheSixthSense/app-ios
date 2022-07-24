@@ -8,9 +8,25 @@
 
 import Foundation
 
-enum Gender: String {
-    case male = "MALE"
-    case female = "FEMALE"
-    case etc = "ETC"
-    case none = "NONE"
+enum Gender: Int {
+    case male = 0
+    case female
+    case etc
+    case none
+}
+
+extension Gender {
+
+    var stringValue: String {
+        switch self {
+        case .male:
+            return "MALE"
+        case .female:
+            return "FEMALE"
+        case .etc:
+            return "ETC"
+        case .none:
+            return "NONE"
+        }
+    }
 }

@@ -1,6 +1,6 @@
 //
 //  SignUpViewController.swift
-//  VegannerApp
+//  Account
 //
 //  Created by Allie Kim on 2022/07/14.
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
@@ -15,13 +15,15 @@ import RxKeyboard
 import Then
 import UIKit
 
-protocol SignUpPresentableListener: AnyObject { }
-
 final class SignUpViewController: UIViewController, SignUpPresentable, SignUpViewControllable {
+
+    var listener: SignUpListener?
+    var action: SignUpPresenterAction?
+    var handler: SignUpPresenterHandler?
 
     // MARK: - UI
 
-    private var signUpPageView: SignUpPageViewController
+    var signUpPageView: SignUpPageViewController
 
     private lazy var stepIconImageView = UIImageView().then { view in
         view.image = AppImage.signUpIcon1.image
@@ -60,20 +62,15 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
     }
 
     // MARK: - Vars
-
-    weak var listener: SignUpPresentableListener?
-
     private let progressPositions: [Float] = [0.25, 0.5, 0.75, 1]
     private let disposeBag = DisposeBag()
-
-    private var signUpRequestModel: SignUpRequestModel
 
     // MARK: - LifeCycle
 
     init() {
         signUpPageView = SignUpPageViewController()
-        signUpRequestModel = SignUpRequestModel()
         super.init(nibName: nil, bundle: nil)
+        action = self
     }
 
     required init?(coder: NSCoder) {
@@ -85,6 +82,7 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
 
         configureUI()
         bindUI()
+        bindSubViewHandlers()
     }
 }
 
@@ -159,16 +157,15 @@ private extension SignUpViewController {
             self.configureLayout()
         }).disposed(by: disposeBag)
 
-        Observable.combineLatest(signUpPageView.stepDrvier.asObservable(),
-                                 signUpPageView.stepDataDriver.asObservable())
-            .bind { [weak self] step, data in
+        signUpPageView.stepDrvier
+            .drive(onNext: { [weak self] in
             guard let self = self else { return }
-            self.stepChanged(step)
-            self.applyData(data)
-        }.disposed(by: disposeBag)
+            self.stepChanged($0)
+        }).disposed(by: disposeBag)
 
         bottomButton.rx.tap
             .bind(onNext: { [weak self] in
+            self?.bottomButton.hasFocused = false
             guard self?.signUpPageView.goToNextPage() == true else {
                 // 확인 버튼
                 // TODO: - request API
@@ -177,24 +174,63 @@ private extension SignUpViewController {
             }
         }).disposed(by: disposeBag)
 
-        backButton.rx
-            .tap
+        backButton.rx.tap
             .bind(onNext: { [weak self] in
             self?.signUpPageView.goToPreviousPage()
         }).disposed(by: disposeBag)
 
-        NotificationCenter.default.rx
-            .notification(.bottomButtonState)
-            .distinctUntilChanged()
-            .asDriver(onErrorDriveWith: .empty())
-            .drive(onNext: { noti in
-
-            let state = noti.object as? Bool ?? false
-            self.bottomButton.hasFocused = state
-
-        }).disposed(by: disposeBag)
-
         updateBottomButtonLayout()
+    }
+
+    private func bindSubViewHandlers() {
+        guard let handler = handler else { return }
+
+        handler.visibleNicknameValid
+            .bind(with: bottomButton,
+                  onNext: { [weak self] button, isValid in
+                      button.hasFocused = isValid
+                      self?.signUpPageView.nickNameInputView.nicknameTextField.isValidText = isValid
+                  })
+            .disposed(by: disposeBag)
+
+
+        handler.genderInputValid
+            .bind(with: bottomButton,
+                  onNext: { button, tag in
+                      button.hasFocused = tag == -1 ? false : true
+                      let vc = self.signUpPageView.genderInputView
+                      vc.selectButtons.forEach {
+                          if $0.tag == tag {
+                              $0.hasFocused = true
+                          } else {
+                              $0.hasFocused = false
+                          }
+                      }
+                  })
+            .disposed(by: disposeBag)
+
+        handler.visibleBirthInputValid
+            .bind(with: bottomButton,
+                  onNext: { button, isValid in
+                      button.hasFocused = isValid
+                  })
+            .disposed(by: disposeBag)
+
+        handler.veganStageInputValid
+            .bind(with: bottomButton,
+                  onNext: { [weak self] button, tag in
+                      guard let self = self else { return }
+                      button.hasFocused = tag == -1 ? false : true
+                      let vc = self.signUpPageView.veganInputView
+                      vc.imageButtons.forEach {
+                          if $0.tag == tag {
+                              $0.hasFocused = true
+                          } else {
+                              $0.hasFocused = false
+                          }
+                      }
+                  })
+            .disposed(by: disposeBag)
     }
 
     /// rxKeyboard를 사용해서 keyboard height 만큼 view의 constratint을 업데이트 한다.
@@ -231,54 +267,38 @@ private extension SignUpViewController {
         }).disposed(by: disposeBag)
     }
 
-    private func applyData(_ data: [SignUpStep: String]) {
-        guard let step = data.keys.first else { return }
-        guard let value = data.values.first else { return }
-
-        switch step {
-        case .exit: return
-        case .one:
-            signUpRequestModel.nickName = value
-        case .two:
-            signUpRequestModel.gender = value
-        case .three:
-            signUpRequestModel.birthDay = value
-        case .four:
-            signUpRequestModel.vegannerStage = value
-        }
-    }
-
     /// SignUpPageViewController의 화면 전환에 관련된 UI 수행을 한다.
-    private func stepChanged(_ step: SignUpStep) {
+    private func stepChanged(_ step: SignUpSteps) {
+        bottomButton.titleText = step.buttonTitle
+        navigationTitle.text = step.navigationTitle
+        stepIconImageView.image = step.stepIcon
         updateProgressBar(when: step)
-        updateLabels(when: step)
-        updateIcon(when: step)
     }
 
-    private func updateProgressBar(when step: SignUpStep) {
+    private func updateProgressBar(when step: SignUpSteps) {
         switch step {
         case .exit:
             // TODO: SignIn RIB 연결
             return
-        case .one:
+        case .nickname:
             stepProgressLabel.text = "\(Int(progressPositions[0] * 100))%"
             stepProgressBar.progress = progressPositions[0]
             stepProgressLabel.snp.updateConstraints { make in
                 make.centerX.equalTo(stepProgressBar.subviews[1].snp.right)
             }
-        case .two:
+        case .gender:
             stepProgressLabel.text = "\(Int(progressPositions[1] * 100))%"
             stepProgressBar.progress = progressPositions[1]
             stepProgressLabel.snp.updateConstraints { make in
                 make.centerX.equalTo(stepProgressBar.subviews[1].snp.right)
             }
-        case .three:
+        case .birthday:
             stepProgressLabel.text = "\(Int(progressPositions[2] * 100))%"
             stepProgressBar.progress = progressPositions[2]
             stepProgressLabel.snp.updateConstraints { make in
                 make.centerX.equalTo(stepProgressBar.subviews[1].snp.right)
             }
-        case .four:
+        case .veganStage:
             stepProgressLabel.text = "\(Int(progressPositions[3] * 100))%"
             stepProgressBar.progress = progressPositions[3]
             stepProgressLabel.snp.updateConstraints { make in
@@ -290,46 +310,27 @@ private extension SignUpViewController {
             self.view.layoutIfNeeded()
         }
     }
+}
 
-    private func updateLabels(when step: SignUpStep) {
-        switch step {
-        case .exit:
-            return
-        case .one:
-            bottomButton.titleText = "다음"
-            navigationTitle.text = "step 1"
-            return
-        case .two:
-            bottomButton.titleText = "다음"
-            navigationTitle.text = "step 2"
-            return
-        case .three:
-            bottomButton.titleText = "다음"
-            navigationTitle.text = "step 3"
-            return
-        case .four:
-            bottomButton.titleText = "완료"
-            navigationTitle.text = "step 4"
-            return
-        }
+extension SignUpViewController: SignUpPresenterAction {
+
+    var nicknameDidInput: Observable<String> {
+        signUpPageView.nickNameInputView.nicknameTextField.rx.text.orEmpty.distinctUntilChanged().asObservable()
     }
 
-    private func updateIcon(when step: SignUpStep) {
-        switch step {
-        case .exit:
-            return
-        case .one:
-            stepIconImageView.image = AppImage.signUpIcon1.image
-            return
-        case .two:
-            stepIconImageView.image = AppImage.signUpIcon2.image
-            return
-        case .three:
-            stepIconImageView.image = AppImage.signUpIcon3.image
-            return
-        case .four:
-            stepIconImageView.image = AppImage.signUpIcon4.image
-            return
-        }
+    var genderDidInput: Observable<Gender> {
+        signUpPageView.genderInputView.selectedButton.asObservable()
+    }
+
+    var birthDidInput: Observable<[String]> {
+        let birthView = signUpPageView.birthInputView
+        let textFields = [birthView.yearTextField.rx.text.orEmpty.distinctUntilChanged(),
+                          birthView.monthTextField.rx.text.orEmpty.distinctUntilChanged(),
+                          birthView.dayTextField.rx.text.orEmpty.distinctUntilChanged()]
+        return Observable.combineLatest(textFields)
+    }
+
+    var veganStageDidInput: Observable<VeganStage> {
+        signUpPageView.veganInputView.userVeganStage.asObservable()
     }
 }

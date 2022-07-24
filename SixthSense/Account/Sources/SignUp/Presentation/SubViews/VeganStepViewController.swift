@@ -1,6 +1,6 @@
 //
-//  SignUpLastStepViewController.swift
-//  VegannerApp
+//  VeganStepViewController.swift
+//  Account
 //
 //  Created by Allie Kim on 2022/07/15.
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
@@ -14,7 +14,7 @@ import SnapKit
 import Then
 import UIKit
 
-final class SignUpLastStepViewController: UIViewController {
+final class VeganStepViewController: UIViewController {
 
     // MARK: - UI
 
@@ -31,31 +31,25 @@ final class SignUpLastStepViewController: UIViewController {
     private let beginnerButton = ImageButton(
         defaultImage: AppImage.beginnerIconDefault.image,
         focusedImage: AppImage.beginnerIconFocused.image,
-        text: "처음이야, 이제 시작해보려고 해!").then { $0.tag = 0 }
+        text: "처음이야, 이제 시작해보려고 해!").then { $0.tag = VeganStage.beginner.rawValue }
     private let juniorButton = ImageButton(
         defaultImage: AppImage.juniorIconDefault.image,
         focusedImage: AppImage.juniorIconFocused.image,
-        text: "아직 비건 초심자, 조금씩 실천하는 중이야!").then { $0.tag = 1 }
+        text: "아직 비건 초심자, 조금씩 실천하는 중이야!").then { $0.tag = VeganStage.junior.rawValue }
     private let seniorButton = ImageButton(
         defaultImage: AppImage.seniorIconDefault.image,
         focusedImage: AppImage.seniorIconFocused.image,
-        text: "예전부터 꾸준히 실천하고 있어!").then { $0.tag = 2 }
+        text: "예전부터 꾸준히 실천하고 있어!").then { $0.tag = VeganStage.senior.rawValue }
     private let retryButton = ImageButton(
         defaultImage: AppImage.retryIconDefault.image,
         focusedImage: AppImage.retryIconFocused.image,
-        text: "잠시 쉬었다가 왔어! 다시 도전해보려고 해").then { $0.tag = 3 }
+        text: "잠시 쉬었다가 왔어! 다시 도전해보려고 해").then { $0.tag = VeganStage.retry.rawValue }
 
     // MARK: - Vars
 
-    private let imageButtons: [ImageButton]
-    private let imageButtonState: Observable<ImageButton>
-    private var userVeganStage: VeganStage? { // 유저가 선택한 버튼
-        didSet {
-            veganStageData = userVeganStage?.rawValue ?? ""
-        }
-    }
-
-    var veganStageData: String = ""
+    let imageButtons: [ImageButton]
+    let imageButtonState: Observable<ImageButton>
+    var userVeganStage: PublishRelay<VeganStage> // 유저가 선택한 버튼
 
     private let disposeBag = DisposeBag()
 
@@ -72,6 +66,8 @@ final class SignUpLastStepViewController: UIViewController {
             }
         ).merge().share()
 
+        userVeganStage = PublishRelay.init()
+
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -87,8 +83,6 @@ final class SignUpLastStepViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let state = userVeganStage != nil ? true : false
-        NotificationCenter.default.post(name: .bottomButtonState, object: state)
     }
 
     override func viewWillLayoutSubviews() {
@@ -97,7 +91,7 @@ final class SignUpLastStepViewController: UIViewController {
     }
 }
 
-private extension SignUpLastStepViewController {
+private extension VeganStepViewController {
 
     private func configureUI() {
         view.addSubviews([stepLabel, buttonStackView])
@@ -138,23 +132,12 @@ private extension SignUpLastStepViewController {
 
     private func selectButtonEvent() {
 
-        imageButtonState
-            .bind(onNext: { _ in
-            NotificationCenter.default.post(name: .bottomButtonState, object: true)
-        })
-            .disposed(by: disposeBag)
-
         imageButtons.reduce(Disposables.create()) { disposable, button in
             let subscription = imageButtonState
-                .map { [weak self] in
-                if ($0 == button) {
-                    self?.userVeganStage = self?.findSelectedButton(with: button.tag)
-                    return true
+                .bind(onNext: {
+                if $0 == button {
+                    self.userVeganStage.accept(self.findSelectedButton(with: $0.tag))
                 }
-                return false
-            }
-                .bind(onNext: { state in
-                button.hasFocused = state
             })
             return Disposables.create(disposable, subscription)
         }

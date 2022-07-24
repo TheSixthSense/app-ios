@@ -1,6 +1,6 @@
 //
-//  SignUpThirdStepViewController.swift
-//  VegannerApp
+//  BirthStepViewController.swift
+//  Account
 //
 //  Created by Allie Kim on 2022/07/15.
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
@@ -12,7 +12,7 @@ import RxGesture
 import Then
 import DesignSystem
 
-final class SignUpThirdStepViewController: UIViewController {
+final class BirthStepViewController: UIViewController {
 
     // MARK: - UI
 
@@ -26,7 +26,7 @@ final class SignUpThirdStepViewController: UIViewController {
         stackView.distribution = .fill
     }
 
-    private var yearTextField = AppTextField().then { textfield in
+    var yearTextField = AppTextField().then { textfield in
         textfield.placeholderString = "1990"
         textfield.maxLength = 4
         textfield.keyboardType = .decimalPad
@@ -36,7 +36,7 @@ final class SignUpThirdStepViewController: UIViewController {
         label.setText("년", font: AppFont.body1)
     }
 
-    private var monthTextField = AppTextField().then { textfield in
+    var monthTextField = AppTextField().then { textfield in
         textfield.placeholderString = "01"
         textfield.maxLength = 2
         textfield.keyboardType = .decimalPad
@@ -46,7 +46,7 @@ final class SignUpThirdStepViewController: UIViewController {
         label.setText("월", font: AppFont.body1)
     }
 
-    private var dayTextField = AppTextField().then { textfield in
+    var dayTextField = AppTextField().then { textfield in
         textfield.placeholderString = "01"
         textfield.maxLength = 2
         textfield.keyboardType = .decimalPad
@@ -58,8 +58,6 @@ final class SignUpThirdStepViewController: UIViewController {
 
     // MARK: - Vars
 
-    var birthData: String = ""
-
     private let disposeBag = DisposeBag()
 
     // MARK: - LifeCycle
@@ -67,7 +65,6 @@ final class SignUpThirdStepViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
-        bindUI()
     }
 
     override func viewWillLayoutSubviews() {
@@ -76,7 +73,7 @@ final class SignUpThirdStepViewController: UIViewController {
     }
 }
 
-private extension SignUpThirdStepViewController {
+private extension BirthStepViewController {
 
     private func configureUI() {
         view.addSubviews([stepLabel, birthStackView])
@@ -111,25 +108,5 @@ private extension SignUpThirdStepViewController {
         dayTextField.snp.makeConstraints { make in
             make.width.equalTo(60)
         }
-    }
-
-    private func bindUI() {
-
-        Observable<Bool>.combineLatest(
-            yearTextField.rx.text.orEmpty,
-            monthTextField.rx.text.orEmpty,
-            dayTextField.rx.text.orEmpty
-        ) { year, month, day in
-            (year.count > 3 && !year.isEmpty)
-                && (month.count > 1 && !month.isEmpty)
-                && (day.count > 1 && !day.isEmpty)
-        }
-            .distinctUntilChanged()
-            .bind { [weak self] isNotEmpty in
-            guard let self = self else { return }
-            NotificationCenter.default.post(name: .bottomButtonState,
-                                            object: isNotEmpty)
-            self.birthData = "\(self.yearTextField.text!)\(self.monthTextField.text!)\(self.dayTextField.text!)"
-        }.disposed(by: disposeBag)
     }
 }

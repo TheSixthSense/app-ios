@@ -1,6 +1,6 @@
 //
-//  SignUpFirstStepVIewController.swift
-//  VegannerApp
+//  NicknameStepViewController.swift
+//  Account
 //
 //  Created by Allie Kim on 2022/07/15.
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
@@ -16,7 +16,7 @@ import Then
 
 // TODO: - 닉네임 validation API 추가
 
-final class SignUpFirstStepViewController: UIViewController {
+final class NicknameStepViewController: UIViewController {
 
     // MARK: - UI
 
@@ -24,7 +24,7 @@ final class SignUpFirstStepViewController: UIViewController {
         label.setText("비거너!\n너의 닉네임을 알려줘", font: AppFont.title2)
     }
 
-    private var nicknameTextField = AppTextField().then { textfield in
+    var nicknameTextField = AppTextField().then { textfield in
         textfield.placeholderString = "2~10자 사이로 입력해 주세요"
         // TODO: - 기획: validation 문구 수정
         textfield.errorString = "필수항목을 선택해 주세요.(벨리데이션 문구 필요)"
@@ -32,12 +32,18 @@ final class SignUpFirstStepViewController: UIViewController {
     }
 
     // MARK: - Vars
-    var nicknameData: String = ""
 
     private let disposeBag = DisposeBag()
 
     // MARK: - LifeCycle
-
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
@@ -50,7 +56,7 @@ final class SignUpFirstStepViewController: UIViewController {
     }
 }
 
-private extension SignUpFirstStepViewController {
+private extension NicknameStepViewController {
 
     private func configureUI() {
         view.addSubviews([stepLabel, nicknameTextField])
@@ -69,39 +75,11 @@ private extension SignUpFirstStepViewController {
     }
 
     private func bindUI() {
-
+        
         view.rx.tapGesture()
             .when(.recognized)
             .bind(onNext: { [weak self] _ in
             self?.view.endEditing(true)
         }).disposed(by: disposeBag)
-
-        nicknameTextField.rx.text.orEmpty
-            .changed
-            .skip(1)
-            .bind { [weak self] text in
-            guard let self = self else { return }
-            guard !text.isEmpty else {
-                // 빈 스트링일때 error text 지우기
-                self.nicknameTextField.isValidText = true
-                NotificationCenter.default.post(name: .bottomButtonState,
-                                                object: false)
-                return
-            }
-            let isValid = self.isValidNickname(text)
-            self.nicknameTextField.isValidText = isValid
-            NotificationCenter.default.post(name: .bottomButtonState,
-                                            object: isValid)
-            if isValid {
-                self.nicknameData = text
-            }
-        }.disposed(by: disposeBag)
-    }
-
-    private func isValidNickname(_ nickname: String) -> Bool {
-        let nicknameRegex = "^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9]+$"
-        let nicknameTest = NSPredicate(format: "SELF MATCHES %@",
-                                       nicknameRegex)
-        return nicknameTest.evaluate(with: nickname)
     }
 }

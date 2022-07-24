@@ -8,9 +8,26 @@
 
 import Foundation
 
-enum VeganStage: String {
-    case beginner = "BEGINNER"
-    case junior = "JUNIOR"
-    case senior = "SENIOR"
-    case retry = "RETRY"
+enum VeganStage: Int {
+    case beginner = 0
+    case junior
+    case senior
+    case retry
+}
+
+extension VeganStage {
+
+    var stringValue: String {
+        switch self {
+        case .beginner:
+            return "BEGINNER"
+        case .junior:
+            return "JUNIOR"
+        case .senior:
+            return "SENIOR"
+        case .retry:
+            return "RETRY"
+        }
+    }
+
 }
