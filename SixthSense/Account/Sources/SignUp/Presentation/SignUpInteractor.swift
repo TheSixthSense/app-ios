@@ -7,17 +7,29 @@
 //
 
 import RIBs
+import Foundation
 import RxSwift
+import RxRelay
 
 public protocol SignUpRouting: ViewableRouting { }
 
+protocol SignUpPresenterAction: AnyObject {
+    var nicknameDidInput: Observable<String?> { get }
+}
+
+protocol SignUpPresenterHandler: AnyObject {
+    var visibleNicknameValid: Observable<Bool> { get }
+}
+
+
 protocol SignUpPresentable: Presentable {
-    var listener: SignUpPresentableListener? { get set }
+    var handler: SignUpPresenterHandler? { get set }
+    var action: SignUpPresenterAction? { get set }
 }
 
 public protocol SignUpListener: AnyObject { }
 
-final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpInteractable, SignUpPresentableListener {
+final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpInteractable {
 
     weak var router: SignUpRouting?
     weak var listener: SignUpListener?
