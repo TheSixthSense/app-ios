@@ -33,6 +33,8 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
 
     weak var router: SignUpRouting?
     weak var listener: SignUpListener?
+    
+    private let visibleNicknameValidRelay: BehaviorRelay<Bool> = .init(value: false)
 
     override init(presenter: SignUpPresentable) {
         super.init(presenter: presenter)
@@ -56,10 +58,12 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
             .skip(1)
             .subscribe(onNext: { [weak self] in
                 guard let text = $0, !text.isEmpty else {
+                    self?.visibleNicknameValidRelay.accept(true)
                     return
                 }
             
                 let isValid = self?.isValidNickname(text) ?? false
+                self?.visibleNicknameValidRelay.accept(isValid)
 
                 // Data에 저장
                 
@@ -74,5 +78,9 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
         return nicknameTest.evaluate(with: nickname)
     }
 }
+
+extension SignUpInteractor: SignUpPresenterHandler {
+    var visibleNicknameValid: Observable<Bool> {
+        return visibleNicknameValidRelay.asObservable()
     }
 }

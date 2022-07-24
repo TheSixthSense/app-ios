@@ -152,7 +152,18 @@ private extension SignUpViewController {
     }
 
     private func bindUI() {
+        guard let handler = handler else { return }
+        
+        handler.visibleNicknameValid
+            .debug("🌱")
+            .bind(to: signUpPageView.nickNameInputView.nicknameTextField.rx.isValidText)
+            .disposed(by: self.disposeBag)
+//        listener.visibleNicknameValid
+//            .debug("😀")
+//            .bind(to: nicknameTextField.rx.isValidText)
+//            .disposed(by: self.disposeBag)
 
+        
         rx.viewDidLayoutSubviews
             .take(1)
             .bind(onNext: {
