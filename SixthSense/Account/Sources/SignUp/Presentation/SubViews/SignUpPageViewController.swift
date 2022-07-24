@@ -13,15 +13,15 @@ import UIKit
 class SignUpPageViewController: UIPageViewController {
 
     // MARK: - UI
-    let nickNameInputView: SignUpFirstStepViewController = .init()
+    let nickNameInputView: NicknameStepViewController = .init()
 
     private lazy var pageViews: [UIViewController] = {
         var subViews = [UIViewController]()
         subViews.append(contentsOf: [
             nickNameInputView,
-            SignUpSecondStepViewController(),
-            SignUpThirdStepViewController(),
-            SignUpLastStepViewController()
+            GenderStepViewController(),
+            BirthStepViewController(),
+            VeganStepViewController()
         ])
         return subViews
     }()
