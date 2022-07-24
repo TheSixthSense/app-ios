@@ -1,5 +1,5 @@
 //
-//  SignUpSecondStepViewController.swift
+//  GenderStepViewController.swift
 //  VegannerApp
 //
 //  Created by Allie Kim on 2022/07/15.
@@ -13,7 +13,7 @@ import SnapKit
 import Then
 import UIKit
 
-final class SignUpSecondStepViewController: UIViewController {
+final class GenderStepViewController: UIViewController {
 
     // MARK: - UI
 
@@ -28,16 +28,16 @@ final class SignUpSecondStepViewController: UIViewController {
     }
 
     private let maleButton = SelectButton(title: "남성").then {
-        $0.tag = 0
+        $0.tag = Gender.male.rawValue
     }
     private let femaleButton = SelectButton(title: "여성").then {
-        $0.tag = 1
+        $0.tag = Gender.female.rawValue
     }
     private let etcButton = SelectButton(title: "그 외 성별").then {
-        $0.tag = 2
+        $0.tag = Gender.etc.rawValue
     }
     private let noneButton = SelectButton(title: "선택 안 함").then {
-        $0.tag = 3
+        $0.tag = Gender.none.rawValue
     }
 
     // MARK: - Vars
@@ -46,7 +46,7 @@ final class SignUpSecondStepViewController: UIViewController {
     private let selectButtonState: Observable<SelectButton>
     private var selectedButton: Gender? { // 유저가 선택한 버튼
         didSet {
-            genderData = selectedButton?.rawValue ?? ""
+            genderData = selectedButton?.stringValue ?? ""
         }
     }
 
@@ -89,7 +89,7 @@ final class SignUpSecondStepViewController: UIViewController {
     }
 }
 
-private extension SignUpSecondStepViewController {
+private extension GenderStepViewController {
 
     private func configureUI() {
         view.addSubviews([stepLabel, buttonStackView])

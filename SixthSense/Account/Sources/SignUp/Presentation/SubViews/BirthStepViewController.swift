@@ -1,5 +1,5 @@
 //
-//  SignUpThirdStepViewController.swift
+//  BirthStepViewController.swift
 //  VegannerApp
 //
 //  Created by Allie Kim on 2022/07/15.
@@ -12,7 +12,7 @@ import RxGesture
 import Then
 import DesignSystem
 
-final class SignUpThirdStepViewController: UIViewController {
+final class BirthStepViewController: UIViewController {
 
     // MARK: - UI
 
@@ -76,7 +76,7 @@ final class SignUpThirdStepViewController: UIViewController {
     }
 }
 
-private extension SignUpThirdStepViewController {
+private extension BirthStepViewController {
 
     private func configureUI() {
         view.addSubviews([stepLabel, birthStackView])

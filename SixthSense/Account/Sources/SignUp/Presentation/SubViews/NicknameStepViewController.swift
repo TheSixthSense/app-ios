@@ -1,5 +1,5 @@
 //
-//  SignUpFirstStepVIewController.swift
+//  NicknameStepViewController.swift
 //  VegannerApp
 //
 //  Created by Allie Kim on 2022/07/15.
@@ -16,7 +16,7 @@ import Then
 
 // TODO: - 닉네임 validation API 추가
 
-final class SignUpFirstStepViewController: UIViewController {
+final class NicknameStepViewController: UIViewController {
 
     // MARK: - UI
 
@@ -57,7 +57,7 @@ final class SignUpFirstStepViewController: UIViewController {
     }
 }
 
-private extension SignUpFirstStepViewController {
+private extension NicknameStepViewController {
 
     private func configureUI() {
         view.addSubviews([stepLabel, nicknameTextField])

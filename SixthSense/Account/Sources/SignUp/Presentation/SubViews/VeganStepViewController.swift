@@ -1,5 +1,5 @@
 //
-//  SignUpLastStepViewController.swift
+//  VeganStepViewController.swift
 //  VegannerApp
 //
 //  Created by Allie Kim on 2022/07/15.
@@ -14,7 +14,7 @@ import SnapKit
 import Then
 import UIKit
 
-final class SignUpLastStepViewController: UIViewController {
+final class VeganStepViewController: UIViewController {
 
     // MARK: - UI
 
@@ -31,19 +31,19 @@ final class SignUpLastStepViewController: UIViewController {
     private let beginnerButton = ImageButton(
         defaultImage: AppImage.beginnerIconDefault.image,
         focusedImage: AppImage.beginnerIconFocused.image,
-        text: "처음이야, 이제 시작해보려고 해!").then { $0.tag = 0 }
+        text: "처음이야, 이제 시작해보려고 해!").then { $0.tag = VeganStage.beginner.rawValue }
     private let juniorButton = ImageButton(
         defaultImage: AppImage.juniorIconDefault.image,
         focusedImage: AppImage.juniorIconFocused.image,
-        text: "아직 비건 초심자, 조금씩 실천하는 중이야!").then { $0.tag = 1 }
+        text: "아직 비건 초심자, 조금씩 실천하는 중이야!").then { $0.tag = VeganStage.junior.rawValue }
     private let seniorButton = ImageButton(
         defaultImage: AppImage.seniorIconDefault.image,
         focusedImage: AppImage.seniorIconFocused.image,
-        text: "예전부터 꾸준히 실천하고 있어!").then { $0.tag = 2 }
+        text: "예전부터 꾸준히 실천하고 있어!").then { $0.tag = VeganStage.senior.rawValue }
     private let retryButton = ImageButton(
         defaultImage: AppImage.retryIconDefault.image,
         focusedImage: AppImage.retryIconFocused.image,
-        text: "잠시 쉬었다가 왔어! 다시 도전해보려고 해").then { $0.tag = 3 }
+        text: "잠시 쉬었다가 왔어! 다시 도전해보려고 해").then { $0.tag = VeganStage.retry.rawValue }
 
     // MARK: - Vars
 
@@ -51,7 +51,7 @@ final class SignUpLastStepViewController: UIViewController {
     private let imageButtonState: Observable<ImageButton>
     private var userVeganStage: VeganStage? { // 유저가 선택한 버튼
         didSet {
-            veganStageData = userVeganStage?.rawValue ?? ""
+            veganStageData = userVeganStage?.stringValue ?? ""
         }
     }
 
@@ -97,7 +97,7 @@ final class SignUpLastStepViewController: UIViewController {
     }
 }
 
-private extension SignUpLastStepViewController {
+private extension VeganStepViewController {
 
     private func configureUI() {
         view.addSubviews([stepLabel, buttonStackView])

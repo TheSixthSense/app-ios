@@ -28,10 +28,10 @@ class SignUpPageViewController: UIPageViewController {
 
     // MARK: - Rx
 
-    lazy var stepDrvier: Driver<SignUpStep> = stepRelay.asDriver(onErrorJustReturn: SignUpStep.one)
-    lazy var stepDataDriver: Driver<[SignUpStep:String]> = stepDataRelay.asDriver(onErrorDriveWith: .empty())
-    private var stepRelay: PublishRelay<SignUpStep>
-    private var stepDataRelay: PublishRelay<[SignUpStep: String]>
+    lazy var stepDrvier: Driver<SignUpSteps> = stepRelay.asDriver(onErrorJustReturn: SignUpSteps.nickname)
+    lazy var stepDataDriver: Driver<[SignUpSteps:String]> = stepDataRelay.asDriver(onErrorDriveWith: .empty())
+    private var stepRelay: PublishRelay<SignUpSteps>
+    private var stepDataRelay: PublishRelay<[SignUpSteps: String]>
 
     // MARK: - LifeCycle
 
@@ -78,7 +78,7 @@ extension SignUpPageViewController {
     func goToPreviousPage() {
         if let currentViewController = viewControllers?[0] {
 
-            guard currentViewController is SignUpFirstStepViewController == false else {
+            guard currentViewController is NicknameStepViewController == false else {
                 sendRelay(where: nil)
                 return
             }
@@ -92,18 +92,18 @@ extension SignUpPageViewController {
 
     private func sendRelay(where nextPage: UIViewController?) {
         guard let nextPage = nextPage else {
-            stepRelay.accept(SignUpStep.exit)
+            stepRelay.accept(SignUpSteps.exit)
             return
         }
 
-        if nextPage is SignUpFirstStepViewController {
-            stepRelay.accept(SignUpStep.one)
-        } else if nextPage is SignUpSecondStepViewController {
-            stepRelay.accept(SignUpStep.two)
-        } else if nextPage is SignUpThirdStepViewController {
-            stepRelay.accept(SignUpStep.three)
+        if nextPage is NicknameStepViewController {
+            stepRelay.accept(SignUpSteps.nickname)
+        } else if nextPage is GenderStepViewController {
+            stepRelay.accept(SignUpSteps.gender)
+        } else if nextPage is BirthStepViewController {
+            stepRelay.accept(SignUpSteps.birthday)
         } else {
-            stepRelay.accept(SignUpStep.four)
+            stepRelay.accept(SignUpSteps.veganStage)
         }
     }
 
@@ -112,14 +112,14 @@ extension SignUpPageViewController {
             return
         }
 
-        if let page = currentPage as? SignUpFirstStepViewController {
-            stepDataRelay.accept([SignUpStep.one: page.nicknameData])
-        } else if let page = currentPage as? SignUpSecondStepViewController {
-            stepDataRelay.accept([SignUpStep.two: page.genderData])
-        } else if let page = currentPage as? SignUpThirdStepViewController {
-            stepDataRelay.accept([SignUpStep.three: page.birthData])
-        } else if let page = currentPage as? SignUpLastStepViewController {
-            stepDataRelay.accept([SignUpStep.four: page.veganStageData])
+        if let page = currentPage as? NicknameStepViewController {
+            stepDataRelay.accept([SignUpSteps.nickname: page.nicknameData])
+        } else if let page = currentPage as? GenderStepViewController {
+            stepDataRelay.accept([SignUpSteps.gender: page.genderData])
+        } else if let page = currentPage as? BirthStepViewController {
+            stepDataRelay.accept([SignUpSteps.birthday: page.birthData])
+        } else if let page = currentPage as? VeganStepViewController {
+            stepDataRelay.accept([SignUpSteps.veganStage: page.veganStageData])
         }
     }
 }
@@ -137,10 +137,6 @@ extension SignUpPageViewController: UIPageViewControllerDataSource {
 
         let previousIndex = viewControllerIndex - 1
 
-        guard previousIndex >= 0 else { return nil }
-
-        guard pageViews.count > previousIndex else { return nil }
-
         return pageViews[previousIndex]
     }
 
@@ -151,14 +147,10 @@ extension SignUpPageViewController: UIPageViewControllerDataSource {
         guard let viewControllerIndex = pageViews.firstIndex(of: viewController) else { return nil }
 
         sendData(where: viewController)
-        
+
         let nextIndex = viewControllerIndex + 1
 
-        guard nextIndex < pageViews.count else { return nil }
-
-        guard pageViews.count > nextIndex else { return nil }
-
-        return pageViews[nextIndex]
+        return pageViews[safe: nextIndex]
     }
 }
 
