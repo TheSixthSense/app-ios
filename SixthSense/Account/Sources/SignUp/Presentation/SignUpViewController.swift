@@ -15,13 +15,15 @@ import RxKeyboard
 import Then
 import UIKit
 
-protocol SignUpPresentableListener: AnyObject { }
 
 final class SignUpViewController: UIViewController, SignUpPresentable, SignUpViewControllable {
 
     // MARK: - UI
 
     var signUpPageView: SignUpPageViewController
+    var action: SignUpPresenterAction?
+    var handler: SignUpPresenterHandler?
+
 
     private lazy var stepIconImageView = UIImageView().then { view in
         view.image = AppImage.signUpIcon1.image
@@ -60,9 +62,6 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
     }
 
     // MARK: - Vars
-
-    weak var listener: SignUpPresentableListener?
-
     private let progressPositions: [Float] = [0.25, 0.5, 0.75, 1]
     private let disposeBag = DisposeBag()
 
@@ -74,6 +73,7 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
         signUpPageView = SignUpPageViewController()
         signUpRequestModel = SignUpRequestModel()
         super.init(nibName: nil, bundle: nil)
+        action = self
     }
 
     required init?(coder: NSCoder) {

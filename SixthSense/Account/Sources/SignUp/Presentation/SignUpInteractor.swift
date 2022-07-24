@@ -36,14 +36,20 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
 
     override init(presenter: SignUpPresentable) {
         super.init(presenter: presenter)
-        presenter.listener = self
+        presenter.handler = self
     }
 
     override func didBecomeActive() {
         super.didBecomeActive()
+        self.bind()
     }
 
     override func willResignActive() {
         super.willResignActive()
+    }
+    
+    func bind() {
+        guard let action = presenter.action else { return }
+    }
     }
 }
