@@ -333,3 +333,9 @@ private extension SignUpViewController {
         }
     }
 }
+
+extension SignUpViewController: SignUpPresenterAction {
+    var nicknameDidInput: Observable<String?> {
+        signUpPageView.nickNameInputView.nicknameTextField.rx.text.changed.asObservable().debug("😀")
+    }
+}

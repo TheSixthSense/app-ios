@@ -50,6 +50,29 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
     
     func bind() {
         guard let action = presenter.action else { return }
+
+        action.nicknameDidInput
+            .debug("😀")
+            .skip(1)
+            .subscribe(onNext: { [weak self] in
+                guard let text = $0, !text.isEmpty else {
+                    return
+                }
+            
+                let isValid = self?.isValidNickname(text) ?? false
+
+                // Data에 저장
+                
+            })
+            .disposeOnDeactivate(interactor: self)
     }
+    
+    private func isValidNickname(_ nickname: String) -> Bool {
+        let nicknameRegex = "^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9]+$"
+        let nicknameTest = NSPredicate(format: "SELF MATCHES %@",
+                                       nicknameRegex)
+        return nicknameTest.evaluate(with: nickname)
+    }
+}
     }
 }
