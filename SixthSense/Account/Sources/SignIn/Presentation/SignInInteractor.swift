@@ -11,6 +11,7 @@ import RxSwift
 import AuthenticationServices
 
 public protocol SignInRouting: ViewableRouting {
+    func routeToSignUp()
 }
 
 protocol SignInPresentable: Presentable {
@@ -40,20 +41,22 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
     override func willResignActive() {
         super.willResignActive()
     }
-    
+
     func signIn() {
         dependency.usecase
             .signInWithApple()
-            .subscribe(onNext: {
-                guard let identityToken = $0.identityToken else { return }
-                // FIXME: 테스트를 위한 로그들입니다 추후 제거 예정
-                print("🦊\(String(data: identityToken, encoding: .utf8))")
-                print("🦊\($0.email)")
-                print("🦊\($0.fullName)")
-            })
+            .subscribe(onNext: { [weak self] in
+            guard let identityToken = $0.identityToken else { return }
+            // FIXME: 테스트를 위한 로그들입니다 추후 제거 예정
+            print("🦊\(String(data: identityToken, encoding: .utf8))")
+            print("🦊\($0.email)")
+            print("🦊\($0.fullName)")
+
+            self?.router?.routeToSignUp()
+        })
             .disposeOnDeactivate(interactor: self)
     }
-    
+
     func skip() {
         listener?.signInDidTapClose()
     }

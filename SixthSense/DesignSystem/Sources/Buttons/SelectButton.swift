@@ -18,7 +18,7 @@ public final class SelectButton: UIButton, ButtonProtocol {
     public var hasFocused: Bool = false {
         didSet {
             let title = titleLabel?.text ?? ""
-            hasFocused ? setButtonTitle(with: title) : setButtonTitleFocused(with: title)
+            hasFocused ? setButtonTitleFocused(with: title) : setButtonTitle(with: title)
         }
     }
 
@@ -61,21 +61,12 @@ public final class SelectButton: UIButton, ButtonProtocol {
             string: string,
             attributes: [.font: AppFont.body1]
         ), for: .normal)
-
-        setTitleColor(titleColor, for: .normal)
     }
 
     func setButtonTitleFocused(with string: String) {
         backgroundColor = .green100
         titleColor = .green700
         borderColor = .main
-
-        setAttributedTitle(NSAttributedString(
-            string: string,
-            attributes: [.font: AppFont.body1Bold]
-        ), for: .normal)
-
-        setTitleColor(titleColor, for: .normal)
     }
 }
 

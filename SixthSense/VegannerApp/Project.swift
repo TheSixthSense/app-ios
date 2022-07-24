@@ -15,7 +15,9 @@ let project = Project.app(
     .kingfisher,
     .objectMapper,
     .netfox,
-    .rxKeyboard
+    .rxKeyboard,
+	.rxAppState,
+    .rxGesture
   ] + [Module.storage, .repository, .utils, .account, .designSystem, .splash].map(\.project),
   additionalTargets: []
 )
