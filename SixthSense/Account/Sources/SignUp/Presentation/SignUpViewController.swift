@@ -15,13 +15,15 @@ import RxKeyboard
 import Then
 import UIKit
 
-protocol SignUpPresentableListener: AnyObject { }
 
 final class SignUpViewController: UIViewController, SignUpPresentable, SignUpViewControllable {
 
     // MARK: - UI
 
-    private var signUpPageView: SignUpPageViewController
+    var signUpPageView: SignUpPageViewController
+    var action: SignUpPresenterAction?
+    var handler: SignUpPresenterHandler?
+
 
     private lazy var stepIconImageView = UIImageView().then { view in
         view.image = AppImage.signUpIcon1.image
@@ -60,9 +62,6 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
     }
 
     // MARK: - Vars
-
-    weak var listener: SignUpPresentableListener?
-
     private let progressPositions: [Float] = [0.25, 0.5, 0.75, 1]
     private let disposeBag = DisposeBag()
 
@@ -74,6 +73,7 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
         signUpPageView = SignUpPageViewController()
         signUpRequestModel = SignUpRequestModel()
         super.init(nibName: nil, bundle: nil)
+        action = self
     }
 
     required init?(coder: NSCoder) {
@@ -152,7 +152,18 @@ private extension SignUpViewController {
     }
 
     private func bindUI() {
+        guard let handler = handler else { return }
+        
+        handler.visibleNicknameValid
+            .debug("🌱")
+            .bind(to: signUpPageView.nickNameInputView.nicknameTextField.rx.isValidText)
+            .disposed(by: self.disposeBag)
+//        listener.visibleNicknameValid
+//            .debug("😀")
+//            .bind(to: nicknameTextField.rx.isValidText)
+//            .disposed(by: self.disposeBag)
 
+        
         rx.viewDidLayoutSubviews
             .take(1)
             .bind(onNext: {
@@ -331,5 +342,11 @@ private extension SignUpViewController {
             stepIconImageView.image = AppImage.signUpIcon4.image
             return
         }
+    }
+}
+
+extension SignUpViewController: SignUpPresenterAction {
+    var nicknameDidInput: Observable<String?> {
+        signUpPageView.nickNameInputView.nicknameTextField.rx.text.changed.asObservable().debug("😀")
     }
 }

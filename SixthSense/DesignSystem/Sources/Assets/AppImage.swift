@@ -8,4 +8,4 @@
 
 import UIKit
 
-public typealias AppImage = DesignSystemAsset
+public typealias AppImage = DesignSystemAsset.Images
