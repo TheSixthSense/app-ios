@@ -1,6 +1,6 @@
 //
 //  GenderStepViewController.swift
-//  VegannerApp
+//  Account
 //
 //  Created by Allie Kim on 2022/07/15.
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
@@ -27,30 +27,24 @@ final class GenderStepViewController: UIViewController {
         stack.spacing = 12
     }
 
-    private let maleButton = SelectButton(title: "남성").then {
+    let maleButton = SelectButton(title: "남성").then {
         $0.tag = Gender.male.rawValue
     }
-    private let femaleButton = SelectButton(title: "여성").then {
+    let femaleButton = SelectButton(title: "여성").then {
         $0.tag = Gender.female.rawValue
     }
-    private let etcButton = SelectButton(title: "그 외 성별").then {
+    let etcButton = SelectButton(title: "그 외 성별").then {
         $0.tag = Gender.etc.rawValue
     }
-    private let noneButton = SelectButton(title: "선택 안 함").then {
+    let noneButton = SelectButton(title: "선택 안 함").then {
         $0.tag = Gender.none.rawValue
     }
 
     // MARK: - Vars
 
-    private let selectButtons: [SelectButton]
-    private let selectButtonState: Observable<SelectButton>
-    private var selectedButton: Gender? { // 유저가 선택한 버튼
-        didSet {
-            genderData = selectedButton?.stringValue ?? ""
-        }
-    }
-
-    var genderData: String = ""
+    let selectButtons: [SelectButton]
+    let selectButtonState: Observable<SelectButton>
+    var selectedButton: PublishRelay<Gender?> // 유저가 선택한 버튼
 
     private let disposeBag = DisposeBag()
 
@@ -63,7 +57,7 @@ final class GenderStepViewController: UIViewController {
                 .map { button in
                 button.rx.tap.map { button } }
         ).merge().share()
-
+        selectedButton = PublishRelay()
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -79,8 +73,6 @@ final class GenderStepViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let state = selectedButton != nil ? true : false
-        NotificationCenter.default.post(name: .bottomButtonState, object: state)
     }
 
     override func viewWillLayoutSubviews() {
@@ -130,23 +122,12 @@ private extension GenderStepViewController {
 
     private func selectButtonEvent() {
 
-        selectButtonState
-            .bind(onNext: { _ in
-            NotificationCenter.default.post(name: .bottomButtonState, object: true)
-        })
-            .disposed(by: disposeBag)
-
         selectButtons.reduce(Disposables.create()) { disposable, button in
             let subscription = selectButtonState
-                .map { [weak self] in
-                if ($0 == button) {
-                    self?.selectedButton = self?.findSelectedButton(with: button.tag)
-                    return true
+                .bind(onNext: {
+                if $0 == button {
+                    self.selectedButton.accept(self.findSelectedButton(with: $0.tag))
                 }
-                return false
-            }
-                .bind(onNext: { state in
-                button.hasFocused = state
             })
             return Disposables.create(disposable, subscription)
         }

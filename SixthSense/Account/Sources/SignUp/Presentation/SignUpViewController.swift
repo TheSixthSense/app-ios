@@ -1,6 +1,6 @@
 //
 //  SignUpViewController.swift
-//  VegannerApp
+//  Account
 //
 //  Created by Allie Kim on 2022/07/14.
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
@@ -18,12 +18,13 @@ import UIKit
 
 final class SignUpViewController: UIViewController, SignUpPresentable, SignUpViewControllable {
 
-    // MARK: - UI
-
-    var signUpPageView: SignUpPageViewController
+    var listener: SignUpListener?
     var action: SignUpPresenterAction?
     var handler: SignUpPresenterHandler?
 
+    // MARK: - UI
+
+    var signUpPageView: SignUpPageViewController
 
     private lazy var stepIconImageView = UIImageView().then { view in
         view.image = AppImage.signUpIcon1.image
@@ -85,6 +86,7 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
 
         configureUI()
         bindUI()
+        bindSubViewHandlers()
     }
 }
 
@@ -152,18 +154,7 @@ private extension SignUpViewController {
     }
 
     private func bindUI() {
-        guard let handler = handler else { return }
-        
-        handler.visibleNicknameValid
-            .debug("🌱")
-            .bind(to: signUpPageView.nickNameInputView.nicknameTextField.rx.isValidText)
-            .disposed(by: self.disposeBag)
-//        listener.visibleNicknameValid
-//            .debug("😀")
-//            .bind(to: nicknameTextField.rx.isValidText)
-//            .disposed(by: self.disposeBag)
 
-        
         rx.viewDidLayoutSubviews
             .take(1)
             .bind(onNext: {
@@ -194,18 +185,36 @@ private extension SignUpViewController {
             self?.signUpPageView.goToPreviousPage()
         }).disposed(by: disposeBag)
 
-        NotificationCenter.default.rx
-            .notification(.bottomButtonState)
-            .distinctUntilChanged()
-            .asDriver(onErrorDriveWith: .empty())
-            .drive(onNext: { noti in
-
-            let state = noti.object as? Bool ?? false
-            self.bottomButton.hasFocused = state
-
-        }).disposed(by: disposeBag)
-
         updateBottomButtonLayout()
+    }
+
+    private func bindSubViewHandlers() {
+        guard let handler = handler else { return }
+
+        handler.visibleNicknameValid
+            .bind(
+            with: bottomButton,
+            onNext: { [weak self] button, isValid in
+                button.hasFocused = isValid
+                self?.signUpPageView.nickNameInputView.nicknameTextField.isValidText = isValid
+            })
+            .disposed(by: disposeBag)
+
+        handler.genderInputValid
+            .bind(
+            with: bottomButton,
+            onNext: { button, tag in
+                button.hasFocused = tag == -1 ? false : true
+                let vc = self.signUpPageView.genderInputView
+                vc.selectButtons.forEach {
+                    if $0.tag == tag {
+                        $0.hasFocused = true
+                    } else {
+                        $0.hasFocused = false
+                    }
+                }
+            })
+            .disposed(by: disposeBag)
     }
 
     /// rxKeyboard를 사용해서 keyboard height 만큼 view의 constratint을 업데이트 한다.
@@ -242,21 +251,22 @@ private extension SignUpViewController {
         }).disposed(by: disposeBag)
     }
 
+    // TODO: - Interactor로 이동
     private func applyData(_ data: [SignUpSteps: String]) {
-        guard let step = data.keys.first else { return }
-        guard let value = data.values.first else { return }
-
-        switch step {
-        case .exit: return
-        case .nickname:
-            signUpRequestModel.nickName = value
-        case .gender:
-            signUpRequestModel.gender = value
-        case .birthday:
-            signUpRequestModel.birthDay = value
-        case .veganStage:
-            signUpRequestModel.vegannerStage = value
-        }
+//        guard let step = data.keys.first else { return }
+//        guard let value = data.values.first else { return }
+//
+//        switch step {
+//        case .exit: return
+//        case .nickname:
+//            signUpRequestModel.nickName = value
+//        case .gender:
+//            signUpRequestModel.gender = value
+//        case .birthday:
+//            signUpRequestModel.birthDay = value
+//        case .veganStage:
+//            signUpRequestModel.vegannerStage = value
+//        }
     }
 
     /// SignUpPageViewController의 화면 전환에 관련된 UI 수행을 한다.
@@ -305,7 +315,12 @@ private extension SignUpViewController {
 }
 
 extension SignUpViewController: SignUpPresenterAction {
+
     var nicknameDidInput: Observable<String?> {
-        signUpPageView.nickNameInputView.nicknameTextField.rx.text.changed.asObservable().debug("😀")
+        signUpPageView.nickNameInputView.nicknameTextField.rx.text.changed.asObservable()
+    }
+
+    var genderDidInput: Observable<Gender?> {
+        signUpPageView.genderInputView.selectedButton.asObservable()
     }
 }

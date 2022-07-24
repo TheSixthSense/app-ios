@@ -1,6 +1,6 @@
 //
 //  SignUpPageViewController.swift
-//  VegannerApp
+//  Account
 //
 //  Created by Allie Kim on 2022/07/17.
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
@@ -14,14 +14,17 @@ class SignUpPageViewController: UIPageViewController {
 
     // MARK: - UI
     let nickNameInputView: NicknameStepViewController = .init()
+    let genderInputView: GenderStepViewController = .init()
+    let birthInputView: BirthStepViewController = .init()
+    let veganInputView: VeganStepViewController = .init()
 
     private lazy var pageViews: [UIViewController] = {
         var subViews = [UIViewController]()
         subViews.append(contentsOf: [
             nickNameInputView,
-            GenderStepViewController(),
-            BirthStepViewController(),
-            VeganStepViewController()
+            genderInputView,
+            birthInputView,
+            veganInputView
         ])
         return subViews
     }()
@@ -113,9 +116,9 @@ extension SignUpPageViewController {
         }
 
         if let page = currentPage as? NicknameStepViewController {
-            stepDataRelay.accept([SignUpSteps.nickname: page.nicknameData])
+            stepDataRelay.accept([SignUpSteps.nickname: "page.nicknameData"])
         } else if let page = currentPage as? GenderStepViewController {
-            stepDataRelay.accept([SignUpSteps.gender: page.genderData])
+            stepDataRelay.accept([SignUpSteps.gender: "page.genderData"])
         } else if let page = currentPage as? BirthStepViewController {
             stepDataRelay.accept([SignUpSteps.birthday: page.birthData])
         } else if let page = currentPage as? VeganStepViewController {
