@@ -11,6 +11,7 @@ import RxSwift
 import AuthenticationServices
 
 public protocol SignInRouting: ViewableRouting {
+    func routeToSignUp()
 }
 
 protocol SignInPresentable: Presentable {
@@ -41,7 +42,7 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
     override func willResignActive() {
         super.willResignActive()
     }
-    
+
     func signIn() {
         dependency.usecase
             .continueWithApple()
@@ -63,7 +64,7 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
             })
             .disposeOnDeactivate(interactor: self)
     }
-    
+
     func skip() {
         listener?.signInDidTapClose()
     }

@@ -15,11 +15,17 @@ public final class AppButton: UIButton, ButtonProtocol {
         didSet {
             backgroundColor = hasFocused ? .main : .systemGray100
             titleColor = hasFocused ? .white : .systemGray300
+            isUserInteractionEnabled = hasFocused
         }
     }
 
     public var titleText: String {
-        return titleLabel?.text ?? ""
+        get {
+            return titleLabel?.text ?? ""
+        }
+        set {
+            setButtonTitle(with: newValue)
+        }
     }
 
     override init(frame: CGRect) {

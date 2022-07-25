@@ -15,7 +15,8 @@ let project = Project.library(
     .rxCocoa,
     .rxRelay,
     .rxDataSources,
-    .ribs
+    .ribs,
+    .rxGesture
   ] + [Module.utils, .repository, .designSystem].map(\.project),
   additionalTargets: [],
   resources: .default
