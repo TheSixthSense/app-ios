@@ -25,6 +25,12 @@ public final class AppTextField: UITextField {
         }
     }
 
+    private lazy var errorIcon: UIImageView = {
+        let imageView = UIImageView(image: AppIcon.error)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+
     /// placeholder 적용
     public var placeholderString: String = "" {
         willSet {
@@ -72,15 +78,18 @@ private extension AppTextField {
     private func validTextField() {
         layer.borderColor = AppColor.systemGray300.cgColor
         errorLabel.isHidden = true
+        errorIcon.isHidden = true
     }
 
     private func invalidTextField() {
         layer.borderColor = AppColor.red500.cgColor
         errorLabel.isHidden = false
+        errorIcon.isHidden = false
     }
 
     private func enableErrorLabel(message: String) {
         addSubview(errorLabel)
+        addSubview(errorIcon)
         errorLabel.attributedText = NSAttributedString(
             string: message,
             attributes: [.foregroundColor: AppColor.red500,
@@ -88,8 +97,12 @@ private extension AppTextField {
         )
 
         NSLayoutConstraint.activate([
+            errorIcon.topAnchor.constraint(equalTo: bottomAnchor),
+            errorIcon.leadingAnchor.constraint(equalTo: leadingAnchor),
+            errorIcon.widthAnchor.constraint(equalToConstant: 16),
+            errorIcon.heightAnchor.constraint(equalToConstant: 16),
             errorLabel.topAnchor.constraint(equalTo: bottomAnchor),
-            errorLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            errorLabel.leadingAnchor.constraint(equalTo: errorIcon.trailingAnchor, constant: 4),
             errorLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }

@@ -1,17 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "sign_up_icon_3.png",
+      "filename" : "01_03.svg",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "icon_step-03_2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "icon_step-33.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
