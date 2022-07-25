@@ -231,6 +231,11 @@ private extension SignUpViewController {
                       }
                   })
             .disposed(by: disposeBag)
+        
+        handler.textDoneButton
+            .map(\.rawValue)
+            .bind(to: bottomButton.rx.titleText)
+            .disposed(by: self.disposeBag)
     }
 
     /// rxKeyboard를 사용해서 keyboard height 만큼 view의 constratint을 업데이트 한다.
@@ -269,7 +274,6 @@ private extension SignUpViewController {
 
     /// SignUpPageViewController의 화면 전환에 관련된 UI 수행을 한다.
     private func stepChanged(_ step: SignUpSteps) {
-        bottomButton.titleText = step.buttonTitle
         navigationTitle.text = step.navigationTitle
         stepIconImageView.image = step.stepIcon
         updateProgressBar(when: step)
@@ -313,6 +317,25 @@ private extension SignUpViewController {
 }
 
 extension SignUpViewController: SignUpPresenterAction {
+    var nicknameViewDidAppear: Observable<Void> {
+        signUpPageView.nickNameInputView.rx.viewDidAppear.map { _ in () }.asObservable()
+    }
+    
+    var genderViewDidAppear: Observable<Void> {
+        signUpPageView.genderInputView.rx.viewDidAppear.map { _ in () }.asObservable()
+    }
+    
+    var birthDateViewDidAppear: Observable<Void> {
+        signUpPageView.birthInputView.rx.viewDidAppear.map { _ in () }.asObservable()
+    }
+    
+    var veganStageViewDidAppear: Observable<Void> {
+        signUpPageView.veganInputView.rx.viewDidAppear.map { _ in () }.asObservable()
+    }
+    
+    var doneButtonDidTap: Observable<Void> {
+        bottomButton.rx.tap.map { _ in () }.asObservable()
+    }
 
     var nicknameDidInput: Observable<String> {
         signUpPageView.nickNameInputView.nicknameTextField.rx.text.orEmpty.distinctUntilChanged().asObservable()

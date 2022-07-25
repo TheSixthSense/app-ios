@@ -10,6 +10,7 @@ import RIBs
 import Foundation
 import RxSwift
 import RxRelay
+import Then
 
 public protocol SignUpRouting: ViewableRouting { }
 
@@ -18,6 +19,11 @@ protocol SignUpPresenterAction: AnyObject {
     var genderDidInput: Observable<Gender> { get }
     var birthDidInput: Observable<[String]> { get }
     var veganStageDidInput: Observable<VeganStage> { get }
+    var doneButtonDidTap: Observable<Void> { get }
+    var nicknameViewDidAppear: Observable<Void> { get }
+    var genderViewDidAppear: Observable<Void> { get }
+    var birthDateViewDidAppear: Observable<Void> { get }
+    var veganStageViewDidAppear: Observable<Void> { get }
 }
 
 protocol SignUpPresenterHandler: AnyObject {
@@ -25,6 +31,7 @@ protocol SignUpPresenterHandler: AnyObject {
     var genderInputValid: Observable<Int> { get }
     var visibleBirthInputValid: Observable<Bool> { get }
     var veganStageInputValid: Observable<Int> { get }
+    var textDoneButton: Observable<SignUpButtonType> { get }
 }
 
 protocol SignUpPresentable: Presentable {
@@ -44,8 +51,11 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
     private let genderInputValidRelay: PublishRelay<Int> = .init()
     private let visibleBirthInputValidRelay: BehaviorRelay<Bool> = .init(value: false)
     private let veganStageInputValidRelay: PublishRelay<Int> = .init()
+    
+    private let enableDoneButtonRelay: PublishRelay<Bool> = .init()
+    private let textDoneButtonRelay: PublishRelay<SignUpButtonType> = .init()
 
-    private var signUpRequestModel: SignUpRequestModel?
+    private var requests: SignUpRequestModel = .init()
     private let payload: SignUpPayload
 
     init(presenter: SignUpPresentable, payload: SignUpPayload) {
@@ -53,6 +63,14 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
         super.init(presenter: presenter)
         presenter.listener = self
         presenter.handler = self
+        configureRequestModel()
+    }
+    
+    private func configureRequestModel() {
+        self.requests = requests.with {
+            $0.appleId = payload.id
+            $0.clientSecret = payload.token
+        }
     }
 
     override func didBecomeActive() {
@@ -66,6 +84,27 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
 
     func bindSubViewActions() {
         guard let action = presenter.action else { return }
+        
+        Observable.merge([
+            action.nicknameViewDidAppear,
+            action.genderViewDidAppear,
+            action.birthDateViewDidAppear
+        ]).subscribe(onNext: { [weak self] in
+            self?.fetchDoneButtonText(buttonType: .next)
+        })
+        .disposeOnDeactivate(interactor: self)
+        
+        
+        action.veganStageViewDidAppear
+            .subscribe(onNext: { [weak self] in
+                self?.fetchDoneButtonText(buttonType: .done)
+            })
+        
+        action.doneButtonDidTap
+            .subscribe(onNext: {
+                // TODO: API 요청
+            })
+            .disposeOnDeactivate(interactor: self)
 
         action.nicknameDidInput
             .subscribe(onNext: { [weak self] in
@@ -76,19 +115,17 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
             }
 
             let isValid = self.isValidNickname($0)
-            self.visibleNicknameValidRelay.accept(isValid)
-
-            // TODO: - Data에 저장
-
-        })
+                self.visibleNicknameValidRelay.accept(isValid)
+                self.requests.nickName = $0
+            })
             .disposeOnDeactivate(interactor: self)
 
         action.genderDidInput
             .subscribe(onNext: { [weak self] in
             guard let self = self else { return }
-            self.genderInputValidRelay.accept($0.rawValue)
-            // TODO: - Data에 저장
-        })
+                self.requests.gender = $0.stringValue
+                self.genderInputValidRelay.accept($0.rawValue)
+            })
             .disposeOnDeactivate(interactor: self)
 
         action.birthDidInput
@@ -99,19 +136,21 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
                 self.visibleBirthInputValidRelay.accept(false)
                 return
             }
+            self.requests.birthDay = birthText
             self.visibleBirthInputValidRelay.accept(true)
-            // TODO: - Data에 저장
-        })
+            })
             .disposeOnDeactivate(interactor: self)
 
         action.veganStageDidInput
             .subscribe(onNext: { [weak self] in
             guard let self = self else { return }
             self.veganStageInputValidRelay.accept($0.rawValue)
-            // TODO: - Data에 저장
-        })
+            self.requests.vegannerStage = $0.stringValue
+                // TODO: 
+                print("🦊")
+                dump(self.requests)
+            })
             .disposeOnDeactivate(interactor: self)
-
     }
 
     private func isValidNickname(_ nickname: String) -> Bool {
@@ -120,9 +159,18 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
                                        nicknameRegex)
         return nicknameTest.evaluate(with: nickname)
     }
+    
+    private func fetchDoneButtonText(buttonType: SignUpButtonType) {
+        self.textDoneButtonRelay.accept(buttonType)
+    }
+    
 }
 
 extension SignUpInteractor: SignUpPresenterHandler {
+    var textDoneButton: Observable<SignUpButtonType> {
+        return textDoneButtonRelay.asObservable()
+    }
+    
     var visibleNicknameValid: Observable<Bool> {
         return visibleNicknameValidRelay.asObservable()
     }
@@ -138,4 +186,12 @@ extension SignUpInteractor: SignUpPresenterHandler {
     var veganStageInputValid: Observable<Int> {
         return veganStageInputValidRelay.asObservable()
     }
+}
+
+extension SignUpRequestModel: Then { }
+
+// TODO: 해당 enum을 어디다 놓을지 정하고 옮겨요
+enum SignUpButtonType: String {
+    case next = "다음"
+    case done = "확인"
 }
