@@ -13,6 +13,7 @@ import RxMoya
 import RxSwift
 import Then
 import Utils
+import ObjectMapper
 
 public final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
   private let disposeBag: DisposeBag = DisposeBag()
@@ -66,7 +67,28 @@ public final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
           self?.log.info("REQUEST: \(requestString)")
         }
       )
+      .catch {
+        guard let error = $0 as? MoyaError else {
+            return .error(APIError.message($0.localizedDescription))
+        }
+        
+        return try self.handleErrorResponse(error: error, target: target)
+      }
   }
+    
+    private func handleErrorResponse(error: MoyaError, target: TargetType) throws -> Single<Response> {
+        guard case let .statusCode(status) = error else {
+            return .error(APIError.message("알 수 없는 에러 발생"))
+        }
+
+        guard let json = try JSONSerialization.jsonObject(with: status.data, options: []) as? [String: Any],
+            let badRequestResponse = Mapper<ErrorResponse>().map(JSON: json) else {
+            return .error(APIError.message("알 수 없는 에러 발생"))
+        }
+
+        let errorMessage = APIError.error(badRequestResponse)
+        return .error(errorMessage)
+    }
 }
 
 extension Session: Then { }
@@ -108,8 +130,4 @@ public final class NetworkInterceptableImpl: NetworkInterceptable {
       return
     }
   }
-}
-
-enum APIError: Error {
-  case unknown
 }
