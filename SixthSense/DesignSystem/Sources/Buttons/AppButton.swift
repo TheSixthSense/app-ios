@@ -13,9 +13,7 @@ public final class AppButton: UIButton, ButtonProtocol {
     /// .touchUpInside event때 사용
     public var hasFocused: Bool = false {
         didSet {
-            backgroundColor = hasFocused ? .main : .systemGray100
-            titleColor = hasFocused ? .white : .systemGray300
-            isUserInteractionEnabled = hasFocused
+            didFocused(hasFocused)
         }
     }
 
@@ -40,6 +38,12 @@ public final class AppButton: UIButton, ButtonProtocol {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private func didFocused(_ focused: Bool) {
+        backgroundColor = focused ? .main : .systemGray100
+        titleColor = focused ? .white : .systemGray300
+        isUserInteractionEnabled = focused
     }
 
     // MARK: - ButtonProtocol

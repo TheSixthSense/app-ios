@@ -17,8 +17,7 @@ public final class SelectButton: UIButton, ButtonProtocol {
 
     public var hasFocused: Bool = false {
         didSet {
-            let title = titleLabel?.text ?? ""
-            hasFocused ? setButtonTitleFocused(with: title) : setButtonTitle(with: title)
+            didFocused(hasFocused)
         }
     }
 
@@ -49,6 +48,11 @@ public final class SelectButton: UIButton, ButtonProtocol {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private func didFocused(_ focused: Bool) {
+        let title = titleLabel?.text ?? ""
+        focused ? setButtonTitleFocused(with: title) : setButtonTitle(with: title)
     }
 
     func setButtonTitle(with string: String) {
