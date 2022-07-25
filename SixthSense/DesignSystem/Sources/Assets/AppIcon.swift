@@ -17,11 +17,16 @@ public enum AppIcon {
     public static var close: UIImage {
         return UIImage(.xmark)!.color(.systemGray300)
     }
+    
+    public static var error: UIImage {
+        return UIImage(.error)!.color(.red500)
+    }
 }
 
 enum SFSymbolKey: String {
     case back = "chevron.left"
     case xmark
+    case error = "exclamationmark.circle"
 }
 
 extension UIImage {
