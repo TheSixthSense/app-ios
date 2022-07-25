@@ -46,8 +46,10 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
     private let veganStageInputValidRelay: PublishRelay<Int> = .init()
 
     private var signUpRequestModel: SignUpRequestModel?
+    private let payload: SignUpPayload
 
-    override init(presenter: SignUpPresentable) {
+    init(presenter: SignUpPresentable, payload: SignUpPayload) {
+        self.payload = payload
         super.init(presenter: presenter)
         presenter.listener = self
         presenter.handler = self

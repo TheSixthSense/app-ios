@@ -11,7 +11,7 @@ import RxSwift
 import AuthenticationServices
 
 public protocol SignInRouting: ViewableRouting {
-    func routeToSignUp()
+    func routeToSignUp(payload: SignUpPayload)
 }
 
 protocol SignInPresentable: Presentable {
@@ -57,6 +57,10 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
                         print("🦊 signIn")
                         self?.listener?.signInDidTapClose()
                     case .signUp(let info):
+                        self?.router?.routeToSignUp(
+                            payload: .init(id: info.id,
+                                           token: info.token,
+                                           email: info.email))
                 }
             })
             .disposeOnDeactivate(interactor: self)
