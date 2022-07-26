@@ -39,42 +39,39 @@ public struct SignInUseCaseImpl: SignInUseCase {
             .compactMap { $0.credential as? ASAuthorizationAppleIDCredential }
     }
     
-    private func makePayload(_ credential: ASAuthorizationAppleIDCredential) -> Payload? {
+    private func makePayload(_ credential: ASAuthorizationAppleIDCredential) -> SignInfo? {
         guard let identityToken = credential.identityToken,
               let token = String(data: identityToken, encoding: .utf8) else { return nil }
-        return Payload(id: credential.user, token: token, email: credential.email)
+        return SignInfo(id: credential.user, token: token, email: credential.email)
     }
     
-    private func signInIfNeeded(_ payload: Payload) -> Observable<SignType> {
-        if shouldSignIn(payload) {
-            return requestSignIn(payload)
+    private func signInIfNeeded(_ info: SignInfo) -> Observable<SignType> {
+        if shouldSignIn(info) {
+            return requestSignIn(info)
         } else {
-            return .just(.signUp)
+            return .just(.signUp(info))
         }
     }
     
-    private func shouldSignIn(_ payload: Payload) -> Bool {
-        return payload.email == nil
+    private func shouldSignIn(_ info: SignInfo) -> Bool {
+        return info.email == nil
     }
         
-    private func requestSignIn(_ payload: Payload) -> Observable<SignType> {
-        let request = LoginRequest(appleID: payload.id)
+    private func requestSignIn(_ info: SignInfo) -> Observable<SignType> {
+        let request = LoginRequest(appleID: info.id)
         return self.userRepository.login(request: request)
             .asObservable()
             .map { _ in .signIn }
     }
 }
 
-// MARK: - Payload
-extension SignInUseCaseImpl {
-    struct Payload {
-        var id: String
-        var token: String
-        var email: String?
-    }
-}
-
 public enum SignType {
     case signIn
-    case signUp
+    case signUp(SignInfo)
+}
+
+public struct SignInfo {
+   public var id: String
+   public var token: String
+   public var email: String?
 }

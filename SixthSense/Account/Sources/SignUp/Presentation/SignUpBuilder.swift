@@ -15,7 +15,7 @@ final class SignUpComponent: Component<SignUpDependency> { }
 // MARK: - Builder
 
 public protocol SignUpBuildable: Buildable {
-    func build(withListener listener: SignUpListener) -> SignUpRouting
+    func build(withListener listener: SignUpListener, payload: SignUpPayload) -> SignUpRouting
 }
 
 public final class SignUpBuilder: Builder<SignUpDependency>, SignUpBuildable {
@@ -24,10 +24,10 @@ public final class SignUpBuilder: Builder<SignUpDependency>, SignUpBuildable {
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: SignUpListener) -> SignUpRouting {
+    public func build(withListener listener: SignUpListener, payload: SignUpPayload) -> SignUpRouting {
         let component = SignUpComponent(dependency: dependency)
         let viewController = SignUpViewController()
-        let interactor = SignUpInteractor(presenter: viewController)
+        let interactor = SignUpInteractor(presenter: viewController, payload: payload)
         interactor.listener = listener
         return SignUpRouter(interactor: interactor, viewController: viewController)
     }

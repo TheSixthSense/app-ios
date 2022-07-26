@@ -57,9 +57,7 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
         label.textColor = .main
     }
 
-    private lazy var bottomButton = AppButton(title: "다음").then { button in
-        button.hasFocused = false
-    }
+    private lazy var bottomButton = AppButton(title: "다음")
 
     // MARK: - Vars
     private let progressPositions: [Float] = [0.25, 0.5, 0.75, 1]
@@ -165,7 +163,6 @@ private extension SignUpViewController {
 
         bottomButton.rx.tap
             .bind(onNext: { [weak self] in
-            self?.bottomButton.hasFocused = false
             guard self?.signUpPageView.goToNextPage() == true else {
                 // 확인 버튼
                 // TODO: - request API
@@ -186,18 +183,14 @@ private extension SignUpViewController {
         guard let handler = handler else { return }
 
         handler.visibleNicknameValid
-            .bind(with: bottomButton,
-                  onNext: { [weak self] button, isValid in
-                      button.hasFocused = isValid
+            .bind(onNext: { [weak self] isValid in
                       self?.signUpPageView.nickNameInputView.nicknameTextField.isValidText = isValid
                   })
             .disposed(by: disposeBag)
 
 
         handler.genderInputValid
-            .bind(with: bottomButton,
-                  onNext: { button, tag in
-                      button.hasFocused = tag == -1 ? false : true
+            .bind(onNext: { tag in
                       let vc = self.signUpPageView.genderInputView
                       vc.selectButtons.forEach {
                           if $0.tag == tag {
@@ -209,18 +202,9 @@ private extension SignUpViewController {
                   })
             .disposed(by: disposeBag)
 
-        handler.visibleBirthInputValid
-            .bind(with: bottomButton,
-                  onNext: { button, isValid in
-                      button.hasFocused = isValid
-                  })
-            .disposed(by: disposeBag)
-
         handler.veganStageInputValid
-            .bind(with: bottomButton,
-                  onNext: { [weak self] button, tag in
+            .bind(onNext: { [weak self] tag in
                       guard let self = self else { return }
-                      button.hasFocused = tag == -1 ? false : true
                       let vc = self.signUpPageView.veganInputView
                       vc.imageButtons.forEach {
                           if $0.tag == tag {
@@ -231,6 +215,15 @@ private extension SignUpViewController {
                       }
                   })
             .disposed(by: disposeBag)
+        
+        handler.textDoneButton
+            .map(\.rawValue)
+            .bind(to: bottomButton.rx.titleText)
+            .disposed(by: self.disposeBag)
+        
+        handler.enableButton
+            .bind(to: bottomButton.rx.hasFocused)
+            .disposed(by: self.disposeBag)
     }
 
     /// rxKeyboard를 사용해서 keyboard height 만큼 view의 constratint을 업데이트 한다.
@@ -269,7 +262,6 @@ private extension SignUpViewController {
 
     /// SignUpPageViewController의 화면 전환에 관련된 UI 수행을 한다.
     private func stepChanged(_ step: SignUpSteps) {
-        bottomButton.titleText = step.buttonTitle
         navigationTitle.text = step.navigationTitle
         stepIconImageView.image = step.stepIcon
         updateProgressBar(when: step)
@@ -313,6 +305,25 @@ private extension SignUpViewController {
 }
 
 extension SignUpViewController: SignUpPresenterAction {
+    var nicknameViewDidAppear: Observable<Void> {
+        signUpPageView.nickNameInputView.rx.viewDidAppear.map { _ in () }.asObservable()
+    }
+    
+    var genderViewDidAppear: Observable<Void> {
+        signUpPageView.genderInputView.rx.viewDidAppear.map { _ in () }.asObservable()
+    }
+    
+    var birthDateViewDidAppear: Observable<Void> {
+        signUpPageView.birthInputView.rx.viewDidAppear.map { _ in () }.asObservable()
+    }
+    
+    var veganStageViewDidAppear: Observable<Void> {
+        signUpPageView.veganInputView.rx.viewDidAppear.map { _ in () }.asObservable()
+    }
+    
+    var doneButtonDidTap: Observable<Void> {
+        bottomButton.rx.tap.map { _ in () }.asObservable()
+    }
 
     var nicknameDidInput: Observable<String> {
         signUpPageView.nickNameInputView.nicknameTextField.rx.text.orEmpty.distinctUntilChanged().asObservable()

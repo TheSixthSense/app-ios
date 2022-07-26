@@ -11,7 +11,7 @@ import RxSwift
 import AuthenticationServices
 
 public protocol SignInRouting: ViewableRouting {
-    func routeToSignUp()
+    func routeToSignUp(payload: SignUpPayload)
 }
 
 protocol SignInPresentable: Presentable {
@@ -56,10 +56,11 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
                         // FIXME: 임시로 적용한 로직입니다. 추후 제거
                         print("🦊 signIn")
                         self?.listener?.signInDidTapClose()
-                    case .signUp:
-                        // FIXME: 임시로 적용한 로직입니다. 추후 제거
-                        print("🦊 signUp")
-                        self?.listener?.signInDidTapClose()
+                    case .signUp(let info):
+                        self?.router?.routeToSignUp(
+                            payload: .init(id: info.id,
+                                           token: info.token,
+                                           email: info.email))
                 }
             })
             .disposeOnDeactivate(interactor: self)
