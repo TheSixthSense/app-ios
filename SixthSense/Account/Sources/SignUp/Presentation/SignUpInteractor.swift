@@ -49,12 +49,14 @@ protocol SignUpPresenterHandler: AnyObject {
 protocol SignUpPresentable: Presentable {
     var handler: SignUpPresenterHandler? { get set }
     var action: SignUpPresenterAction? { get set }
-    var listener: SignUpListener? { get set }
+    var listener: SignUpPresentableListener? { get set }
 }
 
-public protocol SignUpListener: AnyObject { }
+public protocol SignUpListener: AnyObject {
+    func returnToSignIn()
+}
 
-final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpInteractable, SignUpListener {
+final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpInteractable, SignUpPresentableListener {
 
     weak var router: SignUpRouting?
     weak var listener: SignUpListener?

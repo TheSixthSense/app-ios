@@ -12,6 +12,7 @@ import AuthenticationServices
 
 public protocol SignInRouting: ViewableRouting {
     func routeToSignUp(payload: SignUpPayload)
+    func detachSignUp()
 }
 
 protocol SignInPresentable: Presentable {
@@ -66,5 +67,9 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
 
     func skip() {
         listener?.signInDidTapClose()
+    }
+
+    func returnToSignIn() {
+        router?.detachSignUp()
     }
 }

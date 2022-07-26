@@ -15,9 +15,13 @@ import RxKeyboard
 import Then
 import UIKit
 
+protocol SignUpPresentableListener: AnyObject {
+    func didTapBackButton()
+}
+
 final class SignUpViewController: UIViewController, SignUpPresentable, SignUpViewControllable {
 
-    var listener: SignUpListener?
+    var listener: SignUpPresentableListener?
     var action: SignUpPresenterAction?
     var handler: SignUpPresenterHandler?
 
@@ -308,6 +312,7 @@ private extension SignUpViewController {
         switch step {
         case .exit:
             // TODO: SignIn RIB 연결
+            listener?.didTapBackButton()
             return
         case .nickname:
             stepProgressLabel.text = "\(Int(progressPositions[0] * 100))%"
