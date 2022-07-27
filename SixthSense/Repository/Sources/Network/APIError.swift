@@ -12,6 +12,7 @@ enum APIError: Error {
     case unknown
     case message(String)
     case error(ErrorResponse)
+    case tokenExpired
 }
 
 extension APIError: LocalizedError {
@@ -23,6 +24,8 @@ extension APIError: LocalizedError {
                 return NSLocalizedString(message, comment: "serverError")
             case .error(let response):
                 return NSLocalizedString(response.userMessage, comment: "serverError")
+            case .tokenExpired:
+                return NSLocalizedString("토큰이 만료되었습니다", comment: "tokenError")
         }
     }
 }

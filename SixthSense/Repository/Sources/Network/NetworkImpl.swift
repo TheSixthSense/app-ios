@@ -17,10 +17,8 @@ import ObjectMapper
 
 public final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
   private let disposeBag: DisposeBag = DisposeBag()
-  private let log: Loggable
-  
-  public init(intercepter: NetworkInterceptable?, logger: Loggable) {
-    self.log = logger
+    
+  public init(intercepter: NetworkInterceptable?, plugins: [PluginType]) {
     let session = MoyaProvider<MultiTarget>.defaultAlamofireSession()
     session.sessionConfiguration.timeoutIntervalForRequest = 10
     super.init(requestClosure: { endpoint, completion in
@@ -35,50 +33,31 @@ public final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
       } catch {
         completion(.failure(MoyaError.underlying(error, nil)))
       }
-    }, session: session, plugins: [])
+    }, session: session, plugins: plugins)
   }
   
   public func request(_ target: TargetType,
                file: StaticString = #file,
                function: StaticString = #function,
                line: UInt = #line) -> Single<Response> {
-    let requestString = "\(target.method.rawValue) \(target.path)"
     return self.rx.request(.target(target))
       .filterSuccessfulStatusCodes()
-      .do(
-        // FIXME: 모듈로 분리 이후 전역변수로 바꿀 예정이에요
-        onSuccess: { [weak self] value in
-          self?.log.info("SUCCESS: \(requestString) (\(value.statusCode))")
-        },
-        onError: { [weak self] error in
-          if let response = (error as? MoyaError)?.response {
-            if let jsonObject = try? response.mapJSON(failsOnEmptyData: false) {
-              self?.log.warning("FAILURE: \(requestString) (\(response.statusCode))\n\(jsonObject)")
-            } else if let rawString = String(data: response.data, encoding: .utf8) {
-              self?.log.warning("FAILURE: \(requestString) (\(response.statusCode))\n\(rawString)")
-            } else {
-              self?.log.warning("FAILURE: \(requestString) (\(response.statusCode))")
-            }
-          } else {
-            self?.log.error("FAILURE: \(requestString) (\(error)")
-          }
-        },
-        onSubscribed: { [weak self] in
-          self?.log.info("REQUEST: \(requestString)")
-        }
-      )
       .catch {
         guard let error = $0 as? MoyaError else {
             return .error(APIError.message($0.localizedDescription))
         }
         
         return try self.handleErrorResponse(error: error, target: target)
-      }
+      }      
   }
     
     private func handleErrorResponse(error: MoyaError, target: TargetType) throws -> Single<Response> {
         guard case let .statusCode(status) = error else {
             return .error(APIError.message("알 수 없는 에러 발생"))
+        }
+        
+        if status.statusCode == 401 {
+            return .error(APIError.tokenExpired)
         }
 
         guard let json = try JSONSerialization.jsonObject(with: status.data, options: []) as? [String: Any],
