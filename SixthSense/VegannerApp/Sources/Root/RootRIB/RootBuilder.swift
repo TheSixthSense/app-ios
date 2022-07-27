@@ -10,9 +10,12 @@ import RIBs
 import Repository
 import Account
 import Splash
+import Storage
 
 protocol RootDependency: Dependency {
     var network: Network { get }
+    var persistence: LocalPersistence { get }
+    var userRepository: UserRepository { get }
 }
 
 final class RootComponent: Component<RootDependency> { }

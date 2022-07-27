@@ -10,8 +10,10 @@ import RIBs
 import Repository
 import Account
 import Splash
+import Storage
 
-extension RootComponent: SplashDependency {
+extension RootComponent: SplashDependency {    
     var network: Network { dependency.network }
-    var userRepository: UserRepository { UserRepositoryImpl(network: dependency.network) }
+    var persistence: LocalPersistence { dependency.persistence }
+    var userRepository: UserRepository { dependency.userRepository }
 }

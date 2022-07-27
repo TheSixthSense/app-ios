@@ -11,15 +11,14 @@ import Repository
 
 public protocol UserInfoDependency: Dependency {
     var network: Network { get }
+    var userRepository: UserRepository { get }
 }
 
 final class UserInfoComponent: Component<UserInfoDependency> {
     let userUseCase: UserUseCaseable
-    let userRepository: UserRepository
 
     override init(dependency: UserInfoDependency) {
-        self.userRepository = UserRepositoryImpl(network: dependency.network)
-        self.userUseCase = UserUseCase(userRepository: userRepository)
+        self.userUseCase = UserUseCase(userRepository: dependency.userRepository)
         super.init(dependency: dependency)
     }
 }
