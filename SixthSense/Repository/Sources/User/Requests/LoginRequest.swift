@@ -10,16 +10,19 @@ import Foundation
 import Then
 
 public struct LoginRequest {
-    public var appleId: String
+    public var appleID: String
+    public var clientSecret: String
     
-    public init(appleID: String) {
-        self.appleId = appleID
+    public init(appleID: String, clientSecret: String) {
+        self.appleID = appleID
+        self.clientSecret = clientSecret
     }
     
     func asBody(_ defaultBody: [String: Any]) -> [String: Any] {
         return defaultBody.with {
             $0.merge(dict: [
-                "appleId": appleId
+                "appleId": appleID,
+                "clientSecret": clientSecret
             ])
         }
     }

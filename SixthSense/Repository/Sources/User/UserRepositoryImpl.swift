@@ -7,27 +7,32 @@
 //
 
 import RxSwift
+import Moya
 
 public final class UserRepositoryImpl: UserRepository {
-  private let network: Network
-  
-  public init(network: Network) {
-    self.network = network
-  }
+    private let network: Network
+    private let tokenService: AccessTokenService
+    
+    public init(network: Network, tokenService: AccessTokenService) {
+        self.network = network
+        self.tokenService = tokenService
+    }
   
   public func user() -> Single<String> {
-    return network.request(UserAPI.user)
+      return network.request(UserAPI.user)
       .mapString()
       .flatMap { data -> Single<String> in
         return .just(data)
       }
   }
     
-    public func login(request: LoginRequest) -> Single<String> {
-        return network.request(UserAPI.login(request))
+    public func login(request body: LoginRequest) -> Single<Void> {
+        return network.request(UserAPI.login(body))
             .mapString()
-            .flatMap { data -> Single<String> in
-                return .just(data)
-            }
+            .do(onSuccess: { [weak self] in
+                guard let token = AccessToken(JSONString: $0) else { return }
+                self?.tokenService.saveToken(token)
+            })
+            .map { _ in ()}
     }
 }
