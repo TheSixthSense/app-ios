@@ -221,9 +221,15 @@ private extension SignUpViewController {
             .bind(to: bottomButton.rx.titleText)
             .disposed(by: self.disposeBag)
         
+
         handler.enableButton
             .bind(to: bottomButton.rx.hasFocused)
             .disposed(by: self.disposeBag)
+
+        handler.nicknameCheckValid
+            .subscribe(onNext: {
+            dump($0)
+        }).disposed(by: self.disposeBag)
     }
 
     /// rxKeyboard를 사용해서 keyboard height 만큼 view의 constratint을 업데이트 한다.
@@ -305,24 +311,32 @@ private extension SignUpViewController {
 }
 
 extension SignUpViewController: SignUpPresenterAction {
+    var submitNickname: Observable<Void> {
+        bottomButton.rx.tap.asObservable()
+    }
+
     var nicknameViewDidAppear: Observable<Void> {
         signUpPageView.nickNameInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
     
+
     var genderViewDidAppear: Observable<Void> {
         signUpPageView.genderInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
     
+
     var birthDateViewDidAppear: Observable<Void> {
         signUpPageView.birthInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
     
+
     var veganStageViewDidAppear: Observable<Void> {
         signUpPageView.veganInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
     
+
     var doneButtonDidTap: Observable<Void> {
-        bottomButton.rx.tap.map { _ in () }.asObservable()
+        bottomButton.rx.tap.asObservable()
     }
 
     var nicknameDidInput: Observable<String> {
