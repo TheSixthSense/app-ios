@@ -9,19 +9,23 @@
 import RIBs
 import Account
 import Repository
+import Storage
 
 public protocol SplashDependency: Dependency {
     var network: Network { get }
+    var persistence: LocalPersistence { get }
     var userRepository: UserRepository { get }
 }
 
 final class SplashComponent: Component<SplashDependency>, UserInfoDependency, SignInDependency {
     var network: Network { dependency.network }
+    var userRepository: UserRepository { dependency.userRepository }
     var usecase: SignInUseCase
     
     override init(dependency: SplashDependency) {
         // TODO: SignInUseCase는 어디서 주입해야할지 고민해보기
-        self.usecase = SignInUseCaseImpl(userRepository: dependency.userRepository)
+        self.usecase = SignInUseCaseImpl(userRepository: dependency.userRepository,
+                                         persistence: dependency.persistence)
         super.init(dependency: dependency)
     }
 }

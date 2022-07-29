@@ -14,8 +14,7 @@ let project = Project.library(
     .rxSwift,
     .alamofire,
     .moya,
-    .rxMoya,
-    Module.utils.project
-  ],
+    .rxMoya
+  ] + [Module.storage, .utils].map(\.project),
   additionalTargets: []
 )

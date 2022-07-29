@@ -10,6 +10,7 @@ import Foundation
 import RxSwift
 import AuthenticationServices
 import Repository
+import Storage
 
 public protocol SignInUseCase {
     func continueWithApple() -> Observable<SignType>
@@ -17,16 +18,20 @@ public protocol SignInUseCase {
 
 public struct SignInUseCaseImpl: SignInUseCase {
     private let userRepository: UserRepository
+    private let persistence: LocalPersistence
     
     public init(
-        userRepository: UserRepository
+        userRepository: UserRepository,
+        persistence: LocalPersistence
     ) {
         self.userRepository = userRepository
+        self.persistence = persistence
     }
     
     public func continueWithApple() -> Observable<SignType> {
         return requestAppleLogin()
             .compactMap(makePayload)
+            .do(onNext: { persistence.save(value: $0.id, on: .appleID) })
             .flatMap(signInIfNeeded)
     }
     
@@ -58,11 +63,17 @@ public struct SignInUseCaseImpl: SignInUseCase {
     }
         
     private func requestSignIn(_ info: SignInfo) -> Observable<SignType> {
-        let request = LoginRequest(appleID: info.id)
+        let request = LoginRequest(appleID: info.id, clientSecret: info.token)
         return self.userRepository.login(request: request)
+            .debug("😀")
             .asObservable()
+            .do(onNext: {
+                print("🦊 \($0)")
+            })
             .map { _ in .signIn }
     }
+    
+//    private func saveAccessToken(token: )
 }
 
 public enum SignType {

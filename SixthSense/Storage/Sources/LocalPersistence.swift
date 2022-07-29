@@ -10,8 +10,10 @@ import Foundation
 // TODO: 모듈화 이후 각 타입별로 파일 나눌 예정이에요
 
 public enum LocalPersistenceKey: String {
-  case accessToken
-  case refreshToken
+    case appleID
+    case accessToken
+    case refreshToken
+    case tokenExpired
 }
 
 public protocol Storable {
@@ -23,7 +25,10 @@ public protocol Storable {
  UserDefaults에 앱 내에 저장해야할 데이터를 저장합니다
  */
 public protocol LocalPersistence: AnyObject {
-  func value<T: Storable>(on key: LocalPersistenceKey) -> T?
-  func save<T: Storable>(value: T?, on key: LocalPersistenceKey)
+    func value<T>(on key: LocalPersistenceKey) -> T?
+    func save<T>(value: T?, on key: LocalPersistenceKey)
+
+  func valueObject<T: Storable>(on key: LocalPersistenceKey) -> T?
+  func saveObject<T: Storable>(value: T?, on key: LocalPersistenceKey)
   func delete(on key: LocalPersistenceKey)
 }

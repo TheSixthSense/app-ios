@@ -14,13 +14,21 @@ public final class LocalPersistenceImpl: LocalPersistence {
   public init(source: Persistable) {
     self.source = source
   }
+    
+    public func value<T>(on key: LocalPersistenceKey) -> T? {
+        self.source.value(forKey: key.rawValue) as? T
+    }
+    
+    public func save<T>(value: T?, on key: LocalPersistenceKey) {
+        self.source.set(value, forKey: key.rawValue)
+    }
   
-  public func value<T: Storable>(on key: LocalPersistenceKey) -> T? {
+  public func valueObject<T: Storable>(on key: LocalPersistenceKey) -> T? {
     guard let rawValue = self.source.value(forKey: key.rawValue) as? String else { return nil }
     return T.init(json: rawValue)
   }
   
-  public func save<T: Storable>(value: T?, on key: LocalPersistenceKey) {
+  public func saveObject<T: Storable>(value: T?, on key: LocalPersistenceKey) {
     self.source.set(value?.jsonString, forKey: key.rawValue)
   }
   
