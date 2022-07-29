@@ -56,7 +56,7 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
     private let genderInputValidRelay: PublishRelay<Int> = .init()
     private let visibleBirthInputValidRelay: BehaviorRelay<Bool> = .init(value: false)
     private let veganStageInputValidRelay: PublishRelay<Int> = .init()
-    
+
 
     private let enableButtonRelay: PublishRelay<Bool> = .init()
     private let textDoneButtonRelay: PublishRelay<SignUpButtonType> = .init()
@@ -64,7 +64,7 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
 
     private let nicknameCheckValidRelay: BehaviorRelay<Bool> = .init(value: false)
 
-    private var requests: SignUpRequestModel = .init()
+    private var requests: SignUpRequest = .init()
     private let payload: SignUpPayload
     private let useCase: SignUpUseCase
 
@@ -244,7 +244,7 @@ extension SignUpInteractor: SignUpPresenterHandler {
     }
 }
 
-extension SignUpRequestModel: Then { }
+extension SignUpRequest: Then { }
 
 // TODO: 해당 enum을 어디다 놓을지 정하고 옮겨요
 enum SignUpButtonType: String {

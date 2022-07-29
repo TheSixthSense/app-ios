@@ -11,15 +11,15 @@ import ObjectMapper
 
 public struct SignUpRequest: Mappable {
 
-    var appleId: String
-    var birthDay: String
-    var clientSecret: String
-    var gender: String
-    var nickname: String
-    var userRoleType: String
-    var vegannerStage: String
+    public var appleId: String
+    public var birthDay: String
+    public var clientSecret: String
+    public var gender: String
+    public var nickname: String
+    public var userRoleType: String
+    public var vegannerStage: String
 
-    init() {
+    public init() {
         appleId = ""
         birthDay = ""
         clientSecret = ""
