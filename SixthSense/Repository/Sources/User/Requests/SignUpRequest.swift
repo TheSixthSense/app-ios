@@ -1,30 +1,30 @@
 //
-//  SignUpRequestModel.swift
-//  Account
+//  SignUpRequest.swift
+//  Repository
 //
-//  Created by Allie Kim on 2022/07/19.
+//  Created by Allie Kim on 2022/07/28.
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
 //
 
 import Foundation
 import ObjectMapper
 
-public struct SignUpRequestModel: Mappable {
+public struct SignUpRequest: Mappable {
 
-    public var appleId: String
-    public var birthDay: String
-    public var clientSecret: String
-    public var gender: String
-    public var nickName: String
-    public var userRoleType: String
-    public var vegannerStage: String
+    var appleId: String
+    var birthDay: String
+    var clientSecret: String
+    var gender: String
+    var nickname: String
+    var userRoleType: String
+    var vegannerStage: String
 
     init() {
         appleId = ""
         birthDay = ""
         clientSecret = ""
         gender = ""
-        nickName = ""
+        nickname = ""
         userRoleType = "USER"
         vegannerStage = ""
     }
@@ -34,18 +34,26 @@ public struct SignUpRequestModel: Mappable {
         birthDay = ""
         clientSecret = ""
         gender = ""
-        nickName = ""
+        nickname = ""
         userRoleType = "USER"
         vegannerStage = ""
     }
 
-    public mutating func mapping(map: Map) {
+    mutating public func mapping(map: Map) {
         appleId <- map["appleId"]
         birthDay <- map["birthDay"]
         clientSecret <- map["clientSecret"]
         gender <- map["gender"]
-        nickName <- map["nickName"]
+        nickname <- map["nickName"]
         userRoleType <- map["userRoleType"]
         vegannerStage <- map["vegannerStage"]
+    }
+
+    func asBody(_ defaultBody: [String: Any]) -> [String: Any] {
+        return defaultBody.with {
+            $0.merge(dict: [
+                "appleId": appleId
+            ])
+        }
     }
 }
