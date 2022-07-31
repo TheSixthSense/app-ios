@@ -12,7 +12,7 @@ import RxSwift
 import Repository
 
 public protocol SignUpUseCase {
-    func fetchUserNickname(request: String) -> Observable<String>
+    func validateUserNickname(request: String) -> Observable<String>
 }
 
 final class SignUpUseCaseImpl: SignUpUseCase {
@@ -23,7 +23,7 @@ final class SignUpUseCaseImpl: SignUpUseCase {
         self.userRepository = userRepository
     }
 
-    func fetchUserNickname(request: String) -> Observable<String> {
+    func validateUserNickname(request: String) -> Observable<String> {
         return userRepository.validateNickname(request: request)
             .asObservable()
     }

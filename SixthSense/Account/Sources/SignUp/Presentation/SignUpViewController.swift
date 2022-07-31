@@ -62,11 +62,13 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
     // MARK: - Vars
     private let progressPositions: [Float] = [0.25, 0.5, 0.75, 1]
     private let disposeBag = DisposeBag()
+    private var currentStep: SignUpSteps
 
     // MARK: - LifeCycle
 
     init() {
         signUpPageView = SignUpPageViewController()
+        currentStep = .nickname
         super.init(nibName: nil, bundle: nil)
         action = self
     }
@@ -161,14 +163,12 @@ private extension SignUpViewController {
             self.stepChanged($0)
         }).disposed(by: disposeBag)
 
-        bottomButton.rx.tap
+        bottomButton.rx
+            .tap
+            .filter({ self.currentStep != .nickname })
             .bind(onNext: { [weak self] in
-            guard self?.signUpPageView.goToNextPage() == true else {
-                // 확인 버튼
-                // TODO: - request API
-
-                return
-            }
+            guard let self = self else { return }
+            self.signUpPageView.goToNextPage()
         }).disposed(by: disposeBag)
 
         backButton.rx.tap
@@ -228,7 +228,11 @@ private extension SignUpViewController {
 
         handler.nicknameCheckValid
             .subscribe(onNext: {
-            dump($0)
+            if $0 == true {
+                self.signUpPageView.goToNextPage()
+            } else {
+                // TODO: - 에러 메세지추가, 로직 개선
+            }
         }).disposed(by: self.disposeBag)
     }
 
@@ -268,6 +272,7 @@ private extension SignUpViewController {
 
     /// SignUpPageViewController의 화면 전환에 관련된 UI 수행을 한다.
     private func stepChanged(_ step: SignUpSteps) {
+        self.currentStep = step
         navigationTitle.text = step.navigationTitle
         stepIconImageView.image = step.stepIcon
         updateProgressBar(when: step)
@@ -311,14 +316,9 @@ private extension SignUpViewController {
 }
 
 extension SignUpViewController: SignUpPresenterAction {
-    var submitNickname: Observable<Void> {
-        bottomButton.rx.tap.asObservable()
-    }
-
     var nicknameViewDidAppear: Observable<Void> {
         signUpPageView.nickNameInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
-    
 
     var genderViewDidAppear: Observable<Void> {
         signUpPageView.genderInputView.rx.viewDidAppear.map { _ in () }.asObservable()
@@ -333,10 +333,13 @@ extension SignUpViewController: SignUpPresenterAction {
     var veganStageViewDidAppear: Observable<Void> {
         signUpPageView.veganInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
-    
 
     var doneButtonDidTap: Observable<Void> {
-        bottomButton.rx.tap.asObservable()
+        bottomButton.rx.tap.filter({ self.currentStep == .veganStage }).asObservable()
+    }
+
+    var nickNameNextButtonDidTap: Observable<Void> {
+        bottomButton.rx.tap.filter({ self.currentStep == .nickname }).asObservable()
     }
 
     var nicknameDidInput: Observable<String> {

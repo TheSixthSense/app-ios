@@ -13,20 +13,27 @@ import RxRelay
 import Then
 import Repository
 
+enum SignUpButtonType: String {
+    case next = "다음"
+    case done = "확인"
+}
+
 public protocol SignUpRouting: ViewableRouting { }
 
 protocol SignUpPresenterAction: AnyObject {
+
     var nicknameDidInput: Observable<String> { get }
     var genderDidInput: Observable<Gender> { get }
     var birthDidInput: Observable<[String]> { get }
     var veganStageDidInput: Observable<VeganStage> { get }
-    var doneButtonDidTap: Observable<Void> { get }
+
     var nicknameViewDidAppear: Observable<Void> { get }
     var genderViewDidAppear: Observable<Void> { get }
     var birthDateViewDidAppear: Observable<Void> { get }
     var veganStageViewDidAppear: Observable<Void> { get }
 
-    var submitNickname: Observable<Void> { get }
+    var doneButtonDidTap: Observable<Void> { get }
+    var nickNameNextButtonDidTap: Observable<Void> { get }
 }
 
 protocol SignUpPresenterHandler: AnyObject {
@@ -151,6 +158,14 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
                                        nicknameRegex)
         return nicknameTest.evaluate(with: nickname)
     }
+
+    private func isUseableNickname(_ nickname: String) {
+        useCase.validateUserNickname(request: nickname)
+            .subscribe(onNext: { [weak self] _ in
+            // TODO: - 공통 데이터 모델로 변환 후 success/failure 처리
+            self?.nicknameCheckValidRelay.accept(true)
+        }).disposeOnDeactivate(interactor: self)
+    }
 }
 extension SignUpInteractor {
 
@@ -173,11 +188,12 @@ extension SignUpInteractor {
             .disposeOnDeactivate(interactor: self)
 
         action.doneButtonDidTap
-            .subscribe(onNext: {
-            // TODO: API 요청
+            .subscribe(onNext: { _ in
+            // TODO: 회원가입 API 요청
         })
             .disposeOnDeactivate(interactor: self)
     }
+
 
     private func bindNickname(action: SignUpPresenterAction) {
 
@@ -192,21 +208,17 @@ extension SignUpInteractor {
 
             let isValid = self.isValidNickname($0)
             self.visibleNicknameValidRelay.accept(isValid)
-//            self.requests.nickName = $0
+            self.requests.nickname = $0
             self.fetchEnableButton(true)
         })
             .disposeOnDeactivate(interactor: self)
 
-        // TODO: - observable 수정
-        action.submitNickname
+        action.nickNameNextButtonDidTap
             .withLatestFrom(action.nicknameDidInput)
             .subscribe(onNext: { [weak self] in
             guard !$0.isEmpty else { return }
             guard let self = self else { return }
-            self.useCase.fetchUserNickname(request: $0)
-                .subscribe(onNext: { _ in
-                self.nicknameCheckValidRelay.accept(true)
-            }).disposeOnDeactivate(interactor: self)
+            self.isUseableNickname($0)
         })
             .disposeOnDeactivate(interactor: self)
     }
@@ -245,9 +257,3 @@ extension SignUpInteractor: SignUpPresenterHandler {
 }
 
 extension SignUpRequest: Then { }
-
-// TODO: 해당 enum을 어디다 놓을지 정하고 옮겨요
-enum SignUpButtonType: String {
-    case next = "다음"
-    case done = "확인"
-}
