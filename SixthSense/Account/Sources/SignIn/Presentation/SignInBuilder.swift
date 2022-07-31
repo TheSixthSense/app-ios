@@ -12,10 +12,17 @@ import Repository
 public protocol SignInDependency: Dependency {
     var network: Network { get }
     var usecase: SignInUseCase { get }
+    var userRepository: UserRepository { get }
 }
 
 final class SignInComponent: Component<SignInDependency>, SignUpDependency {
+    var useCase: SignUpUseCase
     var network: Network { dependency.network }
+
+    override init(dependency: SignInDependency) {
+        self.useCase = SignUpUseCaseImpl(userRepository: dependency.userRepository)
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder

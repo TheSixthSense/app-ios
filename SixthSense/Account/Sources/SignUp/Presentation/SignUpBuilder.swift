@@ -11,15 +11,15 @@ import Repository
 
 public protocol SignUpDependency: Dependency {
     var network: Network { get }
+    var useCase: SignUpUseCase { get }
 }
 
 final class SignUpComponent: Component<SignUpDependency> {
-    let userUseCase: SignUpUseCase
-    let userRepository: UserRepository
+    var network: Network { dependency.network }
+    var payload: SignUpPayload
 
-    override init(dependency: SignUpDependency) {
-        self.userRepository = UserRepositoryImpl(network: dependency.network)
-        self.userUseCase = SignUpUseCaseImpl(userRepository: userRepository)
+    init(dependency: SignUpDependency, payload: SignUpPayload) {
+        self.payload = payload
         super.init(dependency: dependency)
     }
 }
@@ -37,9 +37,11 @@ public final class SignUpBuilder: Builder<SignUpDependency>, SignUpBuildable {
     }
 
     public func build(withListener listener: SignUpListener, payload: SignUpPayload) -> SignUpRouting {
-        let component = SignUpComponent(dependency: dependency)
+        let component = SignUpComponent(dependency: dependency, payload: payload)
         let viewController = SignUpViewController()
-        let interactor = SignUpInteractor(presenter: viewController, useCase: component.userUseCase, payload: payload)
+        let interactor = SignUpInteractor(presenter: viewController,
+                                          dependency: dependency,
+                                          payload: component.payload)
         interactor.listener = listener
         return SignUpRouter(interactor: interactor, viewController: viewController)
     }

@@ -73,12 +73,12 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
 
     private var requests: SignUpRequest = .init()
     private let payload: SignUpPayload
-    private let useCase: SignUpUseCase
+    private let dependency: SignUpDependency
 
     init(presenter: SignUpPresentable,
-         useCase: SignUpUseCase,
+         dependency: SignUpDependency,
          payload: SignUpPayload) {
-        self.useCase = useCase
+        self.dependency = dependency
         self.payload = payload
         super.init(presenter: presenter)
         presenter.listener = self
@@ -157,7 +157,7 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
     }
 
     private func isUseableNickname(_ nickname: String) {
-        useCase.validateUserNickname(request: nickname)
+        dependency.useCase.validateUserNickname(request: nickname)
             .subscribe(onNext: { [weak self] _ in
             // TODO: - 공통 데이터 모델로 변환 후 success/failure 처리
             self?.nicknameCheckValidRelay.accept(true)
@@ -165,7 +165,7 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
     }
 
     private func signUp() {
-        useCase.fetchSignUp(reqeust: self.requests)
+        dependency.useCase.fetchSignUp(reqeust: self.requests)
             .subscribe(onNext: { [weak self] _ in
             // TODO: - 공통 데이터 모델로 변환 후 success/failure 처리
         }).disposeOnDeactivate(interactor: self)
@@ -174,7 +174,7 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
 extension SignUpInteractor {
 
     private func bindBottomButton(action: SignUpPresenterAction) {
-        
+
         Observable.merge([
             action.nicknameViewDidAppear,
             action.genderViewDidAppear,
