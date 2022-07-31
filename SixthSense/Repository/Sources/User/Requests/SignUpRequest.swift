@@ -52,7 +52,13 @@ public struct SignUpRequest: Mappable {
     func asBody(_ defaultBody: [String: Any]) -> [String: Any] {
         return defaultBody.with {
             $0.merge(dict: [
-                "appleId": appleId
+                "appleId": appleId,
+                "birthDay": birthDay,
+                "clientSecret": clientSecret,
+                "gender": gender,
+                "nickName": nickname,
+                "userRoleType": userRoleType,
+                "vegannerStage": vegannerStage
             ])
         }
     }

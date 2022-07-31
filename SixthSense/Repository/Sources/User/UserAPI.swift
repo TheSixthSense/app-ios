@@ -35,7 +35,7 @@ extension UserAPI: BaseAPI {
         case .login:
             return "/auth/login"
         case .signUp:
-            return "/auth/signup"
+            return "/signup"
         case .validateNickname:
             return "/check/nick-name"
         }
@@ -60,9 +60,9 @@ extension UserAPI: BaseAPI {
                 bodyParameters: request.asBody(body),
                 bodyEncoding: parameterEncoding,
                 urlParameters: parameters)
-        case .signUp(let request):
+        case .signUp(let signUpRequest):
             return .requestCompositeParameters(
-                bodyParameters: request.asBody(body),
+                bodyParameters: signUpRequest.asBody(body),
                 bodyEncoding: parameterEncoding,
                 urlParameters: parameters)
         case .validateNickname:

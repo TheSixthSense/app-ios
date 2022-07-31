@@ -13,6 +13,7 @@ import Repository
 
 public protocol SignUpUseCase {
     func validateUserNickname(request: String) -> Observable<String>
+    func fetchSignUp(reqeust: SignUpRequest) -> Observable<String>
 }
 
 final class SignUpUseCaseImpl: SignUpUseCase {
@@ -27,4 +28,9 @@ final class SignUpUseCaseImpl: SignUpUseCase {
         return userRepository.validateNickname(request: request)
             .asObservable()
     }
+
+    func fetchSignUp(reqeust: SignUpRequest) -> Observable<String> {
+        return userRepository.signUp(request: reqeust).debug().asObservable()
+    }
+
 }

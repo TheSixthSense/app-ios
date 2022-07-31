@@ -163,12 +163,11 @@ private extension SignUpViewController {
             self.stepChanged($0)
         }).disposed(by: disposeBag)
 
-        bottomButton.rx
-            .tap
-            .filter({ self.currentStep != .nickname })
-            .bind(onNext: { [weak self] in
-            guard let self = self else { return }
-            self.signUpPageView.goToNextPage()
+        handler?.didTapButton
+            .subscribe(onNext: {
+            if $0 {
+                self.signUpPageView.goToNextPage()
+            }
         }).disposed(by: disposeBag)
 
         backButton.rx.tap
@@ -184,43 +183,43 @@ private extension SignUpViewController {
 
         handler.visibleNicknameValid
             .bind(onNext: { [weak self] isValid in
-                      self?.signUpPageView.nickNameInputView.nicknameTextField.isValidText = isValid
-                  })
+            self?.signUpPageView.nickNameInputView.nicknameTextField.isValidText = isValid
+        })
             .disposed(by: disposeBag)
 
 
         handler.genderInputValid
             .bind(onNext: { tag in
-                      let vc = self.signUpPageView.genderInputView
-                      vc.selectButtons.forEach {
-                          if $0.tag == tag {
-                              $0.hasFocused = true
-                          } else {
-                              $0.hasFocused = false
-                          }
-                      }
-                  })
+            let vc = self.signUpPageView.genderInputView
+            vc.selectButtons.forEach {
+                if $0.tag == tag {
+                    $0.hasFocused = true
+                } else {
+                    $0.hasFocused = false
+                }
+            }
+        })
             .disposed(by: disposeBag)
 
         handler.veganStageInputValid
             .bind(onNext: { [weak self] tag in
-                      guard let self = self else { return }
-                      let vc = self.signUpPageView.veganInputView
-                      vc.imageButtons.forEach {
-                          if $0.tag == tag {
-                              $0.hasFocused = true
-                          } else {
-                              $0.hasFocused = false
-                          }
-                      }
-                  })
+            guard let self = self else { return }
+            let vc = self.signUpPageView.veganInputView
+            vc.imageButtons.forEach {
+                if $0.tag == tag {
+                    $0.hasFocused = true
+                } else {
+                    $0.hasFocused = false
+                }
+            }
+        })
             .disposed(by: disposeBag)
-        
+
         handler.textDoneButton
             .map(\.rawValue)
             .bind(to: bottomButton.rx.titleText)
             .disposed(by: self.disposeBag)
-        
+
 
         handler.enableButton
             .bind(to: bottomButton.rx.hasFocused)
@@ -272,7 +271,7 @@ private extension SignUpViewController {
 
     /// SignUpPageViewController의 화면 전환에 관련된 UI 수행을 한다.
     private func stepChanged(_ step: SignUpSteps) {
-        self.currentStep = step
+        currentStep = step
         navigationTitle.text = step.navigationTitle
         stepIconImageView.image = step.stepIcon
         updateProgressBar(when: step)
@@ -323,23 +322,21 @@ extension SignUpViewController: SignUpPresenterAction {
     var genderViewDidAppear: Observable<Void> {
         signUpPageView.genderInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
-    
 
     var birthDateViewDidAppear: Observable<Void> {
         signUpPageView.birthInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
-    
 
     var veganStageViewDidAppear: Observable<Void> {
         signUpPageView.veganInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
 
-    var doneButtonDidTap: Observable<Void> {
-        bottomButton.rx.tap.filter({ self.currentStep == .veganStage }).asObservable()
-    }
-
-    var nickNameNextButtonDidTap: Observable<Void> {
-        bottomButton.rx.tap.filter({ self.currentStep == .nickname }).asObservable()
+    var doneButtonDidTap: Observable<SignUpSteps> {
+        bottomButton.rx
+            .tap
+            .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+            .map({ self.currentStep })
+            .asObservable()
     }
 
     var nicknameDidInput: Observable<String> {
