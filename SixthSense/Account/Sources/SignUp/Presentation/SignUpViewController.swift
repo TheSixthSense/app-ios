@@ -359,9 +359,8 @@ extension SignUpViewController: SignUpPresenterAction {
     }
 
     var doneButtonDidTap: Observable<SignUpSteps> {
-        bottomButton.rx
-            .tap
-            .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+        bottomButton.rx.tap
+            .throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance)
             .map({ self.currentStep })
             .asObservable()
     }
