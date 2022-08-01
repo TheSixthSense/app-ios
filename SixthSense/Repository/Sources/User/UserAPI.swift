@@ -11,65 +11,85 @@ import Moya
 import Utils
 
 enum UserAPI {
-  case user
-  case login(LoginRequest)
+    case user
+    case login(LoginRequest)
+    case validateNickname(String)
+    case signUp(SignUpRequest)
 }
 
 extension UserAPI: BaseAPI {
-  // FIXME: 추후 UserInfo 제거 하면서 tempURL도 제거
-  var baseURL: URL {
-      switch self {
-          case .user:
-              return API.EndPoint.temp.url
-          case .login:
-              return API.EndPoint.base.url
-      }
-  }
-  
-  var path: String {
-    switch self {
-      case .user:
-        return "/users"
-      case .login:
-        return "/auth/login"
+    // FIXME: 추후 UserInfo 제거 하면서 tempURL도 제거
+    var baseURL: URL {
+        switch self {
+        case .user:
+            return API.EndPoint.temp.url
+        case .login, .signUp, .validateNickname:
+            return API.EndPoint.base.url
+        }
     }
-  }
-  
-  var method: Moya.Method {
-    switch self {
-      case .user:
-        return .get
-      case .login:
-        return .post
+
+    var path: String {
+        switch self {
+        case .user:
+            return "/users"
+        case .login:
+            return "/auth/login"
+        case .signUp:
+            return "/signup"
+        case .validateNickname:
+            return "/check/nick-name"
+        }
     }
-  }
-  
-  var task: Task {
-    guard let parameters = parameters else { return .requestPlain }
-    let body: [String: Any] = [:]
-    
-    switch self {
-      case .login(let request):
-        return .requestCompositeParameters(bodyParameters: request.asBody(body), bodyEncoding: parameterEncoding, urlParameters: parameters)
-      default:
-        return .requestPlain
+
+    var method: Moya.Method {
+        switch self {
+        case .user, .validateNickname:
+            return .get
+        case .login, .signUp:
+            return .post
+        }
     }
-  }
-  
-  var parameters: [String: Any]? {
-      let defaultParameter: [String: Any] = [:]
-    switch self {
-        case .user, .login:
-        return defaultParameter
+
+    var task: Task {
+        guard let parameters = parameters else { return .requestPlain }
+        let body: [String: Any] = [:]
+
+        switch self {
+        case .login(let request):
+            return .requestCompositeParameters(
+                bodyParameters: request.asBody(body),
+                bodyEncoding: parameterEncoding,
+                urlParameters: parameters)
+        case .signUp(let signUpRequest):
+            return .requestCompositeParameters(
+                bodyParameters: signUpRequest.asBody(body),
+                bodyEncoding: parameterEncoding,
+                urlParameters: parameters)
+        case .validateNickname:
+            return .requestParameters(
+                parameters: parameters,
+                encoding: parameterEncoding)
+        default:
+            return .requestPlain
+        }
     }
-  }
-  
-  var parameterEncoding: ParameterEncoding {
-    switch self {
-      case .login:
-        return JSONEncoding.default
-      default:
-        return URLEncoding.queryString
+
+    var parameters: [String: Any]? {
+        let defaultParameter: [String: Any] = [:]
+        switch self {
+        case .validateNickname(let text):
+            return ["nickName": text]
+        default:
+            return defaultParameter
+        }
     }
-  }
+
+    var parameterEncoding: ParameterEncoding {
+        switch self {
+        case .login, .signUp:
+            return JSONEncoding.default
+        default:
+            return URLEncoding.queryString
+        }
+    }
 }

@@ -62,11 +62,13 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
     // MARK: - Vars
     private let progressPositions: [Float] = [0.25, 0.5, 0.75, 1]
     private let disposeBag = DisposeBag()
+    private var currentStep: SignUpSteps
 
     // MARK: - LifeCycle
 
     init() {
         signUpPageView = SignUpPageViewController()
+        currentStep = .nickname
         super.init(nibName: nil, bundle: nil)
         action = self
     }
@@ -161,13 +163,10 @@ private extension SignUpViewController {
             self.stepChanged($0)
         }).disposed(by: disposeBag)
 
-        bottomButton.rx.tap
-            .bind(onNext: { [weak self] in
-            guard self?.signUpPageView.goToNextPage() == true else {
-                // 확인 버튼
-                // TODO: - request API
-
-                return
+        handler?.didTapButton
+            .subscribe(onNext: {
+            if $0 {
+                self.signUpPageView.goToNextPage()
             }
         }).disposed(by: disposeBag)
 
@@ -184,46 +183,56 @@ private extension SignUpViewController {
 
         handler.visibleNicknameValid
             .bind(onNext: { [weak self] isValid in
-                      self?.signUpPageView.nickNameInputView.nicknameTextField.isValidText = isValid
-                  })
+            self?.signUpPageView.nickNameInputView.nicknameTextField.isValidText = isValid
+        })
             .disposed(by: disposeBag)
 
 
         handler.genderInputValid
             .bind(onNext: { tag in
-                      let vc = self.signUpPageView.genderInputView
-                      vc.selectButtons.forEach {
-                          if $0.tag == tag {
-                              $0.hasFocused = true
-                          } else {
-                              $0.hasFocused = false
-                          }
-                      }
-                  })
+            let vc = self.signUpPageView.genderInputView
+            vc.selectButtons.forEach {
+                if $0.tag == tag {
+                    $0.hasFocused = true
+                } else {
+                    $0.hasFocused = false
+                }
+            }
+        })
             .disposed(by: disposeBag)
 
         handler.veganStageInputValid
             .bind(onNext: { [weak self] tag in
-                      guard let self = self else { return }
-                      let vc = self.signUpPageView.veganInputView
-                      vc.imageButtons.forEach {
-                          if $0.tag == tag {
-                              $0.hasFocused = true
-                          } else {
-                              $0.hasFocused = false
-                          }
-                      }
-                  })
+            guard let self = self else { return }
+            let vc = self.signUpPageView.veganInputView
+            vc.imageButtons.forEach {
+                if $0.tag == tag {
+                    $0.hasFocused = true
+                } else {
+                    $0.hasFocused = false
+                }
+            }
+        })
             .disposed(by: disposeBag)
-        
+
         handler.textDoneButton
             .map(\.rawValue)
             .bind(to: bottomButton.rx.titleText)
             .disposed(by: self.disposeBag)
-        
+
+
         handler.enableButton
             .bind(to: bottomButton.rx.hasFocused)
             .disposed(by: self.disposeBag)
+
+        handler.nicknameCheckValid
+            .subscribe(onNext: {
+            if $0 == true {
+                self.signUpPageView.goToNextPage()
+            } else {
+                // TODO: - 에러 메세지추가, 로직 개선
+            }
+        }).disposed(by: self.disposeBag)
     }
 
     /// rxKeyboard를 사용해서 keyboard height 만큼 view의 constratint을 업데이트 한다.
@@ -262,6 +271,7 @@ private extension SignUpViewController {
 
     /// SignUpPageViewController의 화면 전환에 관련된 UI 수행을 한다.
     private func stepChanged(_ step: SignUpSteps) {
+        currentStep = step
         navigationTitle.text = step.navigationTitle
         stepIconImageView.image = step.stepIcon
         updateProgressBar(when: step)
@@ -308,21 +318,25 @@ extension SignUpViewController: SignUpPresenterAction {
     var nicknameViewDidAppear: Observable<Void> {
         signUpPageView.nickNameInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
-    
+
     var genderViewDidAppear: Observable<Void> {
         signUpPageView.genderInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
-    
+
     var birthDateViewDidAppear: Observable<Void> {
         signUpPageView.birthInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
-    
+
     var veganStageViewDidAppear: Observable<Void> {
         signUpPageView.veganInputView.rx.viewDidAppear.map { _ in () }.asObservable()
     }
-    
-    var doneButtonDidTap: Observable<Void> {
-        bottomButton.rx.tap.map { _ in () }.asObservable()
+
+    var doneButtonDidTap: Observable<SignUpSteps> {
+        bottomButton.rx
+            .tap
+            .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+            .map({ self.currentStep })
+            .asObservable()
     }
 
     var nicknameDidInput: Observable<String> {

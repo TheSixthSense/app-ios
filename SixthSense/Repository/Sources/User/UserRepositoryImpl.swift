@@ -34,5 +34,22 @@ public final class UserRepositoryImpl: UserRepository {
                 self?.tokenService.saveToken(token)
             })
             .map { _ in ()}
+	}
+
+   public func signUp(request: SignUpRequest) -> Single<String> {
+        return network.request(UserAPI.signUp(request))
+            .mapString()
+            .flatMap { data -> Single<String> in
+            return .just(data)
+        }
+    }
+
+    public func validateNickname(request: String) -> Single<String> {
+        return network.request(UserAPI.validateNickname(request))
+            .mapString()
+            .flatMap { data -> Single<String> in
+            return .just(data)
+        }
+
     }
 }

@@ -63,15 +63,13 @@ class SignUpPageViewController: UIPageViewController {
 
 extension SignUpPageViewController {
 
-    func goToNextPage() -> Bool {
+    func goToNextPage() {
         if let currentViewController = viewControllers?[0] {
             if let nextPage = dataSource?.pageViewController(self, viewControllerAfter: currentViewController) {
                 sendRelay(where: nextPage)
                 setViewControllers([nextPage], direction: .forward, animated: true, completion: nil)
-                return true
             }
         }
-        return false
     }
 
     func goToPreviousPage() {
