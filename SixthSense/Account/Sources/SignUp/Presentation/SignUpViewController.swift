@@ -82,7 +82,6 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
 
         configureUI()
         bindUI()
-        bindSubViewHandlers()
     }
 }
 
@@ -150,6 +149,7 @@ private extension SignUpViewController {
     }
 
     private func bindUI() {
+        bindSubViewHandlers()
 
         rx.viewDidLayoutSubviews
             .take(1)
@@ -163,16 +163,9 @@ private extension SignUpViewController {
             self.stepChanged($0)
         }).disposed(by: disposeBag)
 
-        handler?.didTapButton
-            .subscribe(onNext: {
-            if $0 {
-                self.signUpPageView.goToNextPage()
-            }
-        }).disposed(by: disposeBag)
-
         backButton.rx.tap
             .bind(onNext: { [weak self] in
-            self?.signUpPageView.goToPreviousPage()
+            self?.signUpPageView.pageTransition(type: .backward)
         }).disposed(by: disposeBag)
 
         updateBottomButtonLayout()
@@ -180,14 +173,34 @@ private extension SignUpViewController {
 
     private func bindSubViewHandlers() {
         guard let handler = handler else { return }
+        handleNicknameSubView(with: handler)
+        handleGenderSubView(with: handler)
+        handleBirthSubView(with: handler)
+        handleVeganStageSubView(with: handler)
+        handleBottomButton(with: handler)
+    }
 
+    private func handleNicknameSubView(with handler: SignUpPresenterHandler) {
         handler.visibleNicknameValid
             .bind(onNext: { [weak self] isValid in
             self?.signUpPageView.nickNameInputView.nicknameTextField.isValidText = isValid
         })
             .disposed(by: disposeBag)
 
+        handler.nicknameCheckValid.debug("닉네임")
+            .filter({ [weak self] in
+            if !$0 {
+                self?.signUpPageView.nickNameInputView.nicknameTextField.errorString = "앗 이미 사용 중인 비거너의 이름이야ㅠㅠ"
+                return false
+            }
+            return true
+        })
+            .subscribe(onNext: { [weak self] _ in
+            self?.signUpPageView.pageTransition(type: .forward)
+        }).disposed(by: self.disposeBag)
+    }
 
+    private func handleGenderSubView(with handler: SignUpPresenterHandler) {
         handler.genderInputValid
             .bind(onNext: { tag in
             let vc = self.signUpPageView.genderInputView
@@ -200,7 +213,19 @@ private extension SignUpViewController {
             }
         })
             .disposed(by: disposeBag)
+    }
 
+    private func handleBirthSubView(with handler: SignUpPresenterHandler) {
+        handler.visibleBirthInputValid
+            .bind(onNext: { [weak self] isValid in
+            self?.signUpPageView.birthInputView.birthTextFields
+                .forEach({ $0.isValidText = isValid })
+        })
+            .disposed(by: disposeBag)
+
+    }
+
+    private func handleVeganStageSubView(with handler: SignUpPresenterHandler) {
         handler.veganStageInputValid
             .bind(onNext: { [weak self] tag in
             guard let self = self else { return }
@@ -214,26 +239,28 @@ private extension SignUpViewController {
             }
         })
             .disposed(by: disposeBag)
+    }
 
+    private func handleBottomButton(with handler: SignUpPresenterHandler) {
         handler.textDoneButton
             .map(\.rawValue)
             .bind(to: bottomButton.rx.titleText)
             .disposed(by: self.disposeBag)
 
-
         handler.enableButton
             .bind(to: bottomButton.rx.hasFocused)
             .disposed(by: self.disposeBag)
 
-        handler.nicknameCheckValid
-            .subscribe(onNext: {
-            if $0 == true {
-                self.signUpPageView.goToNextPage()
-            } else {
-                // TODO: - 에러 메세지추가, 로직 개선
+        handler.didTapButton
+            .subscribe(onNext: { [weak self] in
+            if $0 {
+                self?.signUpPageView.pageTransition(type: .forward)
             }
-        }).disposed(by: self.disposeBag)
+        }).disposed(by: disposeBag)
     }
+}
+
+private extension SignUpViewController {
 
     /// rxKeyboard를 사용해서 keyboard height 만큼 view의 constratint을 업데이트 한다.
     private func updateBottomButtonLayout() {
