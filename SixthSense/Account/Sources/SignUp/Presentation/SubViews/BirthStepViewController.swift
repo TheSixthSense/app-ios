@@ -30,6 +30,7 @@ final class BirthStepViewController: UIViewController {
         textfield.placeholderString = "1990"
         textfield.maxLength = 4
         textfield.keyboardType = .decimalPad
+        textfield.errorString = "날짜가 맞는지 다시 확인해줄래?"
     }
 
     private var yearLabel = AppLabel().then { label in
@@ -57,10 +58,19 @@ final class BirthStepViewController: UIViewController {
     }
 
     // MARK: - Vars
-
+    let birthTextFields: [AppTextField]
     private let disposeBag = DisposeBag()
 
     // MARK: - LifeCycle
+
+    init() {
+        birthTextFields = [yearTextField, monthTextField, dayTextField]
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

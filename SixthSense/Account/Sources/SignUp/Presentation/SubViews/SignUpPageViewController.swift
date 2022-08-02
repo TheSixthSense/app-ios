@@ -10,6 +10,11 @@ import RxCocoa
 import RxSwift
 import UIKit
 
+enum SignUpPageTransition {
+    case forward
+    case backward
+}
+
 class SignUpPageViewController: UIPageViewController {
 
     // MARK: - UI
@@ -59,20 +64,28 @@ class SignUpPageViewController: UIPageViewController {
                            animated: false,
                            completion: nil)
     }
+
+    func pageTransition(type: SignUpPageTransition) {
+        switch type {
+        case .forward:
+            goToNextPage()
+        case .backward:
+            goToPreviousPage()
+        }
+    }
 }
 
-extension SignUpPageViewController {
+private extension SignUpPageViewController {
 
-    func goToNextPage() {
-        if let currentViewController = viewControllers?[0] {
-            if let nextPage = dataSource?.pageViewController(self, viewControllerAfter: currentViewController) {
-                sendRelay(where: nextPage)
-                setViewControllers([nextPage], direction: .forward, animated: true, completion: nil)
-            }
+    private func goToNextPage() {
+        if let currentViewController = viewControllers?[0],
+            let nextPage = dataSource?.pageViewController(self, viewControllerAfter: currentViewController) {
+            sendRelay(where: nextPage)
+            setViewControllers([nextPage], direction: .forward, animated: true, completion: nil)
         }
     }
 
-    func goToPreviousPage() {
+    private func goToPreviousPage() {
         if let currentViewController = viewControllers?[0] {
 
             guard currentViewController is NicknameStepViewController == false else {

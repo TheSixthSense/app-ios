@@ -26,8 +26,7 @@ final class NicknameStepViewController: UIViewController {
 
     var nicknameTextField = AppTextField().then { textfield in
         textfield.placeholderString = "2~10자 사이로 입력해 주세요"
-        // TODO: - 기획: validation 문구 수정
-        textfield.errorString = "필수항목을 선택해 주세요.(벨리데이션 문구 필요)"
+        textfield.errorString = "국문 또는 영문만 가능해!"
         textfield.maxLength = 10
     }
 

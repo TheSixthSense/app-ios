@@ -103,7 +103,6 @@ private extension AppTextField {
             errorIcon.heightAnchor.constraint(equalToConstant: 16),
             errorLabel.topAnchor.constraint(equalTo: bottomAnchor),
             errorLabel.leadingAnchor.constraint(equalTo: errorIcon.trailingAnchor, constant: 4),
-            errorLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
 
