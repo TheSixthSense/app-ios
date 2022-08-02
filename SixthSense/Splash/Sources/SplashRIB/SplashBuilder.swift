@@ -10,6 +10,7 @@ import RIBs
 import Account
 import Repository
 import Storage
+import Home
 
 public protocol SplashDependency: Dependency {
     var network: Network { get }
@@ -17,7 +18,7 @@ public protocol SplashDependency: Dependency {
     var userRepository: UserRepository { get }
 }
 
-final class SplashComponent: Component<SplashDependency>, UserInfoDependency, SignInDependency {
+final class SplashComponent: Component<SplashDependency>, UserInfoDependency, SignInDependency, HomeDependency {
     var network: Network { dependency.network }
     var userRepository: UserRepository { dependency.userRepository }
     var usecase: SignInUseCase
@@ -49,13 +50,15 @@ public final class SplashBuilder: Builder<SplashDependency>, SplashBuildable {
         
         let userInfoBuilder = UserInfoBuilder(dependency: component)
         let signInBuilder = SignInBuilder(dependency: component)
+        let homeBuilder = HomeBuilder(dependency: component)
         
         interactor.listener = listener
         return SplashRouter(
             interactor: interactor,
             viewController: viewController,
             userInfoBuilder: userInfoBuilder,
-            signInBuilder: signInBuilder
+            signInBuilder: signInBuilder,
+            homeBuilder: homeBuilder
         )
     }
 }
