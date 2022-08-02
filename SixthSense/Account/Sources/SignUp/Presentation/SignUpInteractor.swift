@@ -157,20 +157,18 @@ private extension SignUpInteractor {
             .disposeOnDeactivate(interactor: self)
 
         action.doneButtonDidTap
-            .filter({ [weak self] in
+            .do(onNext: { [weak self] in
             if $0 == .nickname {
                 self?.isUseableNickname(self?.requests.nickname ?? "")
                 self?.buttonDidTapRelay.accept(false)
-                return false
             }
 
             if $0 == .veganStage {
                 self?.doSignUp()
                 self?.buttonDidTapRelay.accept(false)
-                return false
             }
-            return true
         })
+            .filter { ![.nickname, .veganStage].contains($0) }
             .subscribe(onNext: { [weak self] step in
             self?.buttonDidTapRelay.accept(true)
         })
@@ -180,23 +178,21 @@ private extension SignUpInteractor {
     private func bindNickname(action: SignUpPresenterAction) {
 
         action.nicknameDidInput
-            .filter({ [weak self] in
+            .do(onNext: { [weak self] in
+
             guard !$0.isEmpty else {
                 self?.fetchEnableButton(false)
                 self?.visibleNicknameValidRelay.accept(true) // 에러메세지 지우기
-                return false
+                return
             }
-            return true
-        })
-            .filter({ [weak self] in
+
             guard self?.isValidNickname($0) == true else {
                 self?.fetchEnableButton(false)
                 self?.visibleNicknameValidRelay.accept(false)
-                return false
+                return
             }
-            return true
-
         })
+            .filter { [weak self] in !$0.isEmpty && (self?.isValidNickname($0) == true) }
             .subscribe(onNext: { [weak self] in
             guard let self = self else { return }
 
