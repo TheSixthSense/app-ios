@@ -187,7 +187,7 @@ private extension SignUpViewController {
         })
             .disposed(by: disposeBag)
 
-        handler.nicknameCheckValid.debug("닉네임")
+        handler.nicknameCheckValid
             .filter({ [weak self] in
             if !$0 {
                 self?.signUpPageView.nickNameInputView.nicknameTextField.errorString = "앗 이미 사용 중인 비거너의 이름이야ㅠㅠ"

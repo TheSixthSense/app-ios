@@ -30,7 +30,6 @@ final class SignUpUseCaseImpl: SignUpUseCase {
     }
 
     func fetchSignUp(reqeust: SignUpRequest) -> Observable<String> {
-        return userRepository.signUp(request: reqeust).debug().asObservable()
+        return userRepository.signUp(request: reqeust).asObservable()
     }
-
 }
