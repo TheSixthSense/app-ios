@@ -9,11 +9,7 @@
 import RIBs
 import RxSwift
 
-public protocol SplashRouting: ViewableRouting {
-    func attachHome()
-    func attachSignIn()
-    func detachSignIn()
-}
+public protocol SplashRouting: ViewableRouting { }
 
 protocol SplashPresentable: Presentable {
     var listener: SplashPresentableListener? { get set }
@@ -22,7 +18,6 @@ protocol SplashPresentable: Presentable {
 public protocol SplashListener: AnyObject {}
 
 final class SplashInteractor: PresentableInteractor<SplashPresentable>, SplashInteractable, SplashPresentableListener {
-    
     weak var router: SplashRouting?
     weak var listener: SplashListener?
     
@@ -33,38 +28,9 @@ final class SplashInteractor: PresentableInteractor<SplashPresentable>, SplashIn
     
     override func didBecomeActive() {
         super.didBecomeActive()
-        
-        // TODO: 스플래시 테스트를 위한 딜레이입니다 추후 제거
-        Observable<Void>.just(())
-            .delay(.seconds(3), scheduler: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] in
-                self?.attachSignInIfNeeded()
-            })
-            .disposeOnDeactivate(interactor: self)
     }
     
     override func willResignActive() {
         super.willResignActive()
-    }
-}
-
-// MARK: - Interactor Method
-extension SplashInteractor {
-    private func attachSignInIfNeeded() {
-        if shouldShowSignInView() {
-            router?.attachSignIn()
-        } else {
-            router?.attachHome()
-        }
-    }
-    
-    // FIXME: 아직 구현이 안된 메소드입니다
-    private func shouldShowSignInView() -> Bool {
-        return true
-    }
-    
-    func signInDidTapClose() {
-        router?.detachSignIn()
-        router?.attachHome()
     }
 }

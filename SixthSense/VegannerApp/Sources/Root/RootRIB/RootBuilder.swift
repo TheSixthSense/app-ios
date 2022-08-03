@@ -11,6 +11,7 @@ import Repository
 import Account
 import Splash
 import Storage
+import Home
 
 protocol RootDependency: Dependency {
     var network: Network { get }
@@ -34,11 +35,17 @@ final class RootBuilder: Builder<RootDependency>, RootBuildable {
         let component = RootComponent(dependency: dependency)
         let viewController = RootViewController()
         let interactor = RootInteractor(presenter: viewController)
+        
         let splashBuilder = SplashBuilder(dependency: component)
+        let signInBuilder = SignInBuilder(dependency: component)
+        let homeBuilder = HomeBuilder(dependency: component)
+        
         return RootRouter(
             interactor: interactor,
             viewController: viewController,
-            splashBuilder: splashBuilder
+            splashBuilder: splashBuilder,
+            signInBuilder: signInBuilder,
+            homeBuilder: homeBuilder
         )
     }
 }

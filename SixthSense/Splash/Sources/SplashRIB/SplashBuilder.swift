@@ -18,15 +18,11 @@ public protocol SplashDependency: Dependency {
     var userRepository: UserRepository { get }
 }
 
-final class SplashComponent: Component<SplashDependency>, UserInfoDependency, SignInDependency, HomeDependency {
+final class SplashComponent: Component<SplashDependency>, UserInfoDependency, HomeDependency {
     var network: Network { dependency.network }
     var userRepository: UserRepository { dependency.userRepository }
-    var usecase: SignInUseCase
     
     override init(dependency: SplashDependency) {
-        // TODO: SignInUseCase는 어디서 주입해야할지 고민해보기
-        self.usecase = SignInUseCaseImpl(userRepository: dependency.userRepository,
-                                         persistence: dependency.persistence)
         super.init(dependency: dependency)
     }
 }
@@ -49,7 +45,6 @@ public final class SplashBuilder: Builder<SplashDependency>, SplashBuildable {
         let interactor = SplashInteractor(presenter: viewController)
         
         let userInfoBuilder = UserInfoBuilder(dependency: component)
-        let signInBuilder = SignInBuilder(dependency: component)
         let homeBuilder = HomeBuilder(dependency: component)
         
         interactor.listener = listener
@@ -57,7 +52,6 @@ public final class SplashBuilder: Builder<SplashDependency>, SplashBuildable {
             interactor: interactor,
             viewController: viewController,
             userInfoBuilder: userInfoBuilder,
-            signInBuilder: signInBuilder,
             homeBuilder: homeBuilder
         )
     }
