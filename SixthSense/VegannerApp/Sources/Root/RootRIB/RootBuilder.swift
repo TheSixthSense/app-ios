@@ -18,8 +18,6 @@ protocol RootDependency: Dependency {
     var userRepository: UserRepository { get }
 }
 
-final class RootComponent: Component<RootDependency> { }
-
 // MARK: - Builder
 
 protocol RootBuildable: Buildable {
