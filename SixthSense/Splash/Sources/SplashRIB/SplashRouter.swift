@@ -11,7 +11,7 @@ import UIKit
 import Account
 import Home
 
-protocol SplashInteractable: Interactable, UserInfoListener, SignInListener, HomeListener {
+protocol SplashInteractable: Interactable, UserInfoListener, HomeListener {
     var router: SplashRouting? { get set }
     var listener: SplashListener? { get set }
 }
@@ -20,7 +20,6 @@ protocol SplashViewControllable: ViewControllable { }
 
 final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControllable>, SplashRouting {
     private let userInfoBuilder: UserInfoBuildable
-    private let signInBuilder: SignInBuildable
     private let homeBuilder: HomeBuildable
     
     private var childRouting: ViewableRouting?
@@ -29,11 +28,9 @@ final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControlla
         interactor: SplashInteractable,
         viewController: SplashViewControllable,
         userInfoBuilder: UserInfoBuildable,
-        signInBuilder: SignInBuildable,
         homeBuilder: HomeBuildable
     ) {
         self.userInfoBuilder = userInfoBuilder
-        self.signInBuilder = signInBuilder
         self.homeBuilder = homeBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
@@ -60,23 +57,5 @@ final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControlla
         viewControllable.present(viewController, animated: false)
         attachChild(router)
         self.childRouting = router
-    }
-    
-    func attachSignIn() {
-        if childRouting != nil { return }
-        
-        let router = signInBuilder.build(withListener: interactor)
-        let viewController = router.viewControllable
-        viewController.uiviewController.modalPresentationStyle = .fullScreen
-        viewControllable.present(viewController, animated: false)
-        attachChild(router)
-        self.childRouting = router
-    }
-    
-    func detachSignIn() {
-        guard let router = childRouting else { return }
-        router.viewControllable.dismiss(animated: false)
-        detachChild(router)
-        self.childRouting = nil
     }
 }
