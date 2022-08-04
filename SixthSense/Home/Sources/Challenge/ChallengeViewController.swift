@@ -37,8 +37,18 @@ final class ChallengeViewController: UIViewController, ChallengePresentable, Cha
         super.viewDidLoad()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
     private func configureViews() {
-        view.backgroundColor = .red
+        view.backgroundColor = .white
         // FIXME: 탭바 아이콘 변경
         tabBarItem = UITabBarItem(
             title: nil,
