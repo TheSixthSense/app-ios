@@ -9,28 +9,43 @@
 import RIBs
 import RxSwift
 import UIKit
+import RxAppState
+import RxDataSources
 
 // TODO: 미완성된 뷰입니다 추후 완성할 예정
 protocol ChallengeListPresentableListener: AnyObject { }
 
 final class ChallengeListViewController: UIViewController, ChallengeListPresentable, ChallengeListViewControllable {
-
-    weak var listener: ChallengeListPresentableListener?
+    typealias Section = RxTableViewSectionedReloadDataSource<ChallengeSection>
+    private let disposeBag = DisposeBag()
+    weak var handler: ChallengeListPresenterHandler?
+    weak var action: ChallengeListPresenterAction?
     
     private enum Constants { }
     
-    private let titleLabel = UILabel().then {
-        $0.text = "리스트뷰"
-        $0.textColor = UIColor.gray
-        $0.textAlignment = .center
-        $0.numberOfLines = 0
-        $0.sizeToFit()
+    private let tableView = UITableView().then {
+        $0.separatorStyle = .none
+        $0.backgroundColor = .white
+        $0.allowsSelection = false
+        $0.rowHeight = UITableView.automaticDimension
+        $0.estimatedRowHeight = UITableView.automaticDimension
+        $0.alwaysBounceVertical = false
+        $0.showsVerticalScrollIndicator = false
+        $0.register(ChallengeItemCell.self)
+    }
+    
+    private let dataSource = Section { _, tableView, indexPath, item in
+        switch item {
+            case .item(let title):
+                guard let cell = tableView.dequeue(ChallengeItemCell.self, for: indexPath) as? ChallengeItemCell else { return UITableViewCell() }
+                cell.configure(title: title)
+                return cell
+        }
     }
     
     init() {
         super.init(nibName: nil, bundle: nil)
-        configureViews()
-        configureConstraints()
+        action = self
     }
     
     required init?(coder: NSCoder) {
@@ -39,16 +54,30 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .blue
+        configureViews()
+        configureConstraints()
+        bind()
     }
     
     private func configureViews() {
-        view.addSubviews(titleLabel)
+        view.addSubviews(tableView)
     }
     
     private func configureConstraints() {
-        titleLabel.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+        tableView.snp.makeConstraints {
+            $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 16, left: 20, bottom: 0, right: 20))
         }
     }
+    
+    private func bind() {
+        guard let handler = handler else { return }
+        handler.sections
+            .asDriver(onErrorJustReturn: [])
+            .drive(tableView.rx.items(dataSource: dataSource))
+            .disposed(by: self.disposeBag)
+    }
+}
+
+extension ChallengeListViewController: ChallengeListPresenterAction {
+    var viewDidAppear: Observable<Void> { rx.viewDidAppear.asObservable().map { _ in () } }
 }
