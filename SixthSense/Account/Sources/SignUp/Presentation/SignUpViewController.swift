@@ -161,6 +161,7 @@ private extension SignUpViewController {
             .drive(onNext: { [weak self] in
             guard let self = self else { return }
             self.stepChanged($0)
+            self.showToast("토스트 테스트토스트 테스트토스트 테스트토스트 테스트토스트 테스트", toastType: .error)
         }).disposed(by: disposeBag)
 
         backButton.rx.tap
