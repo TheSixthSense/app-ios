@@ -7,8 +7,6 @@
 //
 
 import UIKit
-import RxSwift
-import RxGesture
 import Then
 import DesignSystem
 
@@ -59,7 +57,6 @@ final class BirthStepViewController: UIViewController {
 
     // MARK: - Vars
     let birthTextFields: [AppTextField]
-    private let disposeBag = DisposeBag()
 
     // MARK: - LifeCycle
 

@@ -58,6 +58,10 @@ public protocol SignUpListener: AnyObject {
 
 final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpInteractable, SignUpPresentableListener {
 
+    func didTapBackButton() {
+        listener?.returnToSignIn()
+    }
+
     weak var router: SignUpRouting?
     weak var listener: SignUpListener?
 
@@ -102,6 +106,8 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
 
     override func willResignActive() {
         super.willResignActive()
+        presenter.listener = nil
+        presenter.handler = nil
     }
 
     private func doSignUp() {
