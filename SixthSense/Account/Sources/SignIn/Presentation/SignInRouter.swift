@@ -34,8 +34,15 @@ final class SignInRouter: ViewableRouter<SignInInteractable, SignInViewControlla
         let router = signUpBuilder.build(withListener: self.interactor, payload: payload)
         let viewController = router.viewControllable
         viewController.uiviewController.modalPresentationStyle = .fullScreen
-        viewControllable.present(viewController, animated: false)
-        attachChild(router)
+        viewControllable.present(viewController, animated: false, completion: nil)
         self.childRouting = router
+        attachChild(router)
+    }
+
+    func detachSignUp() {
+        guard let router = childRouting else { return }
+        detachChild(router)
+        viewController.dismiss(animated: false, completion: nil)
+        self.childRouting = nil
     }
 }

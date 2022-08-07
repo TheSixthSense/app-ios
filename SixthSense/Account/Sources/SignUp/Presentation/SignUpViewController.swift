@@ -15,11 +15,15 @@ import RxKeyboard
 import Then
 import UIKit
 
+protocol SignUpPresentableListener: AnyObject {
+    func didTapBackButton()
+}
+
 final class SignUpViewController: UIViewController, SignUpPresentable, SignUpViewControllable {
 
-    var listener: SignUpListener?
-    var action: SignUpPresenterAction?
-    var handler: SignUpPresenterHandler?
+    weak var listener: SignUpPresentableListener?
+    weak var action: SignUpPresenterAction?
+    weak var handler: SignUpPresenterHandler?
 
     // MARK: - UI
 
@@ -79,9 +83,12 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         configureUI()
         bindUI()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
     }
 }
 
@@ -153,14 +160,13 @@ private extension SignUpViewController {
 
         rx.viewDidLayoutSubviews
             .take(1)
-            .bind(onNext: {
-            self.configureLayout()
+            .bind(onNext: { [weak self] in
+            self?.configureLayout()
         }).disposed(by: disposeBag)
 
         signUpPageView.stepDrvier
             .drive(onNext: { [weak self] in
-            guard let self = self else { return }
-            self.stepChanged($0)
+            self?.stepChanged($0)
         }).disposed(by: disposeBag)
 
         backButton.rx.tap
@@ -202,7 +208,8 @@ private extension SignUpViewController {
 
     private func handleGenderSubView(with handler: SignUpPresenterHandler) {
         handler.genderInputValid
-            .bind(onNext: { tag in
+            .bind(onNext: { [weak self] tag in
+            guard let self = self else { return }
             let vc = self.signUpPageView.genderInputView
             vc.selectButtons.forEach {
                 if $0.tag == tag {
@@ -308,6 +315,7 @@ private extension SignUpViewController {
         switch step {
         case .exit:
             // TODO: SignIn RIB 연결
+            listener?.didTapBackButton()
             return
         case .nickname:
             stepProgressLabel.text = "\(Int(progressPositions[0] * 100))%"
