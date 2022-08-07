@@ -22,7 +22,8 @@ let dependencies = Dependencies(
             .lottie,
             .rxKeyboard,
 			.rxAppState,
-            .rxGesture
+            .rxGesture,
+            .jtAppleCalendar
     ],
     platforms: [.iOS]
 )
@@ -43,4 +44,5 @@ public extension Package {
     static let rxKeyboard: Package = .remote(url: "https://github.com/RxSwiftCommunity/RxKeyboard", requirement: .upToNextMajor(from: "2.0.0"))
     static let rxAppState: Package = .remote(url: "https://github.com/pixeldock/RxAppState", requirement: .upToNextMajor(from: "1.7.1"))
     static let rxGesture: Package = .remote(url: "https://github.com/RxSwiftCommunity/RxGesture", requirement: .upToNextMajor(from: "4.0.4"))
+    static let jtAppleCalendar: Package = .remote(url: "https://github.com/patchthecode/JTAppleCalendar.git", requirement: .branch("master"))
 }
