@@ -17,11 +17,29 @@ final class RootTabBarController: UITabBarController, HomeViewControllable, Home
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tabBar.isTranslucent = false
-        tabBar.tintColor = .black
+        tabBar.tintColor = .main
+        tabBar.barTintColor = .white
+        tabBar.unselectedItemTintColor = .systemGray300
         tabBar.backgroundColor = .white
+        
+        configureTabBarCornerRadius()
+        configureTabBarShadow()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+    }
+    
+    private func configureTabBarCornerRadius() {
+        tabBar.isTranslucent = true
+        tabBar.layer.cornerRadius = 20
+        tabBar.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+    }
+    
+    private func configureTabBarShadow() {
+        UITabBar.clearShadow()
+        tabBar.layer.applyShadow(color: .gray, alpha: 0.3, x: 0, y: 0, blur: 12)
+    }
     
     func setViewControllers(_ viewControllers: [ViewControllable]) {
         super.setViewControllers(viewControllers.map(\.uiviewController), animated: false)
