@@ -25,6 +25,7 @@ public extension TargetDependency {
     static let rxAppState: TargetDependency = .external(name: "RxAppState")
     static let rxGesture: TargetDependency = .external(name: "RxGesture")
     static let jtAppleCalendar: TargetDependency = .external(name: "JTAppleCalendar")
+    static let reactorKit: TargetDependency = .external(name: "ReactorKit")
 }
 
 extension Project {

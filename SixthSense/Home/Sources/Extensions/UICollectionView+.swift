@@ -15,3 +15,13 @@ extension UICollectionView {
         register(cellClass, forCellWithReuseIdentifier: String(describing: cellClass))
     }
 }
+
+extension UITableView {
+    func register(_ cellClass: AnyClass) {
+        register(cellClass, forCellReuseIdentifier: String(describing: cellClass))
+    }
+    
+    func dequeue(_ cellClass: AnyClass, for indexPath: IndexPath) -> UITableViewCell {
+        return dequeueReusableCell(withIdentifier: String(describing: cellClass), for: indexPath)
+    }
+}

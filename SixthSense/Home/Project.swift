@@ -17,7 +17,8 @@ let project = Project.library(
     .rxDataSources,
     .ribs,
     .rxGesture,
-    .jtAppleCalendar
+    .jtAppleCalendar,
+    .rxAppState
   ] + [Module.utils, .repository, .designSystem].map(\.project),
   additionalTargets: [],
   resources: .default
