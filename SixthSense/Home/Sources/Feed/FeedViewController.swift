@@ -46,12 +46,7 @@ final class FeedViewController: UIViewController, FeedPresentable, FeedViewContr
     
     private func configureViews() {
         view.addSubviews(titleLabel)
-        
-        // FIXME: 아이콘 변경
-        tabBarItem = UITabBarItem(
-            title: nil,
-            image: HomeAsset.feedTabBarIconUnselected.image,
-            selectedImage: HomeAsset.feedTabBarIconUnselected.image)
+        tabBarItem = HomeTabBarItem(image: HomeAsset.feedTabBarIconUnselected.image)
     }
     
     private func configureConstraints() {

@@ -9,6 +9,7 @@
 import RIBs
 import RxSwift
 import UIKit
+import Then
 
 protocol ChallengePresentableListener: AnyObject { }
 
@@ -48,12 +49,8 @@ final class ChallengeViewController: UIViewController, ChallengePresentable, Cha
     
     private func configureViews() {
         view.backgroundColor = .white
-        // FIXME: 탭바 아이콘 변경
-        tabBarItem = UITabBarItem(
-            title: nil,
-            image: HomeAsset.homeTabBarIcon.image,
-            selectedImage: HomeAsset.homeTabBarIcon.image)
-
+        tabBarItem = HomeTabBarItem(image: HomeAsset.homeTabBarIcon.image)
+       
         view.addSubviews(stackView)
     }
     
