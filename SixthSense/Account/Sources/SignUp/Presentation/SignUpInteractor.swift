@@ -108,6 +108,7 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
         super.willResignActive()
         presenter.listener = nil
         presenter.handler = nil
+        presenter.action = nil
     }
 
     private func doSignUp() {
