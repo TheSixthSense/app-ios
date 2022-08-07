@@ -21,7 +21,7 @@ protocol SignUpPresentableListener: AnyObject {
 
 final class SignUpViewController: UIViewController, SignUpPresentable, SignUpViewControllable {
 
-    var listener: SignUpPresentableListener?
+    weak var listener: SignUpPresentableListener?
     weak var action: SignUpPresenterAction?
     weak var handler: SignUpPresenterHandler?
 
