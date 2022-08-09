@@ -119,9 +119,13 @@ public final class AppToast: UILabel {
 
 public extension UIViewController {
 
-    func showToast(_ message: String, toastType: ToastType = .notice) {
-        let toast = AppToast(type: toastType)
-        self.view.addSubview(toast)
+    func showToast(_ message: String, toastStyle: Toast.Style = .notice) {
+        guard let window = UIApplication.shared.windows.first else { return }
+        if let prevToast = window.viewWithTag(Toast.View.tag) as? AppToast {
+            prevToast.removeFromSuperview()
+        }
+        let toast = AppToast(type: toastStyle)
+        window.addSubview(toast)
         toast.showToast(message)
     }
 }
