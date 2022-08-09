@@ -100,9 +100,8 @@ public final class AppToast: UILabel {
 
     @objc
     private func toastSwiped(_ gesture: UIPanGestureRecognizer) {
-        let minVelocity: CGFloat = 80.0
-        if gesture.state == .began {
-            if abs(gesture.velocity(in: self).y) > minVelocity {
+        if gesture.state == .ended {
+            if gesture.translation(in: self).y < 0 {
                 UIView.animate(withDuration: 0.1, animations: {
                     self.frame = CGRect(x: Constants.Frame.x,
                                         y: Constants.Frame.changedY,
