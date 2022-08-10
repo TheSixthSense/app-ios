@@ -8,6 +8,8 @@
 
 import UIKit
 import DesignSystem
+import Then
+import SnapKit
 
 class ChallengeItemCell: UITableViewCell {
     private enum Constants {

@@ -29,13 +29,12 @@ protocol ChallengeListListener: AnyObject {
 }
 
 final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresentable>,
-                                     ChallengeListInteractable,
-                                     ChallengeListPresentableListener {
+                                     ChallengeListInteractable {
     weak var router: ChallengeListRouting?
     weak var listener: ChallengeListListener?
     
     private let sectionsRelay: PublishRelay<[ChallengeSection]> = .init()
-
+    
     override init(presenter: ChallengeListPresentable) {
         super.init(presenter: presenter)
         presenter.handler = self
