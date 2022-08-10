@@ -13,8 +13,6 @@ import RxAppState
 import RxDataSources
 
 // TODO: 미완성된 뷰입니다 추후 완성할 예정
-protocol ChallengeListPresentableListener: AnyObject { }
-
 final class ChallengeListViewController: UIViewController, ChallengeListPresentable, ChallengeListViewControllable {
     typealias Section = RxTableViewSectionedReloadDataSource<ChallengeSection>
     private let disposeBag = DisposeBag()

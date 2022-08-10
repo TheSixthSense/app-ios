@@ -6,18 +6,19 @@
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
 //
 
+import Foundation
 import RIBs
 import RxSwift
+import RxRelay
 import UIKit
 import DesignSystem
 import JTAppleCalendar
-
-protocol ChallengeCalendarPresentableListener: AnyObject { }
+import RxDataSources
 
 // TODO: 미완성된 뷰입니다 추후 완성할 예정
 final class ChallengeCalendarViewController: UIViewController, ChallengeCalendarPresentable, ChallengeCalendarViewControllable {
-
-    weak var listener: ChallengeCalendarPresentableListener?
+    weak var handler: ChallengeCalendarPresenterHandler?
+    weak var action: ChallengeCalendarPresenterAction?
     
     private enum Constants {
         enum Views {
@@ -69,6 +70,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         super.init(nibName: nil, bundle: nil)
         configureViews()
         configureConstraints()
+        action = self
     }
     
     required init?(coder: NSCoder) {
