@@ -60,6 +60,7 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
         self.dependency = dependency
         super.init(presenter: presenter)
         presenter.handler = self
+		presenter.listener = self
     }
 
     override func didBecomeActive() {

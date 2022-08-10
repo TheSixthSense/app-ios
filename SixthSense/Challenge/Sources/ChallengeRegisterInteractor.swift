@@ -9,7 +9,7 @@
 import RIBs
 import RxSwift
 
-protocol ChallengeRegisterRouting: ViewableRouting {
+public protocol ChallengeRegisterRouting: ViewableRouting {
     // TODO: Declare methods the interactor can invoke to manage sub-tree via the router.
 }
 
@@ -18,7 +18,7 @@ protocol ChallengeRegisterPresentable: Presentable {
     // TODO: Declare methods the interactor can invoke the presenter to present data.
 }
 
-protocol ChallengeRegisterListener: AnyObject {
+public protocol ChallengeRegisterListener: AnyObject {
     // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
 }
 

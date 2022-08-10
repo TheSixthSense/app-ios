@@ -7,6 +7,7 @@
 //
 
 import RIBs
+import Challenge
 
 protocol ChallengeInteractable: Interactable,
                                 ChallengeCalendarListener,
@@ -22,7 +23,7 @@ protocol ChallengeViewControllable: ViewControllable {
 final class ChallengeRouter: ViewableRouter<ChallengeInteractable, ChallengeViewControllable>, ChallengeRouting {
     private let calendarBuildable: ChallengeCalendarBuildable
     private var calendarRouting: Routing?
-    
+
     private let listBuildable: ChallengeListBuildable
     private var listRouting: Routing?
 
@@ -37,7 +38,7 @@ final class ChallengeRouter: ViewableRouter<ChallengeInteractable, ChallengeView
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
-    
+
     func attachCalendar() {
         guard self.calendarRouting == nil else { return }
         

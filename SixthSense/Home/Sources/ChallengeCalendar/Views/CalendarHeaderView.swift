@@ -19,7 +19,7 @@ final class CalendarHeaderView: UIView {
     private let monthSelectButton = UIButton().then {
         $0.setImage(DesignSystemAsset.chevronDown.image, for: .normal)
     }
-    private let addButton = UIButton().then {
+    let addButton = UIButton().then {
         $0.setImage(DesignSystemAsset.plus.image, for: .normal)
     }
     private let disposeBag = DisposeBag()
