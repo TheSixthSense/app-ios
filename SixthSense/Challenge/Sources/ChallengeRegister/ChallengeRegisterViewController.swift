@@ -9,14 +9,47 @@
 import RIBs
 import RxSwift
 import UIKit
+import Then
+import DesignSystem
 
 protocol ChallengeRegisterPresentableListener: AnyObject {
-    // TODO: Declare properties and methods that the view controller can invoke to perform
-    // business logic, such as signIn(). This protocol is implemented by the corresponding
-    // interactor class.
 }
 
 final class ChallengeRegisterViewController: UIViewController, ChallengeRegisterPresentable, ChallengeRegisterViewControllable {
 
     weak var listener: ChallengeRegisterPresentableListener?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configureUI()
+    }
+}
+
+private extension ChallengeRegisterViewController {
+
+    private func configureUI() {
+        view.backgroundColor = .white
+        setNavigationBar()
+    }
+
+    private func setNavigationBar() {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let titleTextAttributes: [NSAttributedString.Key: Any] = [
+                .font: AppFont.title1Bold,
+                .foregroundColor: AppColor.systemBlack.cgColor]
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .white
+        navigationBar.isTranslucent = false
+        appearance.titleTextAttributes = titleTextAttributes
+        navigationBar.standardAppearance = appearance
+        navigationBar.scrollEdgeAppearance = navigationController?.navigationBar.standardAppearance
+
+        let backButton = UIButton().then {
+            $0.setImage(AppIcon.back, for: .normal)
+        }
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
+
+        // TODO: title 넣기
+    }
 }
