@@ -107,46 +107,11 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
             $0.height.equalTo(1)
         }
     }
-}
-
-extension ChallengeCalendarViewController: JTACMonthViewDataSource {
-    func configureCalendar(_ calendar: JTACMonthView) -> ConfigurationParameters {
-        .init(startDate: "2022-08-01".toDate()!,
-              endDate: "2022-08-31".toDate()!)
-    }
-}
-
-extension ChallengeCalendarViewController: JTACMonthViewDelegate {
-    func calendar(_ calendar: JTACMonthView, willDisplay cell: JTACDayCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) {
-        guard let cell = calendar.dequeueReusableJTAppleCell(CalendarDayCell.self, for: indexPath) as? CalendarDayCell else { return }
-        cell.configure(state: cellState)
-    }
     
-    func calendar(_ calendar: JTACMonthView, cellForItemAt date: Date, cellState: CellState, indexPath: IndexPath) -> JTACDayCell {
-        guard let cell = calendar.dequeueReusableJTAppleCell(CalendarDayCell.self, for: indexPath) as? CalendarDayCell else { return .init() }
-        cell.configure(state: cellState)
-        return cell
     }
-}
-
-extension String {
-    func toDate() -> Date? { //"yyyy-MM-dd HH:mm:ss"
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = TimeZone(identifier: "KST")
-        if let date = dateFormatter.date(from: self) {
-            return date
-        } else {
-            return nil
         }
     }
 }
 
-extension Date {
-    func toString() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = TimeZone(identifier: "KST")
-        return dateFormatter.string(from: self)
     }
 }
