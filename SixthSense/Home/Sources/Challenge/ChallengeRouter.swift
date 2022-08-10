@@ -7,10 +7,12 @@
 //
 
 import RIBs
+import Challenge
 
 protocol ChallengeInteractable: Interactable,
                                 ChallengeCalendarListener,
-                                ChallengeListListener {
+                                ChallengeListListener,
+                                ChallengeRegisterListener {
     var router: ChallengeRouting? { get set }
     var listener: ChallengeListener? { get set }
 }
@@ -22,22 +24,27 @@ protocol ChallengeViewControllable: ViewControllable {
 final class ChallengeRouter: ViewableRouter<ChallengeInteractable, ChallengeViewControllable>, ChallengeRouting {
     private let calendarBuildable: ChallengeCalendarBuildable
     private var calendarRouting: Routing?
-    
+
     private let listBuildable: ChallengeListBuildable
     private var listRouting: Routing?
+
+    private let registerBuildable: ChallengeRegisterBuildable
+    private var registerRouting: Routing?
 
     init(
         interactor: ChallengeInteractable,
         viewController: ChallengeViewControllable,
         calendarBuildable: ChallengeCalendarBuildable,
-        listBuildable: ChallengeListBuildable
+        listBuildable: ChallengeListBuildable,
+        registerBuildable: ChallengeRegisterBuildable
     ) {
         self.calendarBuildable = calendarBuildable
         self.listBuildable = listBuildable
+        self.registerBuildable = registerBuildable
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
-    
+
     func attachCalendar() {
         guard self.calendarRouting == nil else { return }
         
@@ -60,5 +67,12 @@ final class ChallengeRouter: ViewableRouter<ChallengeInteractable, ChallengeView
         
         self.listRouting = router
         attachChild(router)
+    }
+
+    func attachChallengeRegister() {
+        let router = registerBuildable.build(withListener: interactor)
+        self.registerRouting = router
+        attachChild(router)
+        viewController.pushViewController(router.viewControllable, animated: true)
     }
 }

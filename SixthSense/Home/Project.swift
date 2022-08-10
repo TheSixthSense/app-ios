@@ -19,7 +19,7 @@ let project = Project.library(
     .rxGesture,
     .jtAppleCalendar,
     .rxAppState
-  ] + [Module.utils, .repository, .designSystem].map(\.project),
+  ] + [Module.utils, .repository, .designSystem, .challenge].map(\.project),
   additionalTargets: [],
   resources: .default
 )

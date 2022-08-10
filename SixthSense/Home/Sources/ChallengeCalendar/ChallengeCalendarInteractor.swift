@@ -33,7 +33,9 @@ protocol ChallengeCalendarPresentable: Presentable {
     var action: ChallengeCalendarPresenterAction? { get set }
 }
 
-protocol ChallengeCalendarListener: AnyObject { }
+protocol ChallengeCalendarListener: AnyObject { 
+    func routeToChallengeRegister()
+}
 
 final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendarPresentable>, ChallengeCalendarInteractable {
 
@@ -49,6 +51,7 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
     override init(presenter: ChallengeCalendarPresentable) {
         super.init(presenter: presenter)
         presenter.handler = self
+		presenter.listener = self
     }
 
     override func didBecomeActive() {
@@ -106,5 +109,9 @@ extension ChallengeCalendarInteractor: ChallengeCalendarPresenterHandler {
     var basisDate: Observable<Date> { basisDateRelay.asObservable() }
     var calendar: (startDate: Date, endDate: Date) {
         return (startDate: calendarConfiguration.startDate, endDate: calendarConfiguration.endDate)
+    }
+
+    func didTapAddButton() {
+        listener?.routeToChallengeRegister()
     }
 }

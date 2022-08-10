@@ -7,12 +7,14 @@
 //
 
 import RIBs
+import Challenge
 
 protocol ChallengeDependency: Dependency { }
 
 final class ChallengeComponent: Component<ChallengeDependency>,
                                 ChallengeCalendarDependency,
-                                ChallengeListDependency { }
+                                ChallengeListDependency,
+                                ChallengeRegisterDependency { }
 
 // MARK: - Builder
 
@@ -34,11 +36,13 @@ final class ChallengeBuilder: Builder<ChallengeDependency>, ChallengeBuildable {
         
         let calendarBuilder = ChallengeCalendarBuilder(dependency: component)
         let listBuilder = ChallengeListBuilder(dependency: component)
+        let registerBuilder = ChallengeRegisterBuilder(dependency: component)
         
         return ChallengeRouter(
             interactor: interactor,
             viewController: viewController,
             calendarBuildable: calendarBuilder,
-            listBuildable: listBuilder)
+            listBuildable: listBuilder,
+            registerBuildable: registerBuilder)
     }
 }
