@@ -39,9 +39,13 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
 
     weak var router: ChallengeCalendarRouting?
     weak var listener: ChallengeCalendarListener?
-
-    // TODO: Add additional dependencies to constructor. Do not perform any logic
-    // in constructor.
+    
+    
+    private let basisDateRelay: BehaviorRelay<Date> = .init(value: Date())
+    private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
+    
+    private var calendarConfiguration = CalendarConfiguration(startYear: 2022, endYear: 2026)
+    
     override init(presenter: ChallengeCalendarPresentable) {
         super.init(presenter: presenter)
         presenter.handler = self
@@ -54,7 +58,49 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
 
     override func willResignActive() {
         super.willResignActive()
-        // TODO: Pause any business logic.
+    }
+    
+    private func bind() {
+        guard let action = presenter.action else { return }
+        
+        action.selectMonth
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.calendarDataSourceRelay.accept(owner.calendarConfiguration.pickerDataSource)
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        action.swipeCalendar
+            .withUnretained(self)
+            .subscribe(onNext: { owner, date in
+                owner.calendarConfiguration.setBasisDate(date: date)
+                owner.basisDateRelay.accept(owner.calendarConfiguration.basisDate)
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        action.monthBeginEditing
+            .withUnretained(self)
+            .subscribe(onNext: { owner, results in
+                switch results.component {
+                    case 0:
+                        owner.calendarConfiguration.setYear(row: results.row)
+                    case 1:
+                        owner.calendarConfiguration.setMonth(row: results.row)
+                    default:
+                        break
+                }
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        action.monthDidSelected
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.basisDateRelay.accept(owner.calendarConfiguration.basisDate)
+            })
+            .disposeOnDeactivate(interactor: self)
+    }
+}
+
 extension ChallengeCalendarInteractor: ChallengeCalendarPresenterHandler {
     var calenarDataSource: Observable<[[Int]]> { calendarDataSourceRelay.asObservable() }
     var basisDate: Observable<Date> { basisDateRelay.asObservable() }
