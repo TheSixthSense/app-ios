@@ -27,9 +27,25 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         }
     }
     
-    private let headerView = CalendarHeaderView().then {
+    let swipeCalendarRelay: PublishRelay<Date> = .init()
+    private let disposeBag = DisposeBag()
+    private let pickerAdapter = RxPickerViewStringAdapter<[[Int]]>(
+        components: [],
+        numberOfComponents: { _,_,_  in 2 },
+        numberOfRowsInComponent: { _, _, items, component -> Int in
+            return items[component].count
+        },
+        titleForRow: { _, _, items, row, component -> String? in
+            return "\(items[component][row])"
+        }
+    )
+
+    let headerView = CalendarHeaderView().then {
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
+    
+    let pickerView = UIPickerView()
+    let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: nil)    
 
     private let weekdayView = CalendarWeekdayView().then {
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -68,8 +84,6 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
 
     init() {
         super.init(nibName: nil, bundle: nil)
-        configureViews()
-        configureConstraints()
         action = self
     }
     
@@ -81,12 +95,28 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         super.viewDidLoad()
         configureViews()
         configureConstraints()
+        bind()
     }
     
     private func configureViews() {
         view.addSubviews(stackView, bottomLineView)
         stackView.addArrangedSubviews(headerView, weekdayView, calendar)
+        configureDatePicker()
     }
+    
+    private func configureDatePicker() {
+        let toolbar = UIToolbar().then {
+            $0.sizeToFit()
+            $0.setItems([doneButton], animated: true)
+        }
+        
+        headerView.monthLabel.do {
+            $0.inputAccessoryView = toolbar
+            $0.inputView = pickerView
+            $0.tintColor = .clear
+        }
+    }
+
 
     private func configureConstraints() {
         headerView.snp.makeConstraints {
@@ -98,7 +128,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         }
         
         calendar.snp.makeConstraints {
-            $0.height.equalTo(370)
+            $0.height.equalTo(328)
         }
         
         bottomLineView.snp.makeConstraints {
@@ -108,10 +138,47 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         }
     }
     
+    private func bind() {
+        guard let handler = handler else { return }
+        
+        handler.basisDate
+            .asDriver(onErrorJustReturn: .init())
+            .drive(onNext: { [weak self] in
+                self?.calendar.scrollToDate($0)
+            })
+            .disposed(by: self.disposeBag)
+        
+        handler.basisDate
+            .map(dateToYearMonthString)
+            .asDriver(onErrorJustReturn: .init())
+            .drive(onNext: { [weak self] in
+                self?.headerView.monthLabel.text = $0
+                self?.headerView.monthLabel.resignFirstResponder()
+            })
+            .disposed(by: self.disposeBag)
+        
+        handler.calenarDataSource
+            .bind(to: pickerView.rx.items(adapter: pickerAdapter))
+            .disposed(by: self.disposeBag)
     }
+    
+    private func dateToYearMonthString(_ date: Date) -> String {
+        let dateFormatter = DateFormatter().then {
+            $0.dateFormat = "yyyy년 MM월"
+            $0.timeZone = TimeZone(identifier: "KST")
         }
+        
+        return dateFormatter.string(from: date)
     }
 }
 
+extension ChallengeCalendarViewController: ChallengeCalendarPresenterAction {
+    var selectMonth: Observable<Void> { headerView.rx.tap }
+    var monthBeginEditing: Observable<(row: Int, component: Int)> {
+        pickerView.rx.itemSelected.asObservable()
     }
+    var monthDidSelected: Observable<Void> {
+        doneButton.rx.tap.map { _ in () }.asObservable()
+    }
+    var swipeCalendar: Observable<Date> { swipeCalendarRelay.asObservable() }
 }
