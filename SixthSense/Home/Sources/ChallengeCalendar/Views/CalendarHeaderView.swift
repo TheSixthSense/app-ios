@@ -7,14 +7,13 @@
 //
 
 import UIKit
+import RxSwift
 import DesignSystem
 
 final class CalendarHeaderView: UIView {
     private let headerView = UIView()
-    private let monthLabel = UILabel().then {
-        $0.text = "2022년 8월"
+    let monthLabel = UITextField().then {
         $0.font = AppFont.body1Bold
-        $0.numberOfLines = 1
         $0.sizeToFit()
     }
     private let monthSelectButton = UIButton().then {
@@ -23,11 +22,13 @@ final class CalendarHeaderView: UIView {
     private let addButton = UIButton().then {
         $0.setImage(DesignSystemAsset.plus.image, for: .normal)
     }
-
+    private let disposeBag = DisposeBag()
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         configureViews()
         configureConstraints()
+        bind()
     }
     
     func configureViews() {
@@ -52,5 +53,20 @@ final class CalendarHeaderView: UIView {
             $0.centerY.equalToSuperview()
             $0.size.equalTo(16)
         }
+    }
+    
+    func bind() {
+        monthSelectButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                self?.monthLabel.becomeFirstResponder()
+            })
+            .disposed(by: self.disposeBag)
+    }
+}
+
+
+extension Reactive where Base: CalendarHeaderView {
+    var tap: Observable<Void> {
+        base.monthLabel.rx.controlEvent(.editingDidBegin).map { _ in () }
     }
 }

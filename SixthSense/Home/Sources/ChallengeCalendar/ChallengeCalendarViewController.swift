@@ -6,18 +6,19 @@
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
 //
 
+import Foundation
 import RIBs
 import RxSwift
+import RxRelay
 import UIKit
 import DesignSystem
 import JTAppleCalendar
-
-protocol ChallengeCalendarPresentableListener: AnyObject { }
+import RxDataSources
 
 // TODO: 미완성된 뷰입니다 추후 완성할 예정
 final class ChallengeCalendarViewController: UIViewController, ChallengeCalendarPresentable, ChallengeCalendarViewControllable {
-
-    weak var listener: ChallengeCalendarPresentableListener?
+    weak var handler: ChallengeCalendarPresenterHandler?
+    weak var action: ChallengeCalendarPresenterAction?
     
     private enum Constants {
         enum Views {
@@ -26,9 +27,25 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         }
     }
     
-    private let headerView = CalendarHeaderView().then {
+    let swipeCalendarRelay: PublishRelay<Date> = .init()
+    private let disposeBag = DisposeBag()
+    private let pickerAdapter = RxPickerViewStringAdapter<[[Int]]>(
+        components: [],
+        numberOfComponents: { _,_,_  in 2 },
+        numberOfRowsInComponent: { _, _, items, component -> Int in
+            return items[component].count
+        },
+        titleForRow: { _, _, items, row, component -> String? in
+            return "\(items[component][row])"
+        }
+    )
+
+    let headerView = CalendarHeaderView().then {
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
+    
+    let pickerView = UIPickerView()
+    let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: nil)    
 
     private let weekdayView = CalendarWeekdayView().then {
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -67,8 +84,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
 
     init() {
         super.init(nibName: nil, bundle: nil)
-        configureViews()
-        configureConstraints()
+        action = self
     }
     
     required init?(coder: NSCoder) {
@@ -79,12 +95,28 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         super.viewDidLoad()
         configureViews()
         configureConstraints()
+        bind()
     }
     
     private func configureViews() {
         view.addSubviews(stackView, bottomLineView)
         stackView.addArrangedSubviews(headerView, weekdayView, calendar)
+        configureDatePicker()
     }
+    
+    private func configureDatePicker() {
+        let toolbar = UIToolbar().then {
+            $0.sizeToFit()
+            $0.setItems([doneButton], animated: true)
+        }
+        
+        headerView.monthLabel.do {
+            $0.inputAccessoryView = toolbar
+            $0.inputView = pickerView
+            $0.tintColor = .clear
+        }
+    }
+
 
     private func configureConstraints() {
         headerView.snp.makeConstraints {
@@ -96,7 +128,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         }
         
         calendar.snp.makeConstraints {
-            $0.height.equalTo(370)
+            $0.height.equalTo(328)
         }
         
         bottomLineView.snp.makeConstraints {
@@ -105,46 +137,46 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
             $0.height.equalTo(1)
         }
     }
-}
-
-extension ChallengeCalendarViewController: JTACMonthViewDataSource {
-    func configureCalendar(_ calendar: JTACMonthView) -> ConfigurationParameters {
-        .init(startDate: "2022-08-01".toDate()!,
-              endDate: "2022-08-31".toDate()!)
-    }
-}
-
-extension ChallengeCalendarViewController: JTACMonthViewDelegate {
-    func calendar(_ calendar: JTACMonthView, willDisplay cell: JTACDayCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) {
-        guard let cell = calendar.dequeueReusableJTAppleCell(CalendarDayCell.self, for: indexPath) as? CalendarDayCell else { return }
-        cell.configure(state: cellState)
+    
+    private func bind() {
+        guard let handler = handler else { return }
+        
+        handler.basisDate
+            .asDriver(onErrorJustReturn: .init())
+            .drive(onNext: { [weak self] in
+                self?.calendar.scrollToDate($0)
+            })
+            .disposed(by: self.disposeBag)
+        
+        handler.basisDate
+            .map(dateToYearMonthString)
+            .asDriver(onErrorJustReturn: .init())
+            .drive(onNext: { [weak self] in
+                self?.headerView.monthLabel.text = $0
+                self?.headerView.monthLabel.resignFirstResponder()
+            })
+            .disposed(by: self.disposeBag)
+        
+        handler.calenarDataSource
+            .bind(to: pickerView.rx.items(adapter: pickerAdapter))
+            .disposed(by: self.disposeBag)
     }
     
-    func calendar(_ calendar: JTACMonthView, cellForItemAt date: Date, cellState: CellState, indexPath: IndexPath) -> JTACDayCell {
-        guard let cell = calendar.dequeueReusableJTAppleCell(CalendarDayCell.self, for: indexPath) as? CalendarDayCell else { return .init() }
-        cell.configure(state: cellState)
-        return cell
-    }
-}
-
-extension String {
-    func toDate() -> Date? { //"yyyy-MM-dd HH:mm:ss"
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = TimeZone(identifier: "KST")
-        if let date = dateFormatter.date(from: self) {
-            return date
-        } else {
-            return nil
+    private func dateToYearMonthString(_ date: Date) -> String {
+        let dateFormatter = DateFormatter().then {
+            $0.dateFormat = "yyyy년 MM월"
+            $0.timeZone = TimeZone(identifier: "KST")
         }
+        
+        return dateFormatter.string(from: date)
     }
 }
 
-extension Date {
-    func toString() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = TimeZone(identifier: "KST")
-        return dateFormatter.string(from: self)
+extension ChallengeCalendarViewController: ChallengeCalendarPresenterAction {
+    var selectMonth: Observable<Void> { headerView.rx.tap }
+    var monthBeginEditing: Observable<(row: Int, component: Int)> {
+        pickerView.rx.itemSelected.asObservable()
     }
+    var monthDidSelected: Observable<Void> { doneButton.rx.tap.asObservable() }
+    var swipeCalendar: Observable<Date> { swipeCalendarRelay.asObservable() }
 }
