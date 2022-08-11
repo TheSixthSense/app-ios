@@ -177,8 +177,6 @@ extension ChallengeCalendarViewController: ChallengeCalendarPresenterAction {
     var monthBeginEditing: Observable<(row: Int, component: Int)> {
         pickerView.rx.itemSelected.asObservable()
     }
-    var monthDidSelected: Observable<Void> {
-        doneButton.rx.tap.map { _ in () }.asObservable()
-    }
+    var monthDidSelected: Observable<Void> { doneButton.rx.tap.asObservable() }
     var swipeCalendar: Observable<Date> { swipeCalendarRelay.asObservable() }
 }
