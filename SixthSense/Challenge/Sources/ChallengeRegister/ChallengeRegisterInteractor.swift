@@ -19,7 +19,7 @@ protocol ChallengeRegisterPresentable: Presentable {
 }
 
 public protocol ChallengeRegisterListener: AnyObject {
-    // TODO: Declare methods the interactor can invoke to communicate with other RIBs.
+    func returnToHome()
 }
 
 final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegisterPresentable>, ChallengeRegisterInteractable, ChallengeRegisterPresentableListener {
@@ -42,5 +42,9 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     override func willResignActive() {
         super.willResignActive()
         // TODO: Pause any business logic.
+    }
+
+    func didTapBackButton() {
+        listener?.returnToHome()
     }
 }

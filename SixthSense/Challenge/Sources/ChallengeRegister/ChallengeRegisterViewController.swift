@@ -13,6 +13,7 @@ import Then
 import DesignSystem
 
 protocol ChallengeRegisterPresentableListener: AnyObject {
+    func didTapBackButton()
 }
 
 final class ChallengeRegisterViewController: UIViewController, ChallengeRegisterPresentable, ChallengeRegisterViewControllable {
@@ -47,9 +48,15 @@ private extension ChallengeRegisterViewController {
 
         let backButton = UIButton().then {
             $0.setImage(AppIcon.back, for: .normal)
+            $0.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
         }
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
 
         // TODO: title 넣기
+    }
+
+    @objc
+    private func didTapBackButton() {
+        listener?.didTapBackButton()
     }
 }
