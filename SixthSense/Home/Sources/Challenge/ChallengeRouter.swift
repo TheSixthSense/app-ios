@@ -70,9 +70,17 @@ final class ChallengeRouter: ViewableRouter<ChallengeInteractable, ChallengeView
     }
 
     func attachChallengeRegister() {
+        guard registerRouting == nil  else { return }
         let router = registerBuildable.build(withListener: interactor)
         self.registerRouting = router
         attachChild(router)
         viewController.pushViewController(router.viewControllable, animated: true)
+    }
+
+    func detachChallengeRegister() {
+        guard let router = registerRouting else { return }
+        detachChild(router)
+        viewController.popViewController(animated: true)
+        self.registerRouting = nil
     }
 }
