@@ -21,6 +21,7 @@ protocol ChallengeCalendarPresentableListener: AnyObject {
 
 // TODO: 미완성된 뷰입니다 추후 완성할 예정
 final class ChallengeCalendarViewController: UIViewController, ChallengeCalendarPresentable, ChallengeCalendarViewControllable {
+    weak var listener: ChallengeCalendarPresentableListener?
     weak var handler: ChallengeCalendarPresenterHandler?
     weak var action: ChallengeCalendarPresenterAction?
     
