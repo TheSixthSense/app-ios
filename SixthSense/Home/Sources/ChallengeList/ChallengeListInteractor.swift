@@ -9,6 +9,7 @@
 import RIBs
 import RxSwift
 import RxRelay
+import Foundation
 
 protocol ChallengeListRouting: ViewableRouting {}
 
@@ -28,14 +29,20 @@ protocol ChallengeListPresentable: Presentable {
 protocol ChallengeListListener: AnyObject {
 }
 
+protocol ChallengeListInteractorDependency {
+    var targetDate: PublishRelay<Date> { get }
+}
+
 final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresentable>,
                                      ChallengeListInteractable {
     weak var router: ChallengeListRouting?
     weak var listener: ChallengeListListener?
+    private let dependency: ChallengeListInteractorDependency
     
     private let sectionsRelay: PublishRelay<[ChallengeSection]> = .init()
     
-    override init(presenter: ChallengeListPresentable) {
+    init(presenter: ChallengeListPresentable, dependency: ChallengeListInteractorDependency) {
+        self.dependency = dependency
         super.init(presenter: presenter)
         presenter.handler = self
     }

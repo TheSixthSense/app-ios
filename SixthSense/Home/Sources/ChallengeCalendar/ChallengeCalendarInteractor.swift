@@ -34,13 +34,17 @@ protocol ChallengeCalendarPresentable: Presentable {
     var action: ChallengeCalendarPresenterAction? { get set }
 }
 
+protocol ChallengeCalendarInteractorDependency {
+    var targetDate: PublishRelay<Date> { get }
+}
+
 protocol ChallengeCalendarListener: AnyObject { }
 
 final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendarPresentable>, ChallengeCalendarInteractable {
 
     weak var router: ChallengeCalendarRouting?
     weak var listener: ChallengeCalendarListener?
-    
+    private let dependency: ChallengeCalendarInteractorDependency
     
     private let basisDateRelay: BehaviorRelay<Date> = .init(value: Date())
     private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
@@ -50,7 +54,9 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
     // FIXME: 개발 후에 DI로 주입하도록 변경할거에요
     private let factory: ChallengeCalendarFactory = ChallengeCalendarFactoryImpl()
     
-    override init(presenter: ChallengeCalendarPresentable) {
+    init(presenter: ChallengeCalendarPresentable,
+         dependency: ChallengeCalendarInteractorDependency) {
+        self.dependency = dependency
         super.init(presenter: presenter)
         presenter.handler = self
     }
