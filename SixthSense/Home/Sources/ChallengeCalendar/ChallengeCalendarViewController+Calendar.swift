@@ -19,13 +19,15 @@ extension ChallengeCalendarViewController: JTACMonthViewDataSource {
 
 extension ChallengeCalendarViewController: JTACMonthViewDelegate {
     func calendar(_ calendar: JTACMonthView, willDisplay cell: JTACDayCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) {
-        guard let cell = calendar.dequeueReusableJTAppleCell(CalendarDayCell.self, for: indexPath) as? CalendarDayCell else { return }
-        cell.configure(state: cellState)
+        guard let cell = calendar.dequeueReusableJTAppleCell(CalendarDayCell.self, for: indexPath) as? CalendarDayCell,
+              let challengeState = handler?.dayChallengeState(date) else { return }
+        cell.configure(state: .init(challengeState: challengeState, cellState: cellState))
     }
     
     func calendar(_ calendar: JTACMonthView, cellForItemAt date: Date, cellState: CellState, indexPath: IndexPath) -> JTACDayCell {
-        guard let cell = calendar.dequeueReusableJTAppleCell(CalendarDayCell.self, for: indexPath) as? CalendarDayCell else { return .init() }
-        cell.configure(state: cellState)
+        guard let cell = calendar.dequeueReusableJTAppleCell(CalendarDayCell.self, for: indexPath) as? CalendarDayCell,
+              let challengeState = handler?.dayChallengeState(date) else { return .init() }
+        cell.configure(state: .init(challengeState: challengeState, cellState: cellState))
         return cell
     }
     

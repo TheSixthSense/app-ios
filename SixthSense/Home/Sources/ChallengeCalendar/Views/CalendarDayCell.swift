@@ -66,15 +66,15 @@ final class CalendarDayCell: JTACDayCell {
         
     }
 
-    func configure(state: CellState) {
+    func configure(state: DateState) {
         configureItem(by: state)
+        configureTodayItem(isToday: state.isToday)
     }
     
-    func configureItem(by state: CellState) {
-        titleLabel.text = state.text
-        titleLabel.textColor = Constants.Label.textColor(state.dateBelongsTo)
-        imageView.isHidden = state.dateBelongsTo != .thisMonth
-        configureTodayItem(isToday: Calendar.current.isDateInToday(state.date))
+    func configureItem(by state: DateState) {
+        titleLabel.text = state.title
+        titleLabel.textColor = state.belongsToMonth ? .systemBlack : .systemGray300
+        imageView.isHidden = !state.belongsToMonth
     }
     
     func configureTodayItem(isToday: Bool) {
