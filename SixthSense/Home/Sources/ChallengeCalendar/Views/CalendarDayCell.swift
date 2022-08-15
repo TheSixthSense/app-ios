@@ -17,37 +17,39 @@ final class CalendarDayCell: JTACDayCell {
     
     private enum Constants {
         enum View {
+            static let viewStyle: (UIView) -> Void = {
+                $0.backgroundColor = .clear
+            }
             static let todayViewStyle: (UIView) -> Void = {
                 $0.backgroundColor = UIColor(red: 244/256, green: 251/256, blue: 245/256, alpha: 1)
             }
         }
         
         enum Label {
-            static let textColor: (DateOwner) -> UIColor = {
-                $0 == .thisMonth ? .systemBlack : .systemGray300
-            }
-            
             static let todayTextStyle: (UILabel) -> Void = {
                 $0.textColor = .green700
                 $0.font = AppFont.captionBold
+            }
+            
+            static let textStyle: (UILabel) -> Void = {
+                $0.textColor = .systemBlack
+                $0.font = AppFont.caption
             }
         }
     }
     
     private let container = UIView().then {
-        $0.layer.cornerRadius = 10
+        $0.layer.cornerRadius = 24.5
     }
     
-    private let titleLabel = UILabel().then {
-        $0.font = AppFont.caption
-        $0.textAlignment = .center
-        $0.textColor = AppColor.systemBlack
-        $0.backgroundColor = .clear
-    }
+    private let titleLabel = UILabel()
+        .then(Constants.Label.textStyle)
+        .then {
+            $0.textAlignment = .center
+            $0.backgroundColor = .clear
+        }
     
-    private let imageView = UIImageView().then {
-        $0.image = HomeAsset.challengeDayEmpty.image
-    }
+    private let imageView = UIImageView()
 
     // MARK: Initialization
 
@@ -63,7 +65,12 @@ final class CalendarDayCell: JTACDayCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        
+        invalidateViewState()
+    }
+    
+    func invalidateViewState() {
+        titleLabel.do(Constants.Label.textStyle)
+        container.do(Constants.View.viewStyle)
     }
 
     func configure(state: DateState) {
@@ -75,6 +82,7 @@ final class CalendarDayCell: JTACDayCell {
         titleLabel.text = state.title
         titleLabel.textColor = state.belongsToMonth ? .systemBlack : .systemGray300
         imageView.isHidden = !state.belongsToMonth
+        imageView.image = state.challengeIcon
     }
     
     func configureTodayItem(isToday: Bool) {
@@ -93,7 +101,8 @@ final class CalendarDayCell: JTACDayCell {
         container.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.centerX.equalToSuperview()
-            $0.size.equalTo(49).priority(.required)
+            $0.width.equalTo(49).priority(.required)
+            $0.height.equalTo(54).priority(.required)
             $0.bottom.equalToSuperview().inset(6)
         }
 
@@ -106,7 +115,25 @@ final class CalendarDayCell: JTACDayCell {
         imageView.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.top.equalTo(titleLabel.snp.bottom).offset(2)
-            $0.bottom.equalToSuperview().inset(2)
+            $0.width.equalTo(19)
+            $0.height.equalTo(24)
+        }
+    }
+}
+
+extension ChallengeCalendarDayState {
+    var icon: UIImage {
+        switch self {
+            case .zero:
+                return HomeAsset.challengeDayZero.image
+            case .overZero:
+                return HomeAsset.challengeDayOverZero.image
+            case .almost:
+                return HomeAsset.challengeDayAlmost.image
+            case .done:
+                return HomeAsset.challengeDayDone.image
+            case .waiting:
+                return HomeAsset.challengeDayWaiting.image
         }
     }
 }
