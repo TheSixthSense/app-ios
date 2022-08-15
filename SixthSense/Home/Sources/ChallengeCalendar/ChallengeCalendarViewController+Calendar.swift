@@ -31,6 +31,10 @@ extension ChallengeCalendarViewController: JTACMonthViewDelegate {
         return cell
     }
     
+    func calendar(_ calendar: JTACMonthView, didSelectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) {
+        dateSelectRelay.accept(date)
+    }
+    
     func calendar(_ calendar: JTACMonthView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
         let target: Date = visibleDates.monthDates.last?.date ?? .init()
         swipeCalendarRelay.accept(target)

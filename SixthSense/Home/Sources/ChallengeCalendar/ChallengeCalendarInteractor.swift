@@ -20,6 +20,7 @@ protocol ChallengeCalendarPresenterAction: AnyObject {
     var swipeCalendar: Observable<Date> { get }
     var monthBeginEditing: Observable<(row: Int, component: Int)> { get }
     var monthDidSelected: Observable<Void> { get }
+    var dateDidSelected: Observable<Date> { get }
 }
 
 protocol ChallengeCalendarPresenterHandler: AnyObject {
@@ -108,6 +109,16 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
                 owner.basisDateRelay.accept(owner.calendarConfiguration.basisDate)
             })
             .disposeOnDeactivate(interactor: self)
+        
+        action.dateDidSelected
+            .withUnretained(self)
+            .subscribe(onNext: { owner, date in
+                owner.dependency.targetDate.accept(date)
+            })
+            .disposeOnDeactivate(interactor: self)
+    }
+}
+
 // TODO: 파일로 분리
 protocol ChallengeCalendarFactory {
     var dayChallengeState: (Date) -> ChallengeCalendarDayState { get }
