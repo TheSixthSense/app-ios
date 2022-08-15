@@ -59,8 +59,13 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     private func bind() {
         guard let action = presenter.action else { return }
         action.viewDidAppear
-            .subscribe(onNext: { [weak self] in
-                self?.makeSections()
+            .take(1)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.fetch(by: Date())
+            })
+            .disposeOnDeactivate(interactor: self)
+        
         dependency.targetDate
             .withUnretained(self)
             .subscribe(onNext: { owner, date in
