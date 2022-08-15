@@ -34,3 +34,23 @@ extension ChallengeCalendarViewController: JTACMonthViewDelegate {
         swipeCalendarRelay.accept(target)
     }
 }
+
+
+// TODO: 파일 위치 변경
+struct DateState {
+    private let challengeState: ChallengeCalendarDayState
+    private let cellState: CellState
+    
+    init(challengeState: ChallengeCalendarDayState, cellState: CellState) {
+        self.challengeState = challengeState
+        self.cellState = cellState
+    }
+    
+    var belongsToMonth: Bool { cellState.dateBelongsTo == .thisMonth }
+    var title: String { cellState.text }
+    var isToday: Bool { Calendar.current.isDateInToday(cellState.date) }
+    var challengeIcon: UIImage {
+        if isToday && challengeState == .waiting { return HomeAsset.challengeTodayWaiting.image}
+        else { return challengeState.icon }
+    }
+}
