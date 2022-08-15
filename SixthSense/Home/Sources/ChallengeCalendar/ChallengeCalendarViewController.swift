@@ -128,7 +128,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         }
         
         calendar.snp.makeConstraints {
-            $0.height.equalTo(328)
+            $0.height.equalTo(338)
         }
         
         bottomLineView.snp.makeConstraints {
