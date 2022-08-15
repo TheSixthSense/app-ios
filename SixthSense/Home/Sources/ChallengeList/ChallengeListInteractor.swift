@@ -61,14 +61,18 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
         action.viewDidAppear
             .subscribe(onNext: { [weak self] in
                 self?.makeSections()
+        dependency.targetDate
+            .withUnretained(self)
+            .subscribe(onNext: { owner, date in
+                owner.fetch(by: date)
             })
             .disposeOnDeactivate(interactor: self)
     }
     
-    private func makeSections() {
+    private func fetch(by date: Date) {
         // TODO: 미완성된 기능입니다
         sectionsRelay.accept([.init(identity: .item, items: [.item("하루 채식"),
-            .item("하루 채식"),
+            .item("하루 \(date)채식"),
             .item("하루 채식"),
             .item("하루 채식"),
             .item("하루 채식"),
