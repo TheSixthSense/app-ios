@@ -28,7 +28,7 @@ protocol ChallengeRegisterPresenterHandler: AnyObject {
 }
 
 public protocol ChallengeRegisterListener: AnyObject {
-    func returnToHome()
+//    func returnToHome()
 }
 
 final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegisterPresentable>,
@@ -57,7 +57,6 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     }
 
     func didTapBackButton() {
-        listener?.returnToHome()
     }
 
     private func bind() {

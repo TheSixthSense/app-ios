@@ -12,8 +12,6 @@ import RxSwift
 protocol ChallengeRouting: ViewableRouting {
     func attachCalendar()
     func attachList()
-    func attachChallengeRegister()
-    func detachChallengeRegister()
 }
 
 protocol ChallengePresentable: Presentable {
@@ -40,13 +38,5 @@ final class ChallengeInteractor: PresentableInteractor<ChallengePresentable>, Ch
 
     override func willResignActive() {
         super.willResignActive()
-    }
-
-    func routeToChallengeRegister() {
-        router?.attachChallengeRegister()
-    }
-
-    func returnToHome() {
-        router?.detachChallengeRegister()
     }
 }

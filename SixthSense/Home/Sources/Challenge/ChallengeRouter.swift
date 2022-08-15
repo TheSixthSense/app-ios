@@ -11,8 +11,7 @@ import Challenge
 
 protocol ChallengeInteractable: Interactable,
                                 ChallengeCalendarListener,
-                                ChallengeListListener,
-                                ChallengeRegisterListener {
+                                ChallengeListListener {
     var router: ChallengeRouting? { get set }
     var listener: ChallengeListener? { get set }
 }
@@ -28,19 +27,14 @@ final class ChallengeRouter: ViewableRouter<ChallengeInteractable, ChallengeView
     private let listBuildable: ChallengeListBuildable
     private var listRouting: Routing?
 
-    private let registerBuildable: ChallengeRegisterBuildable
-    private var registerRouting: Routing?
-
     init(
         interactor: ChallengeInteractable,
         viewController: ChallengeViewControllable,
         calendarBuildable: ChallengeCalendarBuildable,
-        listBuildable: ChallengeListBuildable,
-        registerBuildable: ChallengeRegisterBuildable
+        listBuildable: ChallengeListBuildable
     ) {
         self.calendarBuildable = calendarBuildable
         self.listBuildable = listBuildable
-        self.registerBuildable = registerBuildable
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
     }
@@ -67,20 +61,5 @@ final class ChallengeRouter: ViewableRouter<ChallengeInteractable, ChallengeView
         
         self.listRouting = router
         attachChild(router)
-    }
-
-    func attachChallengeRegister() {
-        guard registerRouting == nil  else { return }
-        let router = registerBuildable.build(withListener: interactor)
-        self.registerRouting = router
-        attachChild(router)
-        viewController.pushViewController(router.viewControllable, animated: true)
-    }
-
-    func detachChallengeRegister() {
-        guard let router = registerRouting else { return }
-        detachChild(router)
-        viewController.popViewController(animated: true)
-        self.registerRouting = nil
     }
 }

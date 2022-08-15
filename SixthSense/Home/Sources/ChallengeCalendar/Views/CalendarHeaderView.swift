@@ -19,9 +19,6 @@ final class CalendarHeaderView: UIView {
     private let monthSelectButton = UIButton().then {
         $0.setImage(DesignSystemAsset.chevronDown.image, for: .normal)
     }
-    let addButton = UIButton().then {
-        $0.setImage(DesignSystemAsset.plus.image, for: .normal)
-    }
     private let disposeBag = DisposeBag()
     
     override func layoutSubviews() {
@@ -46,12 +43,6 @@ final class CalendarHeaderView: UIView {
             $0.centerY.equalTo(monthLabel)
             $0.width.equalTo(11)
             $0.height.equalTo(6)
-        }
-        
-        addButton.snp.makeConstraints {
-            $0.right.equalToSuperview().inset(33)
-            $0.centerY.equalToSuperview()
-            $0.size.equalTo(16)
         }
     }
     

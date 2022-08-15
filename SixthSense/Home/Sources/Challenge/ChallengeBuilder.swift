@@ -13,8 +13,7 @@ protocol ChallengeDependency: Dependency { }
 
 final class ChallengeComponent: Component<ChallengeDependency>,
                                 ChallengeCalendarDependency,
-                                ChallengeListDependency,
-                                ChallengeRegisterDependency { }
+                                ChallengeListDependency { }
 
 // MARK: - Builder
 
@@ -36,13 +35,11 @@ final class ChallengeBuilder: Builder<ChallengeDependency>, ChallengeBuildable {
         
         let calendarBuilder = ChallengeCalendarBuilder(dependency: component)
         let listBuilder = ChallengeListBuilder(dependency: component)
-        let registerBuilder = ChallengeRegisterBuilder(dependency: component)
-        
+
         return ChallengeRouter(
             interactor: interactor,
             viewController: viewController,
             calendarBuildable: calendarBuilder,
-            listBuildable: listBuilder,
-            registerBuildable: registerBuilder)
+            listBuildable: listBuilder)
     }
 }
