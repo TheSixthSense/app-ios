@@ -68,34 +68,31 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     // MARK: - UI
 
-
     private lazy var categoryTabView = UICollectionView(
         frame: .zero,
         collectionViewLayout: categoryCollectionLayout
     ).then {
-        $0.register(CategoryTabItemCell.self)
         $0.backgroundColor = .white
         $0.showsHorizontalScrollIndicator = false
         $0.showsVerticalScrollIndicator = false
         $0.contentInsetAdjustmentBehavior = .never
     }
 
-    private lazy var categoryCollectionLayout = UICollectionViewFlowLayout().then {
-        $0.estimatedItemSize = CGSize(width: view.frame.width / 3.0,
+    private var categoryCollectionLayout = UICollectionViewFlowLayout().then {
+        $0.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width / 3.0,
                                       height: Constants.Height.category)
-        $0.itemSize = CGSize(width: view.frame.width / 3.0,
+        $0.itemSize = CGSize(width: UIScreen.main.bounds.width / 3.0,
                              height: Constants.Height.category)
         $0.scrollDirection = .horizontal
         $0.minimumInteritemSpacing = 0
         $0.minimumLineSpacing = 0
     }
 
-    private lazy var indicatorView = UIView().then {
+    private var indicatorView = UIView().then {
         $0.backgroundColor = .black
     }
 
-    private lazy var contentTableView = UITableView().then {
-        $0.register(ChallengeListItemCell.self)
+    private var contentTableView = UITableView().then {
         $0.rowHeight = Constants.Height.tableRow
         $0.estimatedRowHeight = Constants.Height.tableRow
         $0.isScrollEnabled = true
@@ -106,7 +103,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         $0.separatorStyle = .none
     }
 
-    private lazy var doneButton = AppButton(title: "챌린지 선택 완료")
+    private var doneButton = AppButton(title: "챌린지 선택 완료")
 
     private let disposeBag = DisposeBag()
 
@@ -140,6 +137,8 @@ private extension ChallengeRegisterViewController {
     private func configureUI() {
         view.backgroundColor = .white
         setNavigationBar()
+        categoryTabView.register(CategoryTabItemCell.self)
+        contentTableView.register(ChallengeListItemCell.self)
         view.addSubviews(categoryTabView, indicatorView, contentTableView, doneButton)
         bind()
     }
