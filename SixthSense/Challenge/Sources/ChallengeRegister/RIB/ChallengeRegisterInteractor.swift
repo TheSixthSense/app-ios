@@ -10,7 +10,9 @@ import RIBs
 import RxCocoa
 import RxSwift
 
-public protocol ChallengeRegisterRouting: ViewableRouting { }
+public protocol ChallengeRegisterRouting: ViewableRouting {
+    func routeToRecommend()
+}
 
 protocol ChallengeRegisterPresentable: Presentable {
     var listener: ChallengeRegisterPresentableListener? { get set }
@@ -20,6 +22,7 @@ protocol ChallengeRegisterPresentable: Presentable {
 
 protocol ChallengeRegisterPresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
+    var didTapDoneButton: Observable<Void> { get }
 }
 
 protocol ChallengeRegisterPresenterHandler: AnyObject {
@@ -67,8 +70,13 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
             owner.makeListSections()
-        })
-            .disposeOnDeactivate(interactor: self)
+        }).disposeOnDeactivate(interactor: self)
+
+        action.didTapDoneButton
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+            owner.router?.routeToRecommend()
+        }).disposeOnDeactivate(interactor: self)
     }
 
     // FIXME: - API로 변경
@@ -78,8 +86,8 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
                       items: [.description("귀리로 만든 우유, 친환경 계란 등 음식을 통해 비건을\n실천할 수 있어!\n챌린지 함께 해보지 않을래?")]),
                 .init(identity: .item,
                       items: [.item("우유 대신 두유로 마시기"),
-                              .item("식물성 고기로 단백질 채우기"),
-                              .item("식물성 계란으로 요리하기")])
+                                  .item("식물성 고기로 단백질 채우기"),
+                                  .item("식물성 계란으로 요리하기")])
         ])
 
         categorySectionsRelay.accept([.init(

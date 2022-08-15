@@ -37,6 +37,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
             static var tableRow = 78.0
         }
     }
+
     private let categoryDataSource = CategorySections { _, collectionView, indexPath, item in
         switch item {
         case .item(let item):
@@ -242,6 +243,10 @@ private extension ChallengeRegisterViewController {
 }
 
 extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
-    var viewWillAppear: Observable<Void> { rx.viewWillAppear.asObservable().map { _ in () }
+    var viewWillAppear: Observable<Void> { rx.viewWillAppear.asObservable().map { _ in () } }
+    var didTapDoneButton: Observable<Void> {
+        doneButton.rx.tap
+            .throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance)
+            .asObservable()
     }
 }

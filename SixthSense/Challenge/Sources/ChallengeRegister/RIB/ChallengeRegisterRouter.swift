@@ -8,20 +8,35 @@
 
 import RIBs
 
-protocol ChallengeRegisterInteractable: Interactable {
+protocol ChallengeRegisterInteractable: Interactable, ChallengeRecommendListener {
     var router: ChallengeRegisterRouting? { get set }
     var listener: ChallengeRegisterListener? { get set }
 }
 
 protocol ChallengeRegisterViewControllable: ViewControllable {
-    // TODO: Declare methods the router invokes to manipulate the view hierarchy.
 }
 
 final class ChallengeRegisterRouter: ViewableRouter<ChallengeRegisterInteractable, ChallengeRegisterViewControllable>, ChallengeRegisterRouting {
 
-    // TODO: Constructor inject child builder protocols to allow building children.
-    override init(interactor: ChallengeRegisterInteractable, viewController: ChallengeRegisterViewControllable) {
+    private let recommendBuilder: ChallengeRecommendBuildable
+
+    private var childRouting: ViewableRouting?
+
+    init(interactor: ChallengeRegisterInteractable,
+         viewController: ChallengeRegisterViewControllable,
+         recommendBuilder: ChallengeRecommendBuildable) {
+        self.recommendBuilder = recommendBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
+    }
+
+    func routeToRecommend() {
+        if childRouting != nil { return }
+        let router = recommendBuilder.build(withListener: self.interactor)
+        let viewController = router.viewControllable
+        viewController.uiviewController.modalPresentationStyle = .fullScreen
+        viewControllable.present(viewController, animated: false, completion: nil)
+        self.childRouting = router
+        attachChild(router)
     }
 }

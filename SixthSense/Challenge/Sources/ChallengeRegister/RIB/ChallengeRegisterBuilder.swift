@@ -9,13 +9,10 @@
 import RIBs
 
 public protocol ChallengeRegisterDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
 }
 
-public final class ChallengeRegisterComponent: Component<ChallengeRegisterDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+public final class ChallengeRegisterComponent: Component<ChallengeRegisterDependency>,
+                                               ChallengeRecommendDependency {
 }
 
 // MARK: - Builder
@@ -35,6 +32,10 @@ public final class ChallengeRegisterBuilder: Builder<ChallengeRegisterDependency
         let viewController = ChallengeRegisterViewController()
         let interactor = ChallengeRegisterInteractor(presenter: viewController)
         interactor.listener = listener
-        return ChallengeRegisterRouter(interactor: interactor, viewController: viewController)
+
+        let recommendBuilder = ChallengeRecommendBuilder(dependency: component)
+        return ChallengeRegisterRouter(interactor: interactor,
+                                       viewController: viewController,
+                                       recommendBuilder: recommendBuilder)
     }
 }
