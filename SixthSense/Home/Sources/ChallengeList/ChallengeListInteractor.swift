@@ -85,8 +85,18 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             ])
         ]
         
+        // TODO: 나중에 Extension으로 분리해요
+        let calendar = Calendar.current
+        let interval = calendar.dateComponents([.year, .month, .day], from: Date(), to: date)
+    
+        if let intervalDay = interval.day, intervalDay >= 0 {
+            sections.append(.init(identity: .add, items: [.add]))
+        }
+        sectionsRelay.accept(sections)
     }
 }
+
+
 
 extension ChallengeListInteractor: ChallengeListPresenterHandler {
     var sections: Observable<[ChallengeSection]> { sectionsRelay.asObservable() }
