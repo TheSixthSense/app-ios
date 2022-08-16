@@ -11,6 +11,7 @@ import RxDataSources
 struct ChallengeSection {
     enum Identity: Int {
         case item
+        case add
     }
     let identity: Identity
     var items: [ChallengeSectionItem]
@@ -23,5 +24,8 @@ extension ChallengeSection: SectionModelType {
 }
 
 enum ChallengeSectionItem {
-    case item(String)
+    case success(ChallengeItemCellViewModel)
+    case failed(ChallengeItemCellViewModel)
+    case waiting(ChallengeItemCellViewModel)
+    case add
 }

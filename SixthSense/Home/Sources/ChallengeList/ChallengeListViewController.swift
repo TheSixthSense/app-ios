@@ -29,14 +29,29 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
         $0.estimatedRowHeight = UITableView.automaticDimension
         $0.alwaysBounceVertical = false
         $0.showsVerticalScrollIndicator = false
-        $0.register(ChallengeItemCell.self)
+        $0.register(ChallengeSuccessItemCell.self)
+        $0.register(ChallengeFailedItemCell.self)
+        $0.register(ChallengeWaitingItemCell.self)
+        $0.register(ChallengeAddCell.self)
     }
     
     private let dataSource = Section { _, tableView, indexPath, item in
         switch item {
-            case .item(let title):
-                guard let cell = tableView.dequeue(ChallengeItemCell.self, for: indexPath) as? ChallengeItemCell else { return UITableViewCell() }
-                cell.configure(title: title)
+            case .success(let viewModel):
+                guard let cell = tableView.dequeue(ChallengeSuccessItemCell.self, for: indexPath) as? ChallengeSuccessItemCell else { return UITableViewCell() }
+                cell.configure(viewModel: viewModel)
+                return cell
+            case .failed(let viewModel):
+                guard let cell = tableView.dequeue(ChallengeFailedItemCell.self, for: indexPath) as? ChallengeFailedItemCell else { return UITableViewCell() }
+                cell.configure(viewModel: viewModel)
+                return cell
+            case .waiting(let viewModel):
+                guard let cell = tableView.dequeue(ChallengeWaitingItemCell.self, for: indexPath) as? ChallengeWaitingItemCell else { return UITableViewCell() }
+                cell.configure(viewModel: viewModel)
+                return cell
+            case .add:
+                guard let cell = tableView.dequeue(ChallengeAddCell.self, for: indexPath) as? ChallengeAddCell else { return .init() }
+                cell.configure()
                 return cell
         }
     }
