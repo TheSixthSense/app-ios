@@ -16,30 +16,29 @@ class ChallengeItemCell: UITableViewCell {
         enum Label { }
     }
     
-    private let container = UIView().then {
-        $0.backgroundColor = UIColor(red: 244/256, green: 251/256, blue: 245/256, alpha: 1)
+    let container = UIView().then {
         $0.layer.cornerRadius = 10
     }
     
-    private let image = UIImageView().then {
-        $0.image = HomeAsset.vegetable.image
+    private let emoji = UILabel().then {
+        $0.font = AppFont.subtitle
+        $0.numberOfLines = 1
+        $0.sizeToFit()
     }
 
-    private let titleLabel = UILabel().then {
+    let titleLabel = UILabel().then {
         $0.font = AppFont.body1
         $0.textAlignment = .center
         $0.textColor = AppColor.systemBlack
         $0.backgroundColor = .clear
     }
     
-    private let badge = UIView().then {
-        $0.backgroundColor = AppColor.green100
+    let badge = UIView().then {
         $0.layer.cornerRadius = 21
     }
-    private let badgeTitle = UILabel().then {
-        $0.text = "성공"
+    
+    let badgeTitle = UILabel().then {
         $0.font = AppFont.captionBold
-        $0.textColor = AppColor.green700
     }
 
     // MARK: Initialization
@@ -53,33 +52,34 @@ class ChallengeItemCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(title: String) {
-        self.titleLabel.text = title
+    func configure(viewModel: ChallengeItemCellViewModel) {
+        self.titleLabel.text = viewModel.title
+        self.emoji.text = viewModel.emoji
     }
 
     func configureViews() {
         self.setNeedsUpdateConstraints()
         contentView.addSubviews(container)
-        container.addSubviews(image, titleLabel, badge)
+        container.addSubviews(emoji, titleLabel, badge)
         badge.addSubview(badgeTitle)
     }
 
     func setupConstraints() {
         container.snp.makeConstraints {
             $0.edges.equalToSuperview()
-            $0.height.equalTo(68)
+            $0.height.equalTo(58)
             $0.bottom.equalToSuperview().offset(-8)
         }
         
-        image.snp.makeConstraints {
-            $0.left.equalToSuperview().inset(24)
-            $0.size.equalTo(30)
+        emoji.snp.makeConstraints {
+            $0.left.equalToSuperview().inset(20)
+            $0.size.equalTo(24)
             $0.centerY.equalToSuperview()
         }
 
         titleLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.left.equalTo(image.snp.right).offset(20)
+            $0.left.equalTo(emoji.snp.right).offset(16)
         }
         
         badge.snp.makeConstraints {
