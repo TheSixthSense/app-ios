@@ -28,6 +28,8 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
     }
     
     let swipeCalendarRelay: PublishRelay<Date> = .init()
+    let dateSelectRelay: PublishRelay<Date> = .init()
+    
     private let disposeBag = DisposeBag()
     private let pickerAdapter = RxPickerViewStringAdapter<[[Int]]>(
         components: [],
@@ -179,4 +181,5 @@ extension ChallengeCalendarViewController: ChallengeCalendarPresenterAction {
     }
     var monthDidSelected: Observable<Void> { doneButton.rx.tap.asObservable() }
     var swipeCalendar: Observable<Date> { swipeCalendarRelay.asObservable() }
+    var dateDidSelected: Observable<Date> { dateSelectRelay.asObservable() }
 }

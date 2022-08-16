@@ -7,15 +7,16 @@
 //
 
 import RIBs
+import RxRelay
+import Foundation
 
 protocol ChallengeCalendarDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var targetDate: PublishRelay<Date> { get }
 }
 
-final class ChallengeCalendarComponent: Component<ChallengeCalendarDependency> {
-
-    // TODO: Declare 'fileprivate' dependencies that are only used by this RIB.
+final class ChallengeCalendarComponent: Component<ChallengeCalendarDependency>,
+                                        ChallengeCalendarInteractorDependency{
+    var targetDate: PublishRelay<Date> { dependency.targetDate }
 }
 
 // MARK: - Builder
@@ -33,7 +34,7 @@ final class ChallengeCalendarBuilder: Builder<ChallengeCalendarDependency>, Chal
     func build(withListener listener: ChallengeCalendarListener) -> ChallengeCalendarRouting {
         let component = ChallengeCalendarComponent(dependency: dependency)
         let viewController = ChallengeCalendarViewController()
-        let interactor = ChallengeCalendarInteractor(presenter: viewController)
+        let interactor = ChallengeCalendarInteractor(presenter: viewController, dependency: component)
         interactor.listener = listener
         return ChallengeCalendarRouter(interactor: interactor, viewController: viewController)
     }

@@ -7,12 +7,21 @@
 //
 
 import RIBs
+import RxRelay
+import Foundation
 
 protocol ChallengeDependency: Dependency { }
 
 final class ChallengeComponent: Component<ChallengeDependency>,
                                 ChallengeCalendarDependency,
-                                ChallengeListDependency { }
+                                ChallengeListDependency {
+    var targetDate: PublishRelay<Date>
+    
+    override init(dependency: ChallengeDependency) {
+        targetDate = .init()
+        super.init(dependency: dependency)
+    }
+}
 
 // MARK: - Builder
 

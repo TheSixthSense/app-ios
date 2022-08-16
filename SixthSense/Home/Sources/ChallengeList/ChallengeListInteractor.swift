@@ -9,6 +9,7 @@
 import RIBs
 import RxSwift
 import RxRelay
+import Foundation
 
 protocol ChallengeListRouting: ViewableRouting {}
 
@@ -28,14 +29,20 @@ protocol ChallengeListPresentable: Presentable {
 protocol ChallengeListListener: AnyObject {
 }
 
+protocol ChallengeListInteractorDependency {
+    var targetDate: PublishRelay<Date> { get }
+}
+
 final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresentable>,
                                      ChallengeListInteractable {
     weak var router: ChallengeListRouting?
     weak var listener: ChallengeListListener?
+    private let dependency: ChallengeListInteractorDependency
     
     private let sectionsRelay: PublishRelay<[ChallengeSection]> = .init()
     
-    override init(presenter: ChallengeListPresentable) {
+    init(presenter: ChallengeListPresentable, dependency: ChallengeListInteractorDependency) {
+        self.dependency = dependency
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -52,16 +59,25 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     private func bind() {
         guard let action = presenter.action else { return }
         action.viewDidAppear
-            .subscribe(onNext: { [weak self] in
-                self?.makeSections()
+            .take(1)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.fetch(by: Date())
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        dependency.targetDate
+            .withUnretained(self)
+            .subscribe(onNext: { owner, date in
+                owner.fetch(by: date)
             })
             .disposeOnDeactivate(interactor: self)
     }
     
-    private func makeSections() {
+    private func fetch(by date: Date) {
         // TODO: 미완성된 기능입니다
         sectionsRelay.accept([.init(identity: .item, items: [.item("하루 채식"),
-            .item("하루 채식"),
+            .item("하루 \(date)채식"),
             .item("하루 채식"),
             .item("하루 채식"),
             .item("하루 채식"),

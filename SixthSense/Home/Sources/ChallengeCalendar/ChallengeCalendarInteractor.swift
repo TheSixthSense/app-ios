@@ -20,6 +20,7 @@ protocol ChallengeCalendarPresenterAction: AnyObject {
     var swipeCalendar: Observable<Date> { get }
     var monthBeginEditing: Observable<(row: Int, component: Int)> { get }
     var monthDidSelected: Observable<Void> { get }
+    var dateDidSelected: Observable<Date> { get }
 }
 
 protocol ChallengeCalendarPresenterHandler: AnyObject {
@@ -34,13 +35,17 @@ protocol ChallengeCalendarPresentable: Presentable {
     var action: ChallengeCalendarPresenterAction? { get set }
 }
 
+protocol ChallengeCalendarInteractorDependency {
+    var targetDate: PublishRelay<Date> { get }
+}
+
 protocol ChallengeCalendarListener: AnyObject { }
 
 final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendarPresentable>, ChallengeCalendarInteractable {
 
     weak var router: ChallengeCalendarRouting?
     weak var listener: ChallengeCalendarListener?
-    
+    private let dependency: ChallengeCalendarInteractorDependency
     
     private let basisDateRelay: BehaviorRelay<Date> = .init(value: Date())
     private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
@@ -50,7 +55,9 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
     // FIXME: 개발 후에 DI로 주입하도록 변경할거에요
     private let factory: ChallengeCalendarFactory = ChallengeCalendarFactoryImpl()
     
-    override init(presenter: ChallengeCalendarPresentable) {
+    init(presenter: ChallengeCalendarPresentable,
+         dependency: ChallengeCalendarInteractorDependency) {
+        self.dependency = dependency
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -102,6 +109,16 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
                 owner.basisDateRelay.accept(owner.calendarConfiguration.basisDate)
             })
             .disposeOnDeactivate(interactor: self)
+        
+        action.dateDidSelected
+            .withUnretained(self)
+            .subscribe(onNext: { owner, date in
+                owner.dependency.targetDate.accept(date)
+            })
+            .disposeOnDeactivate(interactor: self)
+    }
+}
+
 // TODO: 파일로 분리
 protocol ChallengeCalendarFactory {
     var dayChallengeState: (Date) -> ChallengeCalendarDayState { get }
