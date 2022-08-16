@@ -76,12 +76,15 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     
     private func fetch(by date: Date) {
         // TODO: 미완성된 기능입니다
-        sectionsRelay.accept([.init(identity: .item, items: [.item("하루 채식"),
-            .item("하루 \(date)채식"),
-            .item("하루 채식"),
-            .item("하루 채식"),
-            .item("하루 채식"),
-            .item("하루 채식")])])
+        var sections: [ChallengeSection] = [
+            .init(identity: .item, items: [
+                .success(.init(emoji: "🦊", title: "하루 채식")),
+                .success(.init(emoji: "📆", title: "\(date)")),
+                .failed(.init(emoji: "🥬", title: "하루 채식")),
+                .waiting(.init(emoji: "🥵", title: "하루 채식")),
+            ])
+        ]
+        
     }
 }
 
