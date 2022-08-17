@@ -15,7 +15,6 @@ public protocol ChallengeRegisterRouting: ViewableRouting {
 }
 
 protocol ChallengeRegisterPresentable: Presentable {
-    var listener: ChallengeRegisterPresentableListener? { get set }
     var handler: ChallengeRegisterPresenterHandler? { get set }
     var action: ChallengeRegisterPresenterAction? { get set }
 }
@@ -35,8 +34,7 @@ public protocol ChallengeRegisterListener: AnyObject {
 }
 
 final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegisterPresentable>,
-    ChallengeRegisterInteractable,
-    ChallengeRegisterPresentableListener {
+    ChallengeRegisterInteractable {
 
     weak var router: ChallengeRegisterRouting?
     weak var listener: ChallengeRegisterListener?
@@ -46,7 +44,6 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 
     override init(presenter: ChallengeRegisterPresentable) {
         super.init(presenter: presenter)
-        presenter.listener = self
         presenter.handler = self
     }
 

@@ -16,16 +16,11 @@ import SnapKit
 import Then
 import UIKit
 
-protocol ChallengeRegisterPresentableListener: AnyObject {
-    func didTapBackButton()
-}
-
 final class ChallengeRegisterViewController: UIViewController, ChallengeRegisterPresentable, ChallengeRegisterViewControllable {
 
     typealias CategorySections = RxCollectionViewSectionedReloadDataSource<CategorySection>
     typealias ChallengeSections = RxTableViewSectionedReloadDataSource<ChallengeListSection>
 
-    weak var listener: ChallengeRegisterPresentableListener?
     weak var handler: ChallengeRegisterPresenterHandler?
     weak var action: ChallengeRegisterPresenterAction?
 
@@ -104,7 +99,9 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         $0.separatorStyle = .none
     }
 
-    private var doneButton = AppButton(title: "챌린지 선택 완료")
+    private var doneButton = AppButton(title: "챌린지 선택 완료").then {
+        $0.hasFocused = true
+    }
 
     private let disposeBag = DisposeBag()
 
@@ -123,12 +120,10 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
     }
 
     override func viewWillAppear(_ animated: Bool) {
-        tabBarController?.tabBar.isHidden = true
         super.viewWillAppear(animated)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
-        tabBarController?.tabBar.isHidden = false
         super.viewWillDisappear(animated)
     }
 }
@@ -214,7 +209,6 @@ private extension ChallengeRegisterViewController {
 
     private func setNavigationBar() {
         // FIXME: - navigation title
-//        guard let navigationBar = navigationController?.navigationBar else { return }
 
 //        let titleLabel: UILabel = UILabel().then {
 //            $0.attributedText = NSAttributedString(
@@ -223,22 +217,6 @@ private extension ChallengeRegisterViewController {
 //            )
 //            $0.sizeToFit()
 //        }
-
-//        let titleTextAttributes: [NSAttributedString.Key: Any] = [
-//                .font: AppFont.subtitleBold,
-//                .foregroundColor: AppColor.systemBlack.cgColor]
-
-        let backButton = UIButton().then {
-            $0.setImage(AppIcon.back, for: .normal)
-            $0.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
-        }
-
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
-    }
-
-    @objc
-    private func didTapBackButton() {
-        listener?.didTapBackButton()
     }
 }
 
