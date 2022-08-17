@@ -10,22 +10,16 @@ import UIKit
 import RIBs
 
 public final class NavigationControllerable: ViewControllable {
-
-    public var uiviewController: UIViewController { self.navigationController }
-    public let navigationController: UINavigationController
-
+    
+ public var uiviewController: UIViewController { self.navigationController }
+ public let navigationController: UINavigationController
+    
     public init(root: ViewControllable) {
         let navigation = UINavigationController(rootViewController: root.uiviewController)
-        let navigationBar = navigation.navigationBar
-        let appearance = UINavigationBarAppearance()
-
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white
-        appearance.shadowColor = .clear
-        navigationBar.standardAppearance = appearance
-        navigationBar.scrollEdgeAppearance = navigationBar.standardAppearance
-        navigationBar.isTranslucent = false
-
+        navigation.navigationBar.isTranslucent = false
+        navigation.navigationBar.backgroundColor = .white
+        navigation.navigationBar.scrollEdgeAppearance = navigation.navigationBar.standardAppearance
+        
         self.navigationController = navigation
     }
 }

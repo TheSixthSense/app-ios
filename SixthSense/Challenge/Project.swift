@@ -2,24 +2,22 @@
 //  Project.swift
 //  ProjectDescriptionHelpers
 //
-//  Created by 문효재 on 2022/08/01.
+//  Created by Allie Kim on 2022/08/01.
 //
 
 import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Project.library(
-  name: Module.home.name,
+  name: Module.challenge.name,
   dependencies: [
     .rxSwift,
     .rxCocoa,
     .rxRelay,
     .rxDataSources,
     .ribs,
-    .rxGesture,
-    .jtAppleCalendar,
-    .rxAppState
-  ] + [Module.utils, .repository, .designSystem, .challenge].map(\.project),
+    .rxGesture
+  ] + [Module.utils, .repository, .designSystem].map(\.project),
   additionalTargets: [],
   resources: .default
 )

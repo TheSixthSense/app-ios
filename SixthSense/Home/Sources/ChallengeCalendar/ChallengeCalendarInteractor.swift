@@ -70,7 +70,7 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
     override func willResignActive() {
         super.willResignActive()
     }
-    
+
     private func bind() {
         guard let action = presenter.action else { return }
         

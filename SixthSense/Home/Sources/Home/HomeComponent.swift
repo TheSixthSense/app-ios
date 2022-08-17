@@ -7,10 +7,12 @@
 //
 
 import RIBs
+import Challenge
 
 final class HomeComponent: Component<HomeDependency>,
                            ChallengeDependency,
-                           FeedDependency {
+                           FeedDependency,
+                           ChallengeRegisterDependency {
     
     private let rootViewController: ViewControllable
 

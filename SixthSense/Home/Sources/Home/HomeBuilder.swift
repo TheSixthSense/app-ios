@@ -7,6 +7,7 @@
 //
 
 import RIBs
+import Challenge
 
 public protocol HomeDependency: Dependency { }
 
@@ -34,11 +35,13 @@ public final class HomeBuilder: Builder<HomeDependency>, HomeBuildable {
         
         let challenge = ChallengeBuilder(dependency: component)
         let feed = FeedBuilder(dependency: component)
+        let challengeRegister = ChallengeRegisterBuilder(dependency: component)
         
         return HomeRouter(
             interactor: interactor,
             viewController: tabBar,
             challengeHome: challenge,
-            feedHome: feed)
+            feedHome: feed,
+            challengeRegisterHome: challengeRegister)
     }
 }

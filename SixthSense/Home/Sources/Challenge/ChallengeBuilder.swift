@@ -14,7 +14,7 @@ protocol ChallengeDependency: Dependency { }
 
 final class ChallengeComponent: Component<ChallengeDependency>,
                                 ChallengeCalendarDependency,
-                                ChallengeListDependency {
+                                ChallengeListDependency{
     var targetDate: PublishRelay<Date>
     
     override init(dependency: ChallengeDependency) {

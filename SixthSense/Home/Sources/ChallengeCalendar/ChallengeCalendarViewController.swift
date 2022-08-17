@@ -84,6 +84,8 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         $0.backgroundColor = .systemGray300
     }
 
+    private let disposeBag = DisposeBag()
+
     init() {
         super.init(nibName: nil, bundle: nil)
         action = self
