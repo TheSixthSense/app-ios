@@ -168,8 +168,12 @@ private extension ChallengeRecommendViewController {
             .map({ owner, event -> Int in
             let cellWidth = UIScreen.main.bounds.width
             let offset = owner.recommendCollectionView.contentOffset.x / cellWidth
-            let cellIndex = Int(round(offset))
-            return cellIndex
+            let cellIndex: CGFloat = round(offset)
+
+            event.targetContentOffset.pointee = CGPoint(
+                x: cellIndex * cellWidth - owner.recommendCollectionView.contentInset.left,
+                y: 0)
+            return Int(cellIndex)
         })
             .bind(to: pageControl.rx.currentPage,
                   recommendCollectionView.rx.didHorizontalScroll)
