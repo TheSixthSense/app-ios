@@ -15,10 +15,6 @@ import DesignSystem
 import JTAppleCalendar
 import RxDataSources
 
-protocol ChallengeCalendarPresentableListener: AnyObject {
-    func didTapAddButton()
-}
-
 // TODO: 미완성된 뷰입니다 추후 완성할 예정
 final class ChallengeCalendarViewController: UIViewController, ChallengeCalendarPresentable, ChallengeCalendarViewControllable {
     weak var handler: ChallengeCalendarPresenterHandler?
@@ -147,11 +143,6 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
     }
     
     private func bind() {
-        headerView.addButton.rx.tap
-            .bind(onNext: { [weak self] in
-                self?.listener?.didTapAddButton()
-            }).disposed(by: disposeBag)
-
         guard let handler = handler else { return }
         
         handler.basisDate
