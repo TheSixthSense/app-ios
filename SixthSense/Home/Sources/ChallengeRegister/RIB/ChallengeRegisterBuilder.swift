@@ -7,6 +7,7 @@
 //
 
 import RIBs
+import Challenge
 
 public protocol ChallengeRegisterDependency: Dependency {
 }

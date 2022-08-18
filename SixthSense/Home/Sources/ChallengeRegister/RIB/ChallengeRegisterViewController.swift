@@ -28,7 +28,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         enum Height {
             static var category = 48.0
             static var indicator = 3.0
-            static var doneButton = 44.0
+            static var doneButton = 68.0
             static var tableRow = 78.0
         }
     }
@@ -51,9 +51,8 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     private let challnegeDataSource = ChallengeSections { _, tableView, indexPath, item in
         switch item {
-            // TODO
+            // TODO: - 추가
         case .description(let description):
-            print(description)
             return UITableViewCell()
         case .item(let item):
             guard let cell = tableView.dequeue(ChallengeListItemCell.self, for: indexPath) as? ChallengeListItemCell else { return UITableViewCell() }
@@ -100,7 +99,8 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
     }
 
     private var doneButton = AppButton(title: "챌린지 선택 완료").then {
-        $0.hasFocused = true
+        $0.hasFocused = true // TEST
+        $0.layer.cornerRadius = 10
     }
 
     private let disposeBag = DisposeBag()
@@ -108,6 +108,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
     init() {
         super.init(nibName: nil, bundle: nil)
         action = self
+        tabBarItem = HomeTabBarItem(image: HomeAsset.challengeRegistericonUnselected.image)
     }
 
     required init?(coder: NSCoder) {
@@ -117,6 +118,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+        bind()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -125,6 +127,11 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+    }
+
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        configureLayout()
     }
 }
 
@@ -136,7 +143,6 @@ private extension ChallengeRegisterViewController {
         categoryTabView.register(CategoryTabItemCell.self)
         contentTableView.register(ChallengeListItemCell.self)
         view.addSubviews(categoryTabView, indicatorView, contentTableView, doneButton)
-        bind()
     }
 
     private func configureLayout() {
@@ -153,15 +159,18 @@ private extension ChallengeRegisterViewController {
             $0.left.equalToSuperview()
         }
 
-        doneButton.snp.makeConstraints {
-            $0.left.right.bottom.equalToSuperview()
-            $0.height.equalTo(view.safeAreaInsets.bottom + Constants.Height.doneButton)
-        }
-
         contentTableView.snp.makeConstraints {
             $0.top.equalTo(indicatorView.snp.bottom)
-            $0.bottom.equalTo(doneButton.snp.top)
+            $0.bottom.equalTo(doneButton.snp.top).offset(-10)
             $0.left.right.equalToSuperview().inset(20)
+        }
+
+        guard let tabBar = tabBarController?.tabBar else { return }
+
+        doneButton.snp.makeConstraints {
+            $0.left.right.equalToSuperview().inset(20)
+            $0.height.equalTo(Constants.Height.doneButton)
+            $0.bottom.equalTo(tabBar.snp.top).offset(-32)
         }
     }
 
@@ -169,27 +178,18 @@ private extension ChallengeRegisterViewController {
 
         bindDataSources()
 
-        disposeBag.insert {
-            rx.viewDidLayoutSubviews
-                .take(1)
-                .withUnretained(self)
-                .bind(onNext: { owner, _ in
-                owner.configureLayout()
-            })
-
-            categoryTabView.rx
-                .itemSelected
-                .distinctUntilChanged()
-                .withUnretained(self)
-                .bind(onNext: { owner, index in
-                owner.indicatorView.snp.updateConstraints {
-                    $0.left.equalTo(CGFloat(index.row) * (owner.indicatorView.frame.width))
-                }
-                UIView.animate(withDuration: 0.25) {
-                    owner.view.layoutIfNeeded()
-                }
-            })
-        }
+        categoryTabView.rx
+            .itemSelected
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .bind(onNext: { owner, index in
+            owner.indicatorView.snp.updateConstraints {
+                $0.left.equalTo(CGFloat(index.row) * (owner.indicatorView.frame.width))
+            }
+            UIView.animate(withDuration: 0.25) {
+                owner.view.layoutIfNeeded()
+            }
+        }).disposed(by: disposeBag)
     }
 
     private func bindDataSources() {

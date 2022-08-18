@@ -30,7 +30,6 @@ protocol ChallengeRegisterPresenterHandler: AnyObject {
 }
 
 public protocol ChallengeRegisterListener: AnyObject {
-//    func returnToHome()
 }
 
 final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegisterPresentable>,
@@ -56,14 +55,10 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         super.willResignActive()
     }
 
-    func didTapBackButton() {
-    }
-
     private func bind() {
         guard let action = presenter.action else { return }
 
         action.viewWillAppear
-            .debug()
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
             owner.makeListSections()

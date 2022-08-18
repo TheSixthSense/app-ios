@@ -7,6 +7,7 @@
 //
 
 import RIBs
+import Challenge
 
 protocol ChallengeRegisterInteractable: Interactable, ChallengeRecommendListener {
     var router: ChallengeRegisterRouting? { get set }
