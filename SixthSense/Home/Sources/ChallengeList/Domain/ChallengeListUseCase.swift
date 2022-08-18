@@ -15,6 +15,13 @@ protocol ChallengeListUseCase {
 
 struct ChallengeListUseCaseImpl: ChallengeListUseCase {
     func list(by date: Date) -> Observable<[ChallengeItem]> {
+        // TODO: 테스트 코드 제거
+        return .just([
+            .init(emoji: "🦊", title: "하루 채식", status: .success),
+            .init(emoji: "📆", title: "\(date)", status: .failed),
+            .init(emoji: "🥬", title: "하루 채식", status: .success),
+            .init(emoji: "🥵", title: "하루 채식", status: .waiting),
+        ])
     }
 }
 
