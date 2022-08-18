@@ -102,3 +102,28 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
 extension ChallengeListInteractor: ChallengeListPresenterHandler {
     var sections: Observable<[ChallengeSection]> { sectionsRelay.asObservable() }
 }
+
+extension ChallengeSectionItem: RawRepresentable {
+    typealias RawValue = ChallengeItem?
+    var rawValue: ChallengeItem? { nil }
+    
+    init?(rawValue: ChallengeItem?) {
+        guard let item = rawValue else { return nil }
+        let viewModel = ChallengeItemCellViewModel(item: item)
+        switch item.status {
+            case .success:
+                self = .success(viewModel)
+            case .failed:
+                self = .failed(viewModel)
+            case .waiting:
+                self = .waiting(viewModel)
+        }
+    }
+}
+
+extension ChallengeItemCellViewModel {
+    init(item: ChallengeItem) {
+        self.emoji = item.emoji
+        self.title = item.title
+    }
+}
