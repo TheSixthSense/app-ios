@@ -10,7 +10,7 @@ import RIBs
 import RxCocoa
 import RxSwift
 
-protocol ChallengeRecommendRouting: ViewableRouting {
+public protocol ChallengeRecommendRouting: ViewableRouting {
 }
 
 protocol ChallengeRecommendPresentable: Presentable {
@@ -26,7 +26,7 @@ protocol ChallengeRecommendPresenterHandler: AnyObject {
     var sections: Observable<[RecommendSection]> { get }
 }
 
-protocol ChallengeRecommendListener: AnyObject {
+public protocol ChallengeRecommendListener: AnyObject {
 }
 
 final class ChallengeRecommendInteractor: PresentableInteractor<ChallengeRecommendPresentable>, ChallengeRecommendInteractable {

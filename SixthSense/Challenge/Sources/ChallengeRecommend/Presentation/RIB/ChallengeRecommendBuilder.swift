@@ -8,7 +8,7 @@
 
 import RIBs
 
-protocol ChallengeRecommendDependency: Dependency {
+public protocol ChallengeRecommendDependency: Dependency {
 }
 
 final class ChallengeRecommendComponent: Component<ChallengeRecommendDependency> {
@@ -16,17 +16,17 @@ final class ChallengeRecommendComponent: Component<ChallengeRecommendDependency>
 
 // MARK: - Builder
 
-protocol ChallengeRecommendBuildable: Buildable {
+public protocol ChallengeRecommendBuildable: Buildable {
     func build(withListener listener: ChallengeRecommendListener) -> ChallengeRecommendRouting
 }
 
-final class ChallengeRecommendBuilder: Builder<ChallengeRecommendDependency>, ChallengeRecommendBuildable {
+public final class ChallengeRecommendBuilder: Builder<ChallengeRecommendDependency>, ChallengeRecommendBuildable {
 
-    override init(dependency: ChallengeRecommendDependency) {
+    public override init(dependency: ChallengeRecommendDependency) {
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: ChallengeRecommendListener) -> ChallengeRecommendRouting {
+    public func build(withListener listener: ChallengeRecommendListener) -> ChallengeRecommendRouting {
         let component = ChallengeRecommendComponent(dependency: dependency)
         let viewController = ChallengeRecommendViewController()
         let interactor = ChallengeRecommendInteractor(presenter: viewController)

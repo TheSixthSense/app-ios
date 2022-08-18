@@ -10,6 +10,7 @@ import DesignSystem
 import RIBs
 import RxAppState
 import RxDataSources
+import RxCocoa
 import RxSwift
 import SnapKit
 import UIKit
@@ -37,7 +38,7 @@ final class ChallengeRecommendViewController: UIViewController, ChallengeRecomme
 
     // MARK: - UI
 
-    private lazy var skipButton = UIButton().then {
+    private var skipButton = UIButton().then {
         $0.backgroundColor = .white
         $0.setAttributedTitle(
             NSAttributedString(
@@ -46,10 +47,10 @@ final class ChallengeRecommendViewController: UIViewController, ChallengeRecomme
             for: .normal)
     }
 
-    private lazy var ccollectionLayout = UICollectionViewFlowLayout().then {
+    private var collectionLayout = UICollectionViewFlowLayout().then {
         $0.estimatedItemSize = .zero
-        $0.itemSize = CGSize(width: view.frame.width,
-                             height: view.frame.height * 0.435)
+        $0.itemSize = CGSize(width: UIScreen.main.bounds.width,
+                             height: UIScreen.main.bounds.height * 0.435)
         $0.scrollDirection = .horizontal
         $0.minimumInteritemSpacing = 0
         $0.minimumLineSpacing = 0
@@ -57,9 +58,8 @@ final class ChallengeRecommendViewController: UIViewController, ChallengeRecomme
 
     private lazy var recommendCollectionView = UICollectionView(
         frame: .zero,
-        collectionViewLayout: ccollectionLayout
+        collectionViewLayout: collectionLayout
     ).then {
-        $0.register(RecommendItemCell.self)
         $0.backgroundColor = .white
         $0.showsHorizontalScrollIndicator = false
         $0.showsVerticalScrollIndicator = false
@@ -67,7 +67,7 @@ final class ChallengeRecommendViewController: UIViewController, ChallengeRecomme
         $0.decelerationRate = .fast
     }
 
-    private lazy var pageControl = AppPageControl().then {
+    private var pageControl = AppPageControl().then {
         $0.otherPagesImage = ChallengeAsset.indicatorDefault.image
         $0.currentPageImage = ChallengeAsset.indicatorSelected.image
         $0.currentPage = 0
@@ -75,8 +75,9 @@ final class ChallengeRecommendViewController: UIViewController, ChallengeRecomme
         $0.isUserInteractionEnabled = false
     }
 
-    private lazy var doneButton = UIButton().then {
-        $0.backgroundColor = .main
+    private var doneButton = AppButton(title: "함께 실천하러 가기!").then {
+        $0.isHidden = true
+        $0.layer.cornerRadius = 10
     }
 
     private let disposeBag = DisposeBag()
@@ -100,6 +101,7 @@ final class ChallengeRecommendViewController: UIViewController, ChallengeRecomme
 
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
+        configureLayout()
     }
 }
 
@@ -107,6 +109,7 @@ private extension ChallengeRecommendViewController {
 
     private func configureUI() {
         view.backgroundColor = .white
+        recommendCollectionView.register(RecommendItemCell.self)
         view.addSubviews(skipButton, recommendCollectionView, pageControl, doneButton)
     }
 
@@ -142,18 +145,12 @@ private extension ChallengeRecommendViewController {
 
             didScroll()
 
-            rx.viewDidLayoutSubviews
-                .take(1)
-                .withUnretained(self)
-                .bind(onNext: { owner, _ in
-                owner.configureLayout()
-            })
-
             skipButton.rx.tap
                 .throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance)
                 .map { return 2 }
                 .bind(to: pageControl.rx.currentPage,
-                      recommendCollectionView.rx.didHorizontalScroll)
+                      recommendCollectionView.rx.didHorizontalScroll,
+                      doneButton.rx.isLastPage)
 
             handler.sections
                 .asDriver(onErrorJustReturn: [])
@@ -164,6 +161,7 @@ private extension ChallengeRecommendViewController {
     private func didScroll() -> Disposable {
         return recommendCollectionView.rx
             .willEndDragging
+            .debug()
             .withUnretained(self)
             .map({ owner, event -> Int in
             let cellWidth = UIScreen.main.bounds.width
@@ -174,9 +172,9 @@ private extension ChallengeRecommendViewController {
                 x: cellIndex * cellWidth - owner.recommendCollectionView.contentInset.left,
                 y: 0)
             return Int(cellIndex)
-        })
-            .bind(to: pageControl.rx.currentPage,
-                  recommendCollectionView.rx.didHorizontalScroll)
+        }).bind(to: pageControl.rx.currentPage,
+                recommendCollectionView.rx.didHorizontalScroll,
+                doneButton.rx.isLastPage)
     }
 }
 
@@ -190,6 +188,18 @@ private extension Reactive where Base: UICollectionView {
     var didHorizontalScroll: Binder<Int> {
         return Binder(self.base) { view, index in
             view.scrollToItem(at: IndexPath(row: index, section: 0), at: .left, animated: true)
+        }
+    }
+}
+
+private extension Reactive where Base: AppButton {
+
+    var isLastPage: Binder<Int> {
+        return Binder(self.base) { view, index in
+            let enableButton = (index == 2) ? true : false
+            view.isHidden = !enableButton
+            view.hasFocused = enableButton
+            view.isUserInteractionEnabled = enableButton
         }
     }
 }
