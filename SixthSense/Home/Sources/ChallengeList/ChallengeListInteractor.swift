@@ -31,6 +31,7 @@ protocol ChallengeListListener: AnyObject {
 
 protocol ChallengeListInteractorDependency {
     var targetDate: PublishRelay<Date> { get }
+    var usecase: ChallengeListUseCase { get }
 }
 
 final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresentable>,
