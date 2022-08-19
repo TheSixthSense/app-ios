@@ -108,7 +108,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
     init() {
         super.init(nibName: nil, bundle: nil)
         action = self
-        tabBarItem = HomeTabBarItem(image: HomeAsset.challengeRegistericonUnselected.image)
+        tabBarItem = HomeTabBarItem(image: HomeAsset.challengeRegisterIconUnselected.image)
     }
 
     required init?(coder: NSCoder) {
@@ -121,16 +121,8 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         bind()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-    }
-
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         configureLayout()
     }
 }
