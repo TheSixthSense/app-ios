@@ -161,7 +161,6 @@ private extension ChallengeRecommendViewController {
     private func didScroll() -> Disposable {
         return recommendCollectionView.rx
             .willEndDragging
-            .debug()
             .withUnretained(self)
             .map({ owner, event -> Int in
             let cellWidth = UIScreen.main.bounds.width

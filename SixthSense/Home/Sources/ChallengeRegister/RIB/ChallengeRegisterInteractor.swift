@@ -77,9 +77,11 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
                 .init(identity: .item,
                       items: [.description("귀리로 만든 우유, 친환경 계란 등 음식을 통해 비건을\n실천할 수 있어!\n챌린지 함께 해보지 않을래?")]),
                 .init(identity: .item,
-                      items: [.item("우유 대신 두유로 마시기"),
-                                  .item("식물성 고기로 단백질 채우기"),
-                                  .item("식물성 계란으로 요리하기")])
+                      items: [
+                                  .item(ChallengeListItemCellViewModel.init(id: 0, emoji: "❤️", title: "우유 대신 두유로 마시기")),
+                                  .item(ChallengeListItemCellViewModel.init(id: 1, emoji: "❤️", title: "우유 대신 두유로 마시기")),
+                                  .item(ChallengeListItemCellViewModel.init(id: 2, emoji: "❤️", title: "우유 대신 두유로 마시기"))
+                      ])
         ])
 
         categorySectionsRelay.accept([.init(

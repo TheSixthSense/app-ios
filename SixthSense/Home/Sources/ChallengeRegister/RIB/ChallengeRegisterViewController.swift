@@ -170,18 +170,36 @@ private extension ChallengeRegisterViewController {
 
         bindDataSources()
 
-        categoryTabView.rx
-            .itemSelected
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .bind(onNext: { owner, index in
-            owner.indicatorView.snp.updateConstraints {
-                $0.left.equalTo(CGFloat(index.row) * (owner.indicatorView.frame.width))
+        disposeBag.insert {
+            categoryTabView.rx
+                .itemSelected
+                .distinctUntilChanged()
+                .withUnretained(self)
+                .bind(onNext: { owner, index in
+                owner.indicatorView.snp.updateConstraints {
+                    $0.left.equalTo(CGFloat(index.row) * (owner.indicatorView.frame.width))
+                }
+                UIView.animate(withDuration: 0.25) {
+                    owner.view.layoutIfNeeded()
+                }
+            })
+
+            // FIXME: - cell data API 추가
+            Observable
+                .zip(contentTableView.rx.itemSelected, contentTableView.rx.modelSelected(ChallengeListSectionItem.self))
+                .withUnretained(self)
+                .bind(onNext: { owner, item in
+                let cell = owner.contentTableView.cellForRow(at: item.0) as? ChallengeListItemCell
+                cell?.selected()
+            })
+
+            contentTableView.rx.itemDeselected
+                .withUnretained(self)
+                .bind { owner, index in
+                let cell = owner.contentTableView.cellForRow(at: index) as? ChallengeListItemCell
+                cell?.deselected()
             }
-            UIView.animate(withDuration: 0.25) {
-                owner.view.layoutIfNeeded()
-            }
-        }).disposed(by: disposeBag)
+        }
     }
 
     private func bindDataSources() {

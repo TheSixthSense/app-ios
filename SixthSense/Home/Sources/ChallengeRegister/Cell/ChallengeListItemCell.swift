@@ -14,10 +14,10 @@ import DesignSystem
 
 final class ChallengeListItemCell: UITableViewCell {
 
-    private lazy var iconView = UIImageView().then {
-        $0.image = AppImage.retryIconDefault.image
-        $0.contentMode = .scaleAspectFit
-        $0.clipsToBounds = true
+    private let emojiLabel = UILabel().then {
+        $0.font = AppFont.subtitle
+        $0.numberOfLines = 1
+        $0.sizeToFit()
     }
 
     private let containerView = UIView().then {
@@ -26,7 +26,7 @@ final class ChallengeListItemCell: UITableViewCell {
         $0.layer.cornerRadius = 10
     }
 
-    private lazy var contentLabel = AppLabel()
+    private var contentLabel = AppLabel()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -49,26 +49,43 @@ final class ChallengeListItemCell: UITableViewCell {
             $0.top.equalToSuperview().inset(10)
         }
 
-        iconView.snp.makeConstraints {
-            $0.left.equalToSuperview().offset(20)
+        emojiLabel.snp.makeConstraints {
+            $0.left.equalToSuperview().inset(20)
             $0.centerY.equalToSuperview()
             $0.size.equalTo(24)
         }
 
         contentLabel.snp.makeConstraints {
-            $0.left.equalTo(iconView.snp.right).offset(16)
+            $0.left.equalTo(emojiLabel.snp.right).offset(16)
             $0.right.centerY.equalToSuperview()
         }
     }
 
     private func configureUI() {
         addSubviews(containerView)
-        containerView.addSubviews(iconView, contentLabel)
+        containerView.addSubviews(emojiLabel, contentLabel)
         selectionStyle = .none
     }
 
+    func selected() {
+        containerView.layer.borderColor = AppColor.main.cgColor
+        containerView.backgroundColor = AppColor.green100
+        containerView.layer.borderWidth = 1.5
+        contentLabel.textColor = AppColor.green700
+        contentLabel.font = AppFont.body2Bold
+    }
+
+    func deselected() {
+        containerView.layer.borderColor = AppColor.systemGray300.cgColor
+        containerView.backgroundColor = .white
+        containerView.layer.borderWidth = 1
+        contentLabel.textColor = AppColor.systemBlack
+        contentLabel.font = AppFont.body2
+    }
+
     // FIXME: - Datasource
-    func bind(item: String) {
-        contentLabel.text = item
+    func bind(item: ChallengeListItemCellViewModel) {
+        contentLabel.setText(item.title, font: AppFont.body2)
+        emojiLabel.text = item.emoji
     }
 }
