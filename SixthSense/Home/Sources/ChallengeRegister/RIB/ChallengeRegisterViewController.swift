@@ -331,7 +331,8 @@ private extension ChallengeRegisterViewController {
 
     private func dateToFullString(_ date: Date) -> String {
         let dateFormatter = DateFormatter().then {
-            $0.dateFormat = "yyyy년 MM월 dd일 E요일"
+            $0.dateFormat = "yyyy년 MM월 dd일 EEEE"
+            $0.locale = .init(identifier: "ko_KR")
             $0.timeZone = TimeZone(identifier: "KST")
         }
         return dateFormatter.string(from: date)
