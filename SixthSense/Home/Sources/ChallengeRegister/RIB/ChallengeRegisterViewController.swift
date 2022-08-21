@@ -218,15 +218,14 @@ private extension ChallengeRegisterViewController {
     }
 
     private func setNavigationBar() {
-        // FIXME: - navigation title
-
-//        let titleLabel: UILabel = UILabel().then {
-//            $0.attributedText = NSAttributedString(
-//                string: "챌린지 등록",
-//                attributes: titleTextAttributes
-//            )
-//            $0.sizeToFit()
-//        }
+        let titleLabel: UILabel = UILabel().then {
+            $0.attributedText = NSAttributedString(
+                string: "챌린지 등록",
+                attributes: [.font: AppFont.body1Bold, .foregroundColor: AppColor.systemBlack]
+            )
+            $0.sizeToFit()
+        }
+        self.navigationItem.titleView = titleLabel
     }
 }
 
