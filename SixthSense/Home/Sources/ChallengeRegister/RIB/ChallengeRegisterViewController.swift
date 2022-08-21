@@ -26,10 +26,19 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     private enum Constants {
         enum Height {
+            static var calenderView = 44.0
+            static var calenderButton = 20.0
             static var category = 48.0
             static var indicator = 3.0
             static var doneButton = 68.0
-            static var tableRow = 78.0
+            static var tableRow = 58.0
+        }
+
+        enum Inset {
+            static var base = 20.0
+            static var calenderButtonLeft = 12.0
+            static var tableViewBottom = -10.0
+            static var doneButtonBottom = -32.0
         }
     }
 
@@ -51,9 +60,10 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     private let challnegeDataSource = ChallengeSections { _, tableView, indexPath, item in
         switch item {
-            // TODO: - 추가
         case .description(let description):
-            return UITableViewCell()
+            guard let cell = tableView.dequeue(ChallengeListDescriptionCell.self, for: indexPath) as? ChallengeListDescriptionCell else { return UITableViewCell() }
+            cell.add(description: description)
+            return cell
         case .item(let item):
             guard let cell = tableView.dequeue(ChallengeListItemCell.self, for: indexPath) as? ChallengeListItemCell else { return UITableViewCell() }
             cell.bind(item: item)
@@ -88,7 +98,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
     }
 
     private var contentTableView = UITableView().then {
-        $0.rowHeight = Constants.Height.tableRow
+        $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = Constants.Height.tableRow
         $0.isScrollEnabled = true
         $0.showsVerticalScrollIndicator = false

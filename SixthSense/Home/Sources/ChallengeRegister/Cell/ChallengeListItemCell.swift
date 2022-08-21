@@ -14,23 +14,26 @@ import DesignSystem
 
 final class ChallengeListItemCell: UITableViewCell {
 
-    private let emojiLabel = UILabel().then {
-        $0.font = AppFont.subtitle
-        $0.numberOfLines = 1
-        $0.sizeToFit()
-    }
-
     private let containerView = UIView().then {
         $0.layer.borderColor = AppColor.systemGray300.cgColor
         $0.layer.borderWidth = 1
         $0.layer.cornerRadius = 10
     }
 
-    private var contentLabel = AppLabel()
+    private let emojiLabel = UILabel().then {
+        $0.font = AppFont.subtitle
+        $0.numberOfLines = 1
+        $0.sizeToFit()
+    }
+
+    private var contentLabel = AppLabel().then {
+        $0.numberOfLines = 0
+    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureUI()
+        configureLayout()
     }
 
     required init?(coder: NSCoder) {
@@ -41,12 +44,18 @@ final class ChallengeListItemCell: UITableViewCell {
         super.prepareForReuse()
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    private func configureUI() {
+        addSubviews(containerView)
+        containerView.addSubviews(emojiLabel, contentLabel)
+        selectionStyle = .none
+    }
 
+    private func configureLayout() {
         containerView.snp.makeConstraints {
-            $0.left.right.bottom.equalToSuperview()
+            $0.left.right.equalToSuperview()
+            $0.bottom.equalToSuperview()
             $0.top.equalToSuperview().inset(10)
+            $0.height.equalTo(58)
         }
 
         emojiLabel.snp.makeConstraints {
@@ -59,12 +68,6 @@ final class ChallengeListItemCell: UITableViewCell {
             $0.left.equalTo(emojiLabel.snp.right).offset(16)
             $0.right.centerY.equalToSuperview()
         }
-    }
-
-    private func configureUI() {
-        addSubviews(containerView)
-        containerView.addSubviews(emojiLabel, contentLabel)
-        selectionStyle = .none
     }
 
     func selected() {
