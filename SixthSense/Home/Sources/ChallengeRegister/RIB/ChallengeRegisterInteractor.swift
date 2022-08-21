@@ -6,6 +6,7 @@
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
 //
 
+import Foundation
 import RIBs
 import RxCocoa
 import RxSwift
@@ -25,6 +26,7 @@ protocol ChallengeRegisterPresenterAction: AnyObject {
 }
 
 protocol ChallengeRegisterPresenterHandler: AnyObject {
+    var basisDate: Observable<Date> { get }
     var categorySections: Observable<[CategorySection]> { get }
     var challengeListSections: Observable<[ChallengeListSection]> { get }
 }
@@ -38,6 +40,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     weak var router: ChallengeRegisterRouting?
     weak var listener: ChallengeRegisterListener?
 
+    private let basisDateRelay: BehaviorRelay<Date> = .init(value: Date())
     private let categorySectionsRelay: PublishRelay<[CategorySection]> = .init()
     private let challengeListSectionsRelay: PublishRelay<[ChallengeListSection]> = .init()
 
@@ -75,7 +78,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     private func makeListSections() {
         challengeListSectionsRelay.accept([
                 .init(identity: .item,
-                      items: [.description("귀리로 만든 우유, 친환경 계란 등 음식을 통해 비건을\n실천할 수 있어!\n챌린지 함께 해보지 않을래?")]),
+                      items: [.description("귀리로 만든 우유, 친환경 계란 등 음식을 통해 비건을\n실천할 수 있어!")]),
                 .init(identity: .item,
                       items: [
                                   .item(ChallengeListItemCellViewModel.init(id: 0, emoji: "❤️", title: "우유 대신 두유로 마시기")),
@@ -92,7 +95,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 }
 
 extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
-
+    var basisDate: Observable<Date> { basisDateRelay.asObservable() }
     var categorySections: Observable<[CategorySection]> { categorySectionsRelay.asObservable() }
     var challengeListSections: Observable<[ChallengeListSection]> { challengeListSectionsRelay.asObservable() }
 }

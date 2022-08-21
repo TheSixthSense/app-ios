@@ -73,6 +73,23 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     // MARK: - UI
 
+    private let calenderView = UIView().then {
+        $0.layer.borderColor = AppColor.systemGray300.cgColor
+        $0.layer.borderWidth = 1
+        $0.layer.cornerRadius = 10
+    }
+
+    let calenderLabel = UITextField().then {
+        $0.font = AppFont.body1
+        $0.sizeToFit()
+    }
+
+    private let calenderSelectButton = UIButton().then {
+        $0.setImage(AppIcon.calendar, for: .normal)
+    }
+
+    let pickerView = UIPickerView()
+
     private lazy var categoryTabView = UICollectionView(
         frame: .zero,
         collectionViewLayout: categoryCollectionLayout
@@ -143,14 +160,37 @@ private extension ChallengeRegisterViewController {
         view.backgroundColor = .white
         setNavigationBar()
         categoryTabView.register(CategoryTabItemCell.self)
-        contentTableView.register(ChallengeListItemCell.self)
-        view.addSubviews(categoryTabView, indicatorView, contentTableView, doneButton)
+        contentTableView.register(ChallengeListItemCell.self, ChallengeListDescriptionCell.self)
+        view.addSubviews(calenderView, categoryTabView, indicatorView, contentTableView, doneButton)
+        calenderView.addSubviews(calenderSelectButton, calenderLabel)
+        calenderLabel.do {
+            $0.inputView = pickerView
+            $0.tintColor = .clear
+        }
     }
 
     private func configureLayout() {
+        calenderView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(Constants.Inset.base)
+            $0.left.right.equalToSuperview().inset(Constants.Inset.base)
+            $0.height.equalTo(Constants.Height.calenderView)
+        }
+
+        calenderSelectButton.snp.makeConstraints {
+            $0.left.equalToSuperview().inset(Constants.Inset.calenderButtonLeft)
+            $0.centerY.equalToSuperview()
+            $0.size.equalTo(Constants.Height.calenderButton)
+        }
+
+        calenderLabel.snp.makeConstraints {
+            $0.left.equalTo(calenderSelectButton.snp.right).offset(Constants.Inset.base)
+            $0.right.equalToSuperview()
+            $0.centerY.equalToSuperview()
+        }
 
         categoryTabView.snp.makeConstraints {
-            $0.left.right.top.equalToSuperview()
+            $0.left.right.equalToSuperview()
+            $0.top.equalTo(calenderView.snp.bottom).offset(Constants.Inset.base)
             $0.height.equalTo(Constants.Height.category)
         }
 
@@ -163,23 +203,54 @@ private extension ChallengeRegisterViewController {
 
         contentTableView.snp.makeConstraints {
             $0.top.equalTo(indicatorView.snp.bottom)
-            $0.bottom.equalTo(doneButton.snp.top).offset(-10)
-            $0.left.right.equalToSuperview().inset(20)
+            $0.bottom.equalTo(doneButton.snp.top).offset(Constants.Inset.tableViewBottom)
+            $0.left.right.equalToSuperview().inset(Constants.Inset.base)
         }
 
         guard let tabBar = tabBarController?.tabBar else { return }
 
         doneButton.snp.makeConstraints {
-            $0.left.right.equalToSuperview().inset(20)
+            $0.left.right.equalToSuperview().inset(Constants.Inset.base)
             $0.height.equalTo(Constants.Height.doneButton)
-            $0.bottom.equalTo(tabBar.snp.top).offset(-32)
+            $0.bottom.equalTo(tabBar.snp.top).offset(Constants.Inset.doneButtonBottom)
         }
     }
 
     private func bind() {
 
-        bindDataSources()
+        bindHandler()
+        bindLists()
 
+        disposeBag.insert {
+            calenderSelectButton.rx.tap
+                .subscribe(onNext: { [weak self] in
+                self?.calenderLabel.becomeFirstResponder()
+            })
+        }
+    }
+
+    private func bindHandler() {
+
+        guard let handler = handler else { return }
+
+        disposeBag.insert {
+            handler.categorySections
+                .asDriver(onErrorJustReturn: [])
+                .drive(categoryTabView.rx.items(dataSource: categoryDataSource))
+
+            handler.challengeListSections
+                .asDriver(onErrorJustReturn: [])
+                .drive(contentTableView.rx.items(dataSource: challnegeDataSource))
+
+            handler.basisDate
+                .map(dateToFullString)
+                .subscribe(onNext: {
+                self.calenderLabel.text = $0
+            })
+        }
+    }
+
+    private func bindLists() {
         disposeBag.insert {
             categoryTabView.rx
                 .itemSelected
@@ -212,21 +283,6 @@ private extension ChallengeRegisterViewController {
         }
     }
 
-    private func bindDataSources() {
-
-        guard let handler = handler else { return }
-
-        disposeBag.insert {
-            handler.categorySections
-                .asDriver(onErrorJustReturn: [])
-                .drive(categoryTabView.rx.items(dataSource: categoryDataSource))
-
-            handler.challengeListSections
-                .asDriver(onErrorJustReturn: [])
-                .drive(contentTableView.rx.items(dataSource: challnegeDataSource))
-        }
-    }
-
     private func setNavigationBar() {
         let titleLabel: UILabel = UILabel().then {
             $0.attributedText = NSAttributedString(
@@ -237,6 +293,15 @@ private extension ChallengeRegisterViewController {
         }
         self.navigationItem.titleView = titleLabel
     }
+
+    private func dateToFullString(_ date: Date) -> String {
+        let dateFormatter = DateFormatter().then {
+            $0.dateFormat = "yyyy년 MM월 dd일 E요일"
+            $0.timeZone = TimeZone(identifier: "KST")
+        }
+
+        return dateFormatter.string(from: date)
+    }
 }
 
 extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
@@ -245,5 +310,11 @@ extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
         doneButton.rx.tap
             .throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance)
             .asObservable()
+    }
+}
+
+extension Reactive where Base: ChallengeRegisterViewController {
+    var tap: Observable<Void> {
+        base.calenderLabel.rx.controlEvent(.editingDidBegin).map { _ in () }
     }
 }
