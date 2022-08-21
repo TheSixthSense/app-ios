@@ -103,6 +103,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
     private let pickerView = UIPickerView()
 
     private let pickerDoneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: nil)
+    private let barButtonSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
 
     // Category
     private lazy var categoryTabView = UICollectionView(
@@ -303,7 +304,7 @@ private extension ChallengeRegisterViewController {
     private func makePicker() {
         let toolbar = UIToolbar().then {
             $0.sizeToFit()
-            $0.setItems([pickerDoneButton], animated: true)
+            $0.setItems([barButtonSpace, pickerDoneButton], animated: true)
         }
         calenderLabel.do {
             $0.inputAccessoryView = toolbar
