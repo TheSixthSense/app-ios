@@ -23,10 +23,14 @@ protocol ChallengeRegisterPresentable: Presentable {
 protocol ChallengeRegisterPresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
     var didTapDoneButton: Observable<Void> { get }
+    var didTapCalendarView: Observable<Void> { get }
+    var calendarBeginEditing: Observable<(row: Int, component: Int)> { get }
+    var calendarDidSelected: Observable<Void> { get }
 }
 
 protocol ChallengeRegisterPresenterHandler: AnyObject {
     var basisDate: Observable<Date> { get }
+    var calenarDataSource: Observable<[[Int]]> { get }
     var categorySections: Observable<[CategorySection]> { get }
     var challengeListSections: Observable<[ChallengeListSection]> { get }
 }
@@ -40,9 +44,13 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     weak var router: ChallengeRegisterRouting?
     weak var listener: ChallengeRegisterListener?
 
+    private var calendarConfiguration = CalendarConfiguration(startYear: 2022, endYear: 2026)
+    private let factory: ChallengeCalendarFactory = ChallengeCalendarFactoryImpl()
+
     private let basisDateRelay: BehaviorRelay<Date> = .init(value: Date())
     private let categorySectionsRelay: PublishRelay<[CategorySection]> = .init()
     private let challengeListSectionsRelay: PublishRelay<[ChallengeListSection]> = .init()
+    private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
 
     override init(presenter: ChallengeRegisterPresentable) {
         super.init(presenter: presenter)
@@ -72,6 +80,36 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .subscribe(onNext: { owner, _ in
             owner.router?.routeToRecommend()
         }).disposeOnDeactivate(interactor: self)
+
+        action.didTapCalendarView
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+            owner.calendarDataSourceRelay.accept(owner.calendarConfiguration.pickerFullDataSource)
+        })
+            .disposeOnDeactivate(interactor: self)
+
+        action.calendarBeginEditing
+            .withUnretained(self)
+            .subscribe(onNext: { owner, results in
+            switch results.component {
+            case 0:
+                owner.calendarConfiguration.setYear(row: results.row)
+            case 1:
+                owner.calendarConfiguration.setMonth(row: results.row)
+            case 2:
+                owner.calendarConfiguration.setDay(row: results.row)
+            default:
+                break
+            }
+        })
+            .disposeOnDeactivate(interactor: self)
+
+        action.calendarDidSelected
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+            owner.basisDateRelay.accept(owner.calendarConfiguration.basisFullDate)
+        })
+            .disposeOnDeactivate(interactor: self)
     }
 
     // FIXME: - API로 변경
@@ -98,4 +136,5 @@ extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
     var basisDate: Observable<Date> { basisDateRelay.asObservable() }
     var categorySections: Observable<[CategorySection]> { categorySectionsRelay.asObservable() }
     var challengeListSections: Observable<[ChallengeListSection]> { challengeListSectionsRelay.asObservable() }
+    var calenarDataSource: Observable<[[Int]]> { calendarDataSourceRelay.asObservable() }
 }

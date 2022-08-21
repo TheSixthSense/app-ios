@@ -23,13 +23,22 @@ struct CalendarConfiguration {
     var basisDate: Date {
         "\(basisYear)-\(basisMonth)".toDate(dateFormat: "yyyy-MM") ?? Date()
     }
+
+    var basisFullDate: Date {
+        "\(basisYear)-\(basisMonth)-\(basisDay)".toDate(dateFormat: "yyyy-MM-dd") ?? Date()
+    }
     
     var pickerDataSource: [[Int]] {
         [ Array(startYear...endYear), Array(1...12) ]
     }
+
+    var pickerFullDataSource: [[Int]] {
+        [ Array(startYear...endYear), Array(1...12), Array(1...31)]
+    }
     
     var basisYear: String = Date().toString(dateFormat: "yyyy")
     var basisMonth: String = Date().toString(dateFormat: "MM")
+    var basisDay: String = Date().toString(dateFormat: "dd")
     
     mutating func setYear(row: Int) {
         basisYear = "\(pickerDataSource[0][row])"
@@ -38,7 +47,11 @@ struct CalendarConfiguration {
     mutating func setMonth(row: Int) {
         basisMonth = "\(pickerDataSource[1][row])"
     }
-    
+
+    mutating func setDay(row: Int) {
+        basisDay = "\(pickerFullDataSource[2][row])"
+    }
+
     mutating func setBasisDate(date: Date) {
         basisYear = date.toString(dateFormat: "yyyy")
         basisMonth = date.toString(dateFormat: "MM")
