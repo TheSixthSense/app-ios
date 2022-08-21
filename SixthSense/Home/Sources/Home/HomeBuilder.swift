@@ -8,8 +8,12 @@
 
 import RIBs
 import Challenge
+import Repository
 
-public protocol HomeDependency: Dependency { }
+public protocol HomeDependency: Dependency {
+    var network: Network { get }
+    var challengeRepository: ChallengeRepository { get }
+}
 
 // MARK: - Builder
 
@@ -29,14 +33,14 @@ public final class HomeBuilder: Builder<HomeDependency>, HomeBuildable {
             dependency: dependency,
             rootViewController: tabBar
         )
-        
+
         let interactor = HomeInteractor(presenter: tabBar)
         interactor.listener = listener
-        
+
         let challenge = ChallengeBuilder(dependency: component)
         let feed = FeedBuilder(dependency: component)
         let challengeRegister = ChallengeRegisterBuilder(dependency: component)
-        
+
         return HomeRouter(
             interactor: interactor,
             viewController: tabBar,

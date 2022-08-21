@@ -43,6 +43,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 
     weak var router: ChallengeRegisterRouting?
     weak var listener: ChallengeRegisterListener?
+    private var dependency: ChallengeRegisterDependency
 
     private var calendarConfiguration = CalendarConfiguration(startYear: 2022, endYear: 2026)
     private let factory: ChallengeCalendarFactory = ChallengeCalendarFactoryImpl()
@@ -52,7 +53,9 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     private let challengeListSectionsRelay: PublishRelay<[ChallengeListSection]> = .init()
     private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
 
-    override init(presenter: ChallengeRegisterPresentable) {
+    init(presenter: ChallengeRegisterPresentable,
+         dependency: ChallengeRegisterDependency) {
+        self.dependency = dependency
         super.init(presenter: presenter)
         presenter.handler = self
     }
