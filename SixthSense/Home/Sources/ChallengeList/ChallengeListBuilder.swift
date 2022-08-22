@@ -16,6 +16,7 @@ protocol ChallengeListDependency: Dependency {
 
 final class ChallengeListComponent: Component<ChallengeListDependency>,
                                     ChallengeListInteractorDependency {
+    var usecase: ChallengeListUseCase { ChallengeListUseCaseImpl() }
     var targetDate: PublishRelay<Date> { dependency.targetDate }
 }
 

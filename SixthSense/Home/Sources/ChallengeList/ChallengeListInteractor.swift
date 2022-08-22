@@ -31,6 +31,7 @@ protocol ChallengeListListener: AnyObject {
 
 protocol ChallengeListInteractorDependency {
     var targetDate: PublishRelay<Date> { get }
+    var usecase: ChallengeListUseCase { get }
 }
 
 final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresentable>,
@@ -75,24 +76,26 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     }
     
     private func fetch(by date: Date) {
-        // TODO: 미완성된 기능입니다
-        var sections: [ChallengeSection] = [
-            .init(identity: .item, items: [
-                .success(.init(emoji: "🦊", title: "하루 채식")),
-                .success(.init(emoji: "📆", title: "\(date)")),
-                .failed(.init(emoji: "🥬", title: "하루 채식")),
-                .waiting(.init(emoji: "🥵", title: "하루 채식")),
-            ])
-        ]
-        
-        // TODO: 나중에 Extension으로 분리해요
-        let calendar = Calendar.current
-        let interval = calendar.dateComponents([.year, .month, .day], from: Date(), to: date)
-    
-        if let intervalDay = interval.day, intervalDay >= 0 {
-            sections.append(.init(identity: .add, items: [.add]))
-        }
-        sectionsRelay.accept(sections)
+        dependency.usecase.list(by: date)
+            .map { $0.compactMap(ChallengeSectionItem.init) }
+            .withUnretained(self)
+            .subscribe(onNext: { owner, items in
+                // TODO: 미완성된 기능입니다
+                var sections: [ChallengeSection] = [
+                    .init(identity: .item, items: items)
+                ]
+                
+                // TODO: Usecase로 로직 이동시켜요
+                let calendar = Calendar.current
+                let interval = calendar.dateComponents([.year, .month, .day], from: Date(), to: date)
+            
+                if let intervalDay = interval.day, intervalDay >= 0 {
+                    sections.append(.init(identity: .add, items: [.add]))
+                }
+                owner.sectionsRelay.accept(sections)
+
+            })
+            .disposeOnDeactivate(interactor: self)
     }
 }
 
@@ -100,4 +103,29 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
 
 extension ChallengeListInteractor: ChallengeListPresenterHandler {
     var sections: Observable<[ChallengeSection]> { sectionsRelay.asObservable() }
+}
+
+extension ChallengeSectionItem: RawRepresentable {
+    typealias RawValue = ChallengeItem?
+    var rawValue: ChallengeItem? { nil }
+    
+    init?(rawValue: ChallengeItem?) {
+        guard let item = rawValue else { return nil }
+        let viewModel = ChallengeItemCellViewModel(item: item)
+        switch item.status {
+            case .success:
+                self = .success(viewModel)
+            case .failed:
+                self = .failed(viewModel)
+            case .waiting:
+                self = .waiting(viewModel)
+        }
+    }
+}
+
+extension ChallengeItemCellViewModel {
+    init(item: ChallengeItem) {
+        self.emoji = item.emoji
+        self.title = item.title
+    }
 }
