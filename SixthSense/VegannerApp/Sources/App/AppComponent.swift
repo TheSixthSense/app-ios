@@ -19,8 +19,10 @@ class AppComponent: Component<EmptyDependency>, RootDependency {
     var userRepository: UserRepository
 
     init() {
-        self.network = NetworkImpl(intercepter: NetworkInterceptableImpl(), plugins: [RequestLoggingPlugin(logger: SwiftyLogger())])
         self.persistence = LocalPersistenceImpl(source: UserDefaults.standard)
+        self.network = NetworkImpl(intercepter: NetworkInterceptableImpl(),
+                                   plugins: [RequestLoggingPlugin(logger: SwiftyLogger()),
+                                             AccessTokenPlugin(persistence: self.persistence)])
         self.tokenService = AccessTokenServiceImpl(network: network, persistence: persistence)
         self.userRepository = UserRepositoryImpl(network: network, tokenService: tokenService)
         super.init(dependency: EmptyComponent())
