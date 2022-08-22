@@ -29,7 +29,7 @@ final class CalendarHeaderView: UIView {
     }
     
     func configureViews() {
-        addSubviews(monthLabel, monthSelectButton, addButton)
+        addSubviews(monthLabel, monthSelectButton)
     }
     
     func configureConstraints() {
