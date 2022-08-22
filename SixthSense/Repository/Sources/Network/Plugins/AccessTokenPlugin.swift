@@ -20,13 +20,15 @@ public final class AccessTokenPlugin: PluginType {
     private var request: (RequestType, TargetType)?
     
     public func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
+        guard let authorizable = target as? AccessTokenAuthorizable,
+              let authorizationType = authorizable.authorizationType else { return request }
         var request = request
         let accessToken: String? = persistence.value(on: .accessToken)
-        
         if let accessToken = accessToken, !accessToken.isEmpty {
-            request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+            let authValue = "\(authorizationType.value) \(accessToken)"
+            request.addValue(authValue, forHTTPHeaderField: "Authorization")
         }
-        
         return request
+
     }
 }
