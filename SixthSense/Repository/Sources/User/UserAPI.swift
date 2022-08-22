@@ -17,7 +17,14 @@ enum UserAPI {
     case signUp(SignUpRequest)
 }
 
-extension UserAPI: BaseAPI {
+extension UserAPI: BaseAPI, AccessTokenAuthorizable {
+    var authorizationType: AuthorizationType? {
+        switch self {
+            case .user, .login, .signUp, .validateNickname:
+                return .none
+        }
+    }
+    
     // FIXME: 추후 UserInfo 제거 하면서 tempURL도 제거
     var baseURL: URL {
         switch self {
