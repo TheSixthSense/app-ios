@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import DesignSystem
 
 public enum Toast {
 
@@ -123,7 +124,7 @@ public extension UIViewController {
         if let prevToast = window.viewWithTag(Toast.View.tag) as? AppToast {
             prevToast.removeFromSuperview()
         }
-        let toast = AppToast(type: toastStyle)
+        let toast = AppToast.init(type: toastStyle)
         window.addSubview(toast)
         toast.showToast(message)
     }
