@@ -275,12 +275,7 @@ private extension ChallengeRegisterViewController {
                 .distinctUntilChanged()
                 .withUnretained(self)
                 .bind(onNext: { owner, index in
-                owner.indicatorView.snp.updateConstraints {
-                    $0.left.equalTo(CGFloat(index.row) * (owner.indicatorView.frame.width))
-                }
-                UIView.animate(withDuration: 0.25) {
-                    owner.view.layoutIfNeeded()
-                }
+                owner.updateIndicator(index.row)
             })
 
             // FIXME: - cell data API 추가
@@ -294,10 +289,10 @@ private extension ChallengeRegisterViewController {
 
             contentTableView.rx.itemDeselected
                 .withUnretained(self)
-                .bind { owner, index in
+                .bind(onNext: { owner, index in
                 let cell = owner.contentTableView.cellForRow(at: index) as? ChallengeListItemCell
                 cell?.deselected()
-            }
+            })
         }
     }
 
@@ -310,6 +305,15 @@ private extension ChallengeRegisterViewController {
             $0.inputAccessoryView = toolbar
             $0.inputView = pickerView
             $0.tintColor = .clear
+        }
+    }
+
+    private func updateIndicator(_ rowIndex: Int) {
+        indicatorView.snp.updateConstraints {
+            $0.left.equalTo(CGFloat(rowIndex) * (indicatorView.frame.width))
+        }
+        UIView.animate(withDuration: 0.25) { [weak self] in
+            self?.view.layoutIfNeeded()
         }
     }
 
