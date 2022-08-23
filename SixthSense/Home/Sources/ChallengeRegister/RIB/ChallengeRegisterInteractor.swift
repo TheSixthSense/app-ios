@@ -6,6 +6,7 @@
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
 //
 
+import Foundation
 import RIBs
 import RxCocoa
 import RxSwift
@@ -22,9 +23,14 @@ protocol ChallengeRegisterPresentable: Presentable {
 protocol ChallengeRegisterPresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
     var didTapDoneButton: Observable<Void> { get }
+    var didTapCalendarView: Observable<Void> { get }
+    var calendarBeginEditing: Observable<(row: Int, component: Int)> { get }
+    var calendarDidSelected: Observable<Void> { get }
 }
 
 protocol ChallengeRegisterPresenterHandler: AnyObject {
+    var basisDate: Observable<Date> { get }
+    var calenarDataSource: Observable<[[Int]]> { get }
     var categorySections: Observable<[CategorySection]> { get }
     var challengeListSections: Observable<[ChallengeListSection]> { get }
 }
@@ -37,11 +43,19 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 
     weak var router: ChallengeRegisterRouting?
     weak var listener: ChallengeRegisterListener?
+    private var dependency: ChallengeRegisterDependency
 
+    private var calendarConfiguration = CalendarConfiguration(startYear: 2022, endYear: 2026)
+    private let factory: ChallengeCalendarFactory = ChallengeCalendarFactoryImpl()
+
+    private let basisDateRelay: BehaviorRelay<Date> = .init(value: Date())
     private let categorySectionsRelay: PublishRelay<[CategorySection]> = .init()
     private let challengeListSectionsRelay: PublishRelay<[ChallengeListSection]> = .init()
+    private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
 
-    override init(presenter: ChallengeRegisterPresentable) {
+    init(presenter: ChallengeRegisterPresentable,
+         dependency: ChallengeRegisterDependency) {
+        self.dependency = dependency
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -69,17 +83,49 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .subscribe(onNext: { owner, _ in
             owner.router?.routeToRecommend()
         }).disposeOnDeactivate(interactor: self)
+
+        action.didTapCalendarView
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+            owner.calendarDataSourceRelay.accept(owner.calendarConfiguration.pickerFullDataSource)
+        })
+            .disposeOnDeactivate(interactor: self)
+
+        action.calendarBeginEditing
+            .withUnretained(self)
+            .subscribe(onNext: { owner, results in
+            switch results.component {
+            case 0:
+                owner.calendarConfiguration.setYear(row: results.row)
+            case 1:
+                owner.calendarConfiguration.setMonth(row: results.row)
+            case 2:
+                owner.calendarConfiguration.setDay(row: results.row)
+            default:
+                break
+            }
+        })
+            .disposeOnDeactivate(interactor: self)
+
+        action.calendarDidSelected
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+            owner.basisDateRelay.accept(owner.calendarConfiguration.basisFullDate)
+        })
+            .disposeOnDeactivate(interactor: self)
     }
 
     // FIXME: - API로 변경
     private func makeListSections() {
         challengeListSectionsRelay.accept([
                 .init(identity: .item,
-                      items: [.description("귀리로 만든 우유, 친환경 계란 등 음식을 통해 비건을\n실천할 수 있어!\n챌린지 함께 해보지 않을래?")]),
+                      items: [.description("귀리로 만든 우유, 친환경 계란 등 음식을 통해 비건을\n실천할 수 있어!")]),
                 .init(identity: .item,
-                      items: [.item("우유 대신 두유로 마시기"),
-                                  .item("식물성 고기로 단백질 채우기"),
-                                  .item("식물성 계란으로 요리하기")])
+                      items: [
+                                  .item(ChallengeListItemCellViewModel.init(id: 0, emoji: "❤️", title: "우유 대신 두유로 마시기")),
+                                  .item(ChallengeListItemCellViewModel.init(id: 1, emoji: "❤️", title: "우유 대신 두유로 마시기")),
+                                  .item(ChallengeListItemCellViewModel.init(id: 2, emoji: "❤️", title: "우유 대신 두유로 마시기"))
+                      ])
         ])
 
         categorySectionsRelay.accept([.init(
@@ -90,7 +136,8 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 }
 
 extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
-
+    var basisDate: Observable<Date> { basisDateRelay.asObservable() }
     var categorySections: Observable<[CategorySection]> { categorySectionsRelay.asObservable() }
     var challengeListSections: Observable<[ChallengeListSection]> { challengeListSectionsRelay.asObservable() }
+    var calenarDataSource: Observable<[[Int]]> { calendarDataSourceRelay.asObservable() }
 }

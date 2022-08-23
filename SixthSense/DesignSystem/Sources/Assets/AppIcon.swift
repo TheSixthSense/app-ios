@@ -21,12 +21,17 @@ public enum AppIcon {
     public static var error: UIImage {
         return UIImage(.error)!.color(.red500)
     }
+
+    public static var calendar: UIImage {
+        return UIImage(.calendar)!.color(.systemBlack)
+    }
 }
 
 enum SFSymbolKey: String {
     case back = "chevron.left"
     case xmark
     case error = "exclamationmark.circle"
+    case calendar
 }
 
 extension UIImage {

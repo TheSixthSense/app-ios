@@ -17,6 +17,7 @@ protocol RootDependency: Dependency {
     var network: Network { get }
     var persistence: LocalPersistence { get }
     var userRepository: UserRepository { get }
+    var challengeRepository: ChallengeRepository { get }
 }
 
 // MARK: - Builder

@@ -20,6 +20,7 @@ final class RootComponent: Component<RootDependency>,
     var network: Network { dependency.network }
     var persistence: LocalPersistence { dependency.persistence }
     var userRepository: UserRepository { dependency.userRepository }
+    var challengeRepository: ChallengeRepository { dependency.challengeRepository }
     var usecase: SignInUseCase
     
     override init(dependency: RootDependency) {

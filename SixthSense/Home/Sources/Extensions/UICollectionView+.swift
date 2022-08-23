@@ -24,7 +24,13 @@ extension UITableView {
     func register(_ cellClass: AnyClass) {
         register(cellClass, forCellReuseIdentifier: String(describing: cellClass))
     }
-    
+
+    func register(_ cellClasses: AnyClass...) {
+        cellClasses.forEach {
+            register($0, forCellReuseIdentifier: String(describing: $0))
+        }
+    }
+
     func dequeue(_ cellClass: AnyClass, for indexPath: IndexPath) -> UITableViewCell {
         return dequeueReusableCell(withIdentifier: String(describing: cellClass), for: indexPath)
     }

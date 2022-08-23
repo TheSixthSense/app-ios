@@ -26,10 +26,19 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     private enum Constants {
         enum Height {
+            static var calenderView = 44.0
+            static var calenderButton = 20.0
             static var category = 48.0
             static var indicator = 3.0
             static var doneButton = 68.0
-            static var tableRow = 78.0
+            static var tableRow = 58.0
+        }
+
+        enum Inset {
+            static var base = 20.0
+            static var calenderButtonLeft = 12.0
+            static var tableViewBottom = -10.0
+            static var doneButtonBottom = -32.0
         }
     }
 
@@ -51,9 +60,10 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     private let challnegeDataSource = ChallengeSections { _, tableView, indexPath, item in
         switch item {
-            // TODO: - 추가
         case .description(let description):
-            return UITableViewCell()
+            guard let cell = tableView.dequeue(ChallengeListDescriptionCell.self, for: indexPath) as? ChallengeListDescriptionCell else { return UITableViewCell() }
+            cell.add(description: description)
+            return cell
         case .item(let item):
             guard let cell = tableView.dequeue(ChallengeListItemCell.self, for: indexPath) as? ChallengeListItemCell else { return UITableViewCell() }
             cell.bind(item: item)
@@ -61,8 +71,41 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         }
     }
 
+    private let pickerAdapter = RxPickerViewStringAdapter<[[Int]]>(
+        components: [],
+        numberOfComponents: { _, _, _ in 3 },
+        numberOfRowsInComponent: { _, _, items, component -> Int in
+            return items[component].count
+        },
+        titleForRow: { _, _, items, row, component -> String? in
+            return "\(items[component][row])"
+        }
+    )
+
     // MARK: - UI
 
+    // Calander
+    private let calenderView = UIView().then {
+        $0.layer.borderColor = AppColor.systemGray300.cgColor
+        $0.layer.borderWidth = 1
+        $0.layer.cornerRadius = 10
+    }
+
+    let calenderLabel = UITextField().then {
+        $0.font = AppFont.body1
+        $0.sizeToFit()
+    }
+
+    private let calenderSelectButton = UIButton().then {
+        $0.setImage(AppIcon.calendar, for: .normal)
+    }
+
+    private let pickerView = UIPickerView()
+
+    private let pickerDoneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: nil)
+    private let barButtonSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+
+    // Category
     private lazy var categoryTabView = UICollectionView(
         frame: .zero,
         collectionViewLayout: categoryCollectionLayout
@@ -87,8 +130,9 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         $0.backgroundColor = .black
     }
 
+    // Content
     private var contentTableView = UITableView().then {
-        $0.rowHeight = Constants.Height.tableRow
+        $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = Constants.Height.tableRow
         $0.isScrollEnabled = true
         $0.showsVerticalScrollIndicator = false
@@ -105,10 +149,12 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     private let disposeBag = DisposeBag()
 
+    // MARK: - LifeCycle
+
     init() {
         super.init(nibName: nil, bundle: nil)
         action = self
-        tabBarItem = HomeTabBarItem(image: HomeAsset.challengeRegistericonUnselected.image)
+        tabBarItem = HomeTabBarItem(image: HomeAsset.challengeRegisterIconUnselected.image)
     }
 
     required init?(coder: NSCoder) {
@@ -121,16 +167,8 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         bind()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-    }
-
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         configureLayout()
     }
 }
@@ -140,15 +178,34 @@ private extension ChallengeRegisterViewController {
     private func configureUI() {
         view.backgroundColor = .white
         setNavigationBar()
-        categoryTabView.register(CategoryTabItemCell.self)
-        contentTableView.register(ChallengeListItemCell.self)
-        view.addSubviews(categoryTabView, indicatorView, contentTableView, doneButton)
+        makePicker()
+        registerCells()
+        view.addSubviews(calenderView, categoryTabView, indicatorView, contentTableView, doneButton)
+        calenderView.addSubviews(calenderSelectButton, calenderLabel)
     }
 
     private func configureLayout() {
+        calenderView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(Constants.Inset.base)
+            $0.left.right.equalToSuperview().inset(Constants.Inset.base)
+            $0.height.equalTo(Constants.Height.calenderView)
+        }
+
+        calenderSelectButton.snp.makeConstraints {
+            $0.left.equalToSuperview().inset(Constants.Inset.calenderButtonLeft)
+            $0.centerY.equalToSuperview()
+            $0.size.equalTo(Constants.Height.calenderButton)
+        }
+
+        calenderLabel.snp.makeConstraints {
+            $0.left.equalTo(calenderSelectButton.snp.right).offset(Constants.Inset.base)
+            $0.right.equalToSuperview()
+            $0.centerY.equalToSuperview()
+        }
 
         categoryTabView.snp.makeConstraints {
-            $0.left.right.top.equalToSuperview()
+            $0.left.right.equalToSuperview()
+            $0.top.equalTo(calenderView.snp.bottom).offset(Constants.Inset.base)
             $0.height.equalTo(Constants.Height.category)
         }
 
@@ -161,38 +218,31 @@ private extension ChallengeRegisterViewController {
 
         contentTableView.snp.makeConstraints {
             $0.top.equalTo(indicatorView.snp.bottom)
-            $0.bottom.equalTo(doneButton.snp.top).offset(-10)
-            $0.left.right.equalToSuperview().inset(20)
+            $0.bottom.equalTo(doneButton.snp.top).offset(Constants.Inset.tableViewBottom)
+            $0.left.right.equalToSuperview().inset(Constants.Inset.base)
         }
 
         guard let tabBar = tabBarController?.tabBar else { return }
 
         doneButton.snp.makeConstraints {
-            $0.left.right.equalToSuperview().inset(20)
+            $0.left.right.equalToSuperview().inset(Constants.Inset.base)
             $0.height.equalTo(Constants.Height.doneButton)
-            $0.bottom.equalTo(tabBar.snp.top).offset(-32)
+            $0.bottom.equalTo(tabBar.snp.top).offset(Constants.Inset.doneButtonBottom)
         }
     }
 
     private func bind() {
 
-        bindDataSources()
+        bindHandler()
+        bindLists()
 
-        categoryTabView.rx
-            .itemSelected
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .bind(onNext: { owner, index in
-            owner.indicatorView.snp.updateConstraints {
-                $0.left.equalTo(CGFloat(index.row) * (owner.indicatorView.frame.width))
-            }
-            UIView.animate(withDuration: 0.25) {
-                owner.view.layoutIfNeeded()
-            }
+        calenderSelectButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+            self?.calenderLabel.becomeFirstResponder()
         }).disposed(by: disposeBag)
     }
 
-    private func bindDataSources() {
+    private func bindHandler() {
 
         guard let handler = handler else { return }
 
@@ -204,19 +254,92 @@ private extension ChallengeRegisterViewController {
             handler.challengeListSections
                 .asDriver(onErrorJustReturn: [])
                 .drive(contentTableView.rx.items(dataSource: challnegeDataSource))
+
+            handler.basisDate
+                .map(dateToFullString)
+                .withUnretained(self)
+                .subscribe(onNext: { owner, dateString in
+                owner.calenderLabel.text = dateString
+                owner.calenderLabel.resignFirstResponder()
+            })
+
+            handler.calenarDataSource
+                .bind(to: pickerView.rx.items(adapter: pickerAdapter))
         }
     }
 
-    private func setNavigationBar() {
-        // FIXME: - navigation title
+    private func bindLists() {
+        disposeBag.insert {
+            categoryTabView.rx
+                .itemSelected
+                .distinctUntilChanged()
+                .withUnretained(self)
+                .bind(onNext: { owner, index in
+                owner.updateIndicator(index.row)
+            })
 
-//        let titleLabel: UILabel = UILabel().then {
-//            $0.attributedText = NSAttributedString(
-//                string: "챌린지 등록",
-//                attributes: titleTextAttributes
-//            )
-//            $0.sizeToFit()
-//        }
+            // FIXME: - cell data API 추가
+            Observable
+                .zip(contentTableView.rx.itemSelected, contentTableView.rx.modelSelected(ChallengeListSectionItem.self))
+                .withUnretained(self)
+                .bind(onNext: { owner, item in
+                let cell = owner.contentTableView.cellForRow(at: item.0) as? ChallengeListItemCell
+                cell?.selected()
+            })
+
+            contentTableView.rx.itemDeselected
+                .withUnretained(self)
+                .bind(onNext: { owner, index in
+                let cell = owner.contentTableView.cellForRow(at: index) as? ChallengeListItemCell
+                cell?.deselected()
+            })
+        }
+    }
+
+    private func makePicker() {
+        let toolbar = UIToolbar().then {
+            $0.sizeToFit()
+            $0.setItems([barButtonSpace, pickerDoneButton], animated: true)
+        }
+        calenderLabel.do {
+            $0.inputAccessoryView = toolbar
+            $0.inputView = pickerView
+            $0.tintColor = .clear
+        }
+    }
+
+    private func updateIndicator(_ rowIndex: Int) {
+        indicatorView.snp.updateConstraints {
+            $0.left.equalTo(CGFloat(rowIndex) * (indicatorView.frame.width))
+        }
+        UIView.animate(withDuration: 0.25) { [weak self] in
+            self?.view.layoutIfNeeded()
+        }
+    }
+
+    private func registerCells() {
+        categoryTabView.register(CategoryTabItemCell.self)
+        contentTableView.register(ChallengeListItemCell.self, ChallengeListDescriptionCell.self)
+    }
+
+    private func setNavigationBar() {
+        let titleLabel: UILabel = UILabel().then {
+            $0.attributedText = NSAttributedString(
+                string: "챌린지 등록",
+                attributes: [.font: AppFont.body1Bold, .foregroundColor: AppColor.systemBlack]
+            )
+            $0.sizeToFit()
+        }
+        self.navigationItem.titleView = titleLabel
+    }
+
+    private func dateToFullString(_ date: Date) -> String {
+        let dateFormatter = DateFormatter().then {
+            $0.dateFormat = "yyyy년 MM월 dd일 EEEE"
+            $0.locale = .init(identifier: "ko_KR")
+            $0.timeZone = TimeZone(identifier: "KST")
+        }
+        return dateFormatter.string(from: date)
     }
 }
 
@@ -227,4 +350,7 @@ extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
             .throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance)
             .asObservable()
     }
+    var didTapCalendarView: Observable<Void> { calenderLabel.rx.controlEvent(.editingDidBegin).map { () }.asObservable() }
+    var calendarBeginEditing: Observable<(row: Int, component: Int)> { pickerView.rx.itemSelected.asObservable() }
+    var calendarDidSelected: Observable<Void> { pickerDoneButton.rx.tap.asObservable() }
 }
