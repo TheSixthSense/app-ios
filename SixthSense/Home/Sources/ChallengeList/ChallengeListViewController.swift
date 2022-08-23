@@ -11,6 +11,7 @@ import RxSwift
 import UIKit
 import RxAppState
 import RxDataSources
+import SnapKit
 
 // TODO: 미완성된 뷰입니다 추후 완성할 예정
 final class ChallengeListViewController: UIViewController, ChallengeListPresentable, ChallengeListViewControllable {
@@ -56,6 +57,11 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
         }
     }
     
+    private let emptyView = ChallengeEmptyView().then {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.isHidden = true
+    }
+    
     init() {
         super.init(nibName: nil, bundle: nil)
         action = self
@@ -73,12 +79,16 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
     }
     
     private func configureViews() {
-        view.addSubviews(tableView)
+        view.addSubviews(tableView, emptyView)
     }
     
     private func configureConstraints() {
         tableView.snp.makeConstraints {
             $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 16, left: 20, bottom: 0, right: 20))
+        }
+        
+        emptyView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
     }
     
@@ -88,6 +98,20 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
             .asDriver(onErrorJustReturn: [])
             .drive(tableView.rx.items(dataSource: dataSource))
             .disposed(by: self.disposeBag)
+        
+        handler.hasItem
+            .asDriver(onErrorJustReturn: false)
+            .drive(onNext: { [weak self] hasItem in
+                self?.listVisible(hasItem)
+            })
+            .disposed(by: self.disposeBag)
+    }
+}
+
+extension ChallengeListViewController {
+    private func listVisible(_ visible: Bool) {
+        tableView.isHidden = !visible
+        emptyView.isHidden = visible
     }
 }
 

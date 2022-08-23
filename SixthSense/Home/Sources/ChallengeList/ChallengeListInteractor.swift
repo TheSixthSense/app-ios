@@ -19,6 +19,7 @@ protocol ChallengeListPresenterAction: AnyObject {
 
 protocol ChallengeListPresenterHandler: AnyObject {
     var sections: Observable<[ChallengeSection]> { get }
+    var hasItem: Observable<Bool> { get }
 }
 
 protocol ChallengeListPresentable: Presentable {
@@ -41,6 +42,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     private let dependency: ChallengeListInteractorDependency
     
     private let sectionsRelay: PublishRelay<[ChallengeSection]> = .init()
+    private let hasItemRelay: PublishRelay<Bool> = .init()
     
     init(presenter: ChallengeListPresentable, dependency: ChallengeListInteractorDependency) {
         self.dependency = dependency
@@ -93,6 +95,8 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
                     sections.append(.init(identity: .add, items: [.add]))
                 }
                 owner.sectionsRelay.accept(sections)
+//                owner.hasItemRelay.accept(!items.isEmpty)
+                owner.hasItemRelay.accept(false)
 
             })
             .disposeOnDeactivate(interactor: self)
@@ -103,6 +107,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
 
 extension ChallengeListInteractor: ChallengeListPresenterHandler {
     var sections: Observable<[ChallengeSection]> { sectionsRelay.asObservable() }
+    var hasItem: Observable<Bool> { hasItemRelay.asObservable() }
 }
 
 extension ChallengeSectionItem: RawRepresentable {
