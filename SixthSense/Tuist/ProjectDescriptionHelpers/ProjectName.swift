@@ -23,8 +23,9 @@ public enum Module {
   // Utils
   case utils
 
-  // Design
+  // Design|UI
   case designSystem
+  case uiCore
 }
 
 extension Module {
@@ -39,6 +40,7 @@ extension Module {
       case .home: return "Home"
       case .challenge: return "Challenge"
       case .designSystem : return "DesignSystem"
+      case .uiCore: return "UICore"
     }
   }
   

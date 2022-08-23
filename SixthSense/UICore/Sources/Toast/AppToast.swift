@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import DesignSystem
 
 public enum Toast {
 
@@ -119,12 +120,11 @@ public final class AppToast: UILabel {
 public extension UIViewController {
 
     func showToast(_ message: String, toastStyle: Toast.Style = .notice) {
-        guard let window = UIApplication.shared.windows.first else { return }
-        if let prevToast = window.viewWithTag(Toast.View.tag) as? AppToast {
+        if let prevToast = UIWindow.key?.viewWithTag(Toast.View.tag) as? AppToast {
             prevToast.removeFromSuperview()
         }
-        let toast = AppToast(type: toastStyle)
-        window.addSubview(toast)
+        let toast = AppToast.init(type: toastStyle)
+        UIWindow.key?.addSubview(toast)
         toast.showToast(message)
     }
 }
