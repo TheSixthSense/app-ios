@@ -12,7 +12,9 @@ let project = Project.library(
     name: Module.uiCore.name,
     dependencies: [
         .snapKit,
-        .then
+        .then,
+        .rxSwift,
+        .rxCocoa
     ] + [Module.designSystem].map(\.project),
     additionalTargets: [],
     resources: .none
