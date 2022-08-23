@@ -120,18 +120,20 @@ public final class AppAlertView: UIView {
     }
 
     private func makeButton(action: AlertAction) -> UIButton {
-        let button = UIButton()
-        button.frame = CGRect(x: 0,
+        let button = UIButton().then {
+            $0.frame = CGRect(x: 0,
                               y: 0,
                               width: Constants.Width.button,
                               height: Constants.Height.button)
-
-        button.setAttributedTitle(NSAttributedString(string: action.title, attributes: action.style.attributes), for: .normal)
-        button.backgroundColor = action.style.background
-        button.layer.borderColor = action.style.borderColor
-        button.layer.borderWidth = 1
-        button.layer.cornerRadius = Constants.Radius.button
-        button.layer.masksToBounds = true
+            $0.setAttributedTitle(NSAttributedString(string: action.title, attributes: action.style.attributes), for: .normal)
+            $0.backgroundColor = action.style.background
+            $0.layer.do {
+                $0.borderColor = action.style.borderColor
+                $0.borderWidth = 1
+                $0.cornerRadius = Constants.Radius.button
+                $0.masksToBounds = true
+            }
+        }
         return button
     }
 
@@ -150,18 +152,18 @@ public final class AppAlertView: UIView {
                                 completion: AlertActionCompletion? = nil) {
         let button = makeButton(action: action)
         buttonStackView.addArrangedSubview(button)
-        if let completion = completion {
-            button.rx.tap
-                .throttle(.seconds(2),
-                          latest: false,
-                          scheduler: MainScheduler.instance)
-                .withUnretained(self)
-                .bind(onNext: { owner, _ in
-                owner.dismiss()
-                completion(action)
-            })
-                .disposed(by: disposeBag)
-        }
+        guard let completion = completion else { return }
+
+        button.rx.tap
+            .throttle(.seconds(2),
+                      latest: false,
+                      scheduler: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.dismiss()
+            completion(action)
+        })
+            .disposed(by: disposeBag)
     }
 }
 
