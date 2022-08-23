@@ -24,5 +24,5 @@ extension ChallengeListSection: SectionModelType {
 
 enum ChallengeListSectionItem {
     case description(String)
-    case item(String)
+    case item(ChallengeListItemCellViewModel)
 }

@@ -47,17 +47,17 @@ final class HomeRouter: ViewableRouter<HomeInteractable, HomeViewControllable>, 
     
     func attachTabs() {
         let challengeRouting = challengeHome.build(withListener: interactor)
-        let feedRouting = feedHome.build(withListener: interactor)
         let challengeRegisterRouting = challengeRegisterHome.build(withListener: interactor)
+        let feedRouting = feedHome.build(withListener: interactor)
         
         attachChild(challengeRouting)
-        attachChild(feedRouting)
         attachChild(challengeRegisterRouting)
+        attachChild(feedRouting)
         
         let viewControllers = [
             NavigationControllerable(root: challengeRouting.viewControllable),
-            NavigationControllerable(root: feedRouting.viewControllable),
-            NavigationControllerable(root: challengeRegisterRouting.viewControllable)
+            NavigationControllerable(root: challengeRegisterRouting.viewControllable),
+            NavigationControllerable(root: feedRouting.viewControllable)
         ]
         
         viewController.setViewControllers(viewControllers)

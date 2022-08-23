@@ -16,11 +16,14 @@ public protocol SplashDependency: Dependency {
     var network: Network { get }
     var persistence: LocalPersistence { get }
     var userRepository: UserRepository { get }
+    var challengeRepository: ChallengeRepository { get }
 }
 
 final class SplashComponent: Component<SplashDependency>, UserInfoDependency, HomeDependency {
+
     var network: Network { dependency.network }
     var userRepository: UserRepository { dependency.userRepository }
+    var challengeRepository: ChallengeRepository { dependency.challengeRepository }
     
     override init(dependency: SplashDependency) {
         super.init(dependency: dependency)
