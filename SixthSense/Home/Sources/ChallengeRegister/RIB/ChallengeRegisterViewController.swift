@@ -154,7 +154,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
     init() {
         super.init(nibName: nil, bundle: nil)
         action = self
-        tabBarItem = HomeTabBarItem(image: HomeAsset.challengeRegisterIconUnselected.image)
+        tabBarItem = HomeTabBarItem(image: HomeAsset.challengeRegisterTabBarIconUnselected.image)
     }
 
     required init?(coder: NSCoder) {
