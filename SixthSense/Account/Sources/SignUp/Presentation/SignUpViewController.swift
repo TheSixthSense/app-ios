@@ -14,6 +14,7 @@ import RxCocoa
 import RxKeyboard
 import Then
 import UIKit
+import UICore
 
 protocol SignUpPresentableListener: AnyObject {
     func didTapBackButton()
@@ -188,21 +189,31 @@ private extension SignUpViewController {
 
     private func handleNicknameSubView(with handler: SignUpPresenterHandler) {
         handler.visibleNicknameValid
-            .bind(onNext: { [weak self] isValid in
-            self?.signUpPageView.nickNameInputView.nicknameTextField.isValidText = isValid
+            .withUnretained(self)
+            .bind(onNext: { owner, isValid in
+            owner.signUpPageView.nickNameInputView.nicknameTextField.isValidText = isValid
         })
             .disposed(by: disposeBag)
 
         handler.nicknameCheckValid
-            .filter({ [weak self] in
-            if !$0 {
-                self?.signUpPageView.nickNameInputView.nicknameTextField.errorString = "앗 이미 사용 중인 비거너의 이름이야ㅠㅠ"
-                return false
+            .withUnretained(self)
+            .filter { owner, errorString in
+            guard !errorString.isEmpty else {
+                return true
             }
-            return true
-        })
-            .subscribe(onNext: { [weak self] _ in
-            self?.signUpPageView.pageTransition(type: .forward)
+
+            if errorString == "400" {
+                owner.signUpPageView.nickNameInputView.nicknameTextField.do {
+                    $0.errorString = "앗 이미 사용 중인 비거너의 이름이야ㅠㅠ"
+                    $0.isValidText = false
+                }
+            } else {
+                owner.showToast(errorString, toastStyle: .error)
+            }
+            return false
+        }
+            .subscribe(onNext: { owner, _ in
+            owner.signUpPageView.pageTransition(type: .forward)
         }).disposed(by: self.disposeBag)
     }
 

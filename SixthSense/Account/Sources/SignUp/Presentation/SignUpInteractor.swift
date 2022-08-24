@@ -43,7 +43,7 @@ protocol SignUpPresenterHandler: AnyObject {
     var genderInputValid: Observable<Int> { get }
     var visibleBirthInputValid: Observable<Bool> { get }
     var veganStageInputValid: Observable<Int> { get }
-    var nicknameCheckValid: Observable<Bool> { get }
+    var nicknameCheckValid: Observable<String> { get }
 }
 
 protocol SignUpPresentable: Presentable {
@@ -75,7 +75,7 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
     private let buttonDidTapRelay: PublishRelay<Bool> = .init()
     private let nicknameButtonRelay: PublishRelay<Bool> = .init()
 
-    private let nicknameCheckValidRelay: PublishRelay<Bool> = .init()
+    private let nicknameCheckValidRelay: PublishRelay<String> = .init()
 
     private var requests: SignUpRequest = .init()
     private let payload: SignUpPayload
@@ -109,18 +109,25 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
     }
 
     private func doSignUp() {
-        dependency.useCase.fetchSignUp(reqeust: self.requests)
+        dependency.useCase
+            .fetchSignUp(reqeust: self.requests)
             .subscribe(onNext: { [weak self] _ in
             // TODO: - 공통 데이터 모델로 변환 후 success/failure 처리
         }).disposeOnDeactivate(interactor: self)
     }
 
     private func isUseableNickname(_ nickname: String) {
-        dependency.useCase.validateUserNickname(request: nickname)
-            .subscribe(onNext: { [weak self] _ in
-            // TODO: - 공통 데이터 모델로 변환 후 success/failure 처리
-            self?.nicknameCheckValidRelay.accept(true)
-        }).disposeOnDeactivate(interactor: self)
+        dependency.useCase
+            .validateUserNickname(request: nickname)
+            .catch { error in
+            guard let apiError = error as? APIError,
+                let statusCode = apiError.errorStatusCode else {
+                return .just(error.localizedDescription)
+            }
+            return .just(statusCode)
+        }
+            .bind(to: nicknameCheckValidRelay)
+            .disposeOnDeactivate(interactor: self)
     }
 
     func bindSubViewActions() {
@@ -300,7 +307,7 @@ extension SignUpInteractor: SignUpPresenterHandler {
         return veganStageInputValidRelay.asObservable()
     }
 
-    var nicknameCheckValid: Observable<Bool> {
+    var nicknameCheckValid: Observable<String> {
         return nicknameCheckValidRelay.asObservable()
     }
 }

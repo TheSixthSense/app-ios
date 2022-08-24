@@ -8,21 +8,21 @@
 
 import ObjectMapper
 
-struct ErrorResponse: Mappable {
+public struct ErrorResponse: Mappable {
     var systemMessage: String
     var userMessage: String
 
-    init() {
+    public init() {
         systemMessage = ""
         userMessage = ""
     }
 
-    init?(map: Map) {
+    public init?(map: Map) {
         systemMessage = ""
         userMessage = ""
     }
 
-    mutating func mapping(map: Map) {
+    public mutating func mapping(map: Map) {
         systemMessage <- map["meta.systemMessage"]
         userMessage <- map["meta.userMessage"]
     }
