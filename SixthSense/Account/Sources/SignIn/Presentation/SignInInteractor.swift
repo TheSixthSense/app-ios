@@ -12,7 +12,7 @@ import AuthenticationServices
 
 public protocol SignInRouting: ViewableRouting {
     func routeToSignUp(payload: SignUpPayload)
-    func detachSignUp()
+    func detachSignUp(completion: (() -> Void)?)
 }
 
 protocol SignInPresentable: Presentable {
@@ -25,11 +25,11 @@ public protocol SignInListener: AnyObject {
 }
 
 final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInInteractable, SignInPresentableListener {
+
     weak var router: SignInRouting?
     weak var listener: SignInListener?
     private let dependency: SignInDependency
 
-    // in constructor.
     init(presenter: SignInPresentable, dependency: SignInDependency) {
         self.dependency = dependency
         super.init(presenter: presenter)
@@ -70,6 +70,14 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
     }
 
     func returnToSignIn() {
-        router?.detachSignUp()
+        router?.detachSignUp(completion: nil)
+    }
+
+    func signUpComplete() {
+        router?.detachSignUp(completion: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: { [weak self] in
+                self?.listener?.signInDidTapClose()
+            })
+        })
     }
 }

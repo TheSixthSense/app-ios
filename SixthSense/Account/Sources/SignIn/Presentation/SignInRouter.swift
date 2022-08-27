@@ -39,10 +39,14 @@ final class SignInRouter: ViewableRouter<SignInInteractable, SignInViewControlla
         attachChild(router)
     }
 
-    func detachSignUp() {
+    func detachSignUp(completion: (() -> Void)? = nil) {
         guard let router = childRouting else { return }
         detachChild(router)
         viewController.dismiss(animated: false, completion: nil)
         self.childRouting = nil
+
+        if let completion = completion {
+            completion()
+        }
     }
 }

@@ -41,7 +41,7 @@ public final class UserRepositoryImpl: UserRepository {
         return network.request(UserAPI.signUp(request))
             .mapString()
             .flatMap { data -> Single<String> in
-            return .just(data)
+            return .just("")
         }
     }
 

@@ -185,6 +185,7 @@ private extension SignUpViewController {
         handleBirthSubView(with: handler)
         handleVeganStageSubView(with: handler)
         handleBottomButton(with: handler)
+        handleSignUpComplete(with: handler)
     }
 
     private func handleNicknameSubView(with handler: SignUpPresenterHandler) {
@@ -273,7 +274,18 @@ private extension SignUpViewController {
             .subscribe(onNext: { [weak self] in
             if $0 {
                 self?.signUpPageView.pageTransition(type: .forward)
+
+    private func handleSignUpComplete(with handler: SignUpPresenterHandler) {
+        handler.signUpCompleteValid
+            .withUnretained(self)
+            .filter { owner, errorString in
+            guard !errorString.isEmpty else {
+                return true
             }
+            owner.showToast(errorString, toastStyle: .error)
+            return false
+        }
+            .subscribe(onNext: { _ in
         }).disposed(by: disposeBag)
     }
 }
