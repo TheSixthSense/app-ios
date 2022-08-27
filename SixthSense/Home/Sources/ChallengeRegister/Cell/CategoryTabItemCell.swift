@@ -30,15 +30,18 @@ final class CategoryTabItemCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubviews(titleLabel, line)
+        configureLayout()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func prepareForReuse() {
+        isSelected = false
+    }
 
+    private func configureLayout() {
         titleLabel.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
@@ -47,10 +50,6 @@ final class CategoryTabItemCell: UICollectionViewCell {
             $0.left.right.bottom.equalToSuperview()
             $0.height.equalTo(1)
         }
-    }
-
-    override func prepareForReuse() {
-        isSelected = false
     }
 
     func setCategory(with title: String) {

@@ -42,6 +42,7 @@ final class ChallengeListItemCell: UITableViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
+        deselected()
     }
 
     private func configureUI() {
