@@ -12,7 +12,9 @@ import RxSwift
 import Repository
 
 public protocol ChallengeRegisterUseCase {
+    func fetchChallengeCategories() -> Observable<String>
     func fetchChallengeRegisterLists() -> Observable<String>
+    func fetchChallengeRecommendLists(itemId: String) -> Observable<String>
 }
 
 final class ChallengeRegisterUseCaseImpl: ChallengeRegisterUseCase {
@@ -22,7 +24,15 @@ final class ChallengeRegisterUseCaseImpl: ChallengeRegisterUseCase {
         self.challengeRepository = challengeRepository
     }
 
+    func fetchChallengeCategories() -> Observable<String> {
+        return challengeRepository.categoryLists().asObservable()
+    }
+
     func fetchChallengeRegisterLists() -> Observable<String> {
         return challengeRepository.registerLists().asObservable()
+    }
+
+    func fetchChallengeRecommendLists(itemId: String) -> Observable<String> {
+        return challengeRepository.recommendLists(itemId: itemId).asObservable()
     }
 }
