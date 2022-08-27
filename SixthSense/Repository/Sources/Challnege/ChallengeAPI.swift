@@ -15,7 +15,8 @@ enum ChallengeAPI {
     case recommendLists(String)
 }
 
-extension ChallengeAPI: BaseAPI {
+extension ChallengeAPI: BaseAPI, AccessTokenAuthorizable {
+
     var baseURL: URL {
         return API.EndPoint.base.url
     }
@@ -34,6 +35,10 @@ extension ChallengeAPI: BaseAPI {
         default:
             return .get
         }
+    }
+
+    var authorizationType: AuthorizationType? {
+        return .bearer
     }
 
     var task: Task {
