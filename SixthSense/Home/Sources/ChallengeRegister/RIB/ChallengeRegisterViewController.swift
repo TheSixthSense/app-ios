@@ -15,6 +15,7 @@ import RxCocoa
 import SnapKit
 import Then
 import UIKit
+import UICore
 
 final class ChallengeRegisterViewController: UIViewController, ChallengeRegisterPresentable, ChallengeRegisterViewControllable {
 
@@ -274,6 +275,12 @@ private extension ChallengeRegisterViewController {
                 .withUnretained(self)
                 .bind(onNext: { owner, row in
                 owner.updateIndicator(row)
+            })
+
+            handler.showErrorMessage
+                .withUnretained(self)
+                .bind(onNext: { owner, message in
+                owner.showToast(message, toastStyle: .error)
             })
         }
     }

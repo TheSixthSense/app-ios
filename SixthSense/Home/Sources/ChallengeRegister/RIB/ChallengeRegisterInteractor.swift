@@ -37,6 +37,7 @@ protocol ChallengeRegisterPresenterHandler: AnyObject {
     var categorySections: Observable<[CategorySection]> { get }
     var challengeListSections: Observable<[ChallengeListSection]> { get }
     var updateCategoryIndex: Observable<Int> { get }
+    var showErrorMessage: Observable<String> { get }
 }
 
 public protocol ChallengeRegisterListener: AnyObject {
@@ -62,6 +63,8 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     private lazy var dataObservable = Observable.combineLatest(
         self.fetchChallengeCategories(), self.fetchChallengeLists(), self.categoryIndex
     )
+
+    private let errorRelay: PublishRelay<String> = .init()
     private var disposeBag = DisposeBag()
 
     init(presenter: ChallengeRegisterPresentable,
@@ -194,4 +197,5 @@ extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
     var challengeListSections: Observable<[ChallengeListSection]> { challengeListSectionsRelay.asObservable() }
     var calenarDataSource: Observable<[[Int]]> { calendarDataSourceRelay.asObservable() }
     var updateCategoryIndex: Observable<Int> { updateCategoryIndexRelay.asObservable() }
+    var showErrorMessage: Observable<String> { errorRelay.asObservable() }
 }
