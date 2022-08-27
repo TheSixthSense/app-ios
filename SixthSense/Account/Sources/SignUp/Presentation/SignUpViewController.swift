@@ -159,21 +159,27 @@ private extension SignUpViewController {
     private func bindUI() {
         bindSubViewHandlers()
 
-        rx.viewDidLayoutSubviews
-            .take(1)
-            .bind(onNext: { [weak self] in
-            self?.configureLayout()
-        }).disposed(by: disposeBag)
+        disposeBag.insert {
+            rx.viewDidLayoutSubviews
+                .take(1)
+                .withUnretained(self)
+                .bind(onNext: { owner, _ in
+                owner.configureLayout()
+            })
 
-        signUpPageView.stepDrvier
-            .drive(onNext: { [weak self] in
-            self?.stepChanged($0)
-        }).disposed(by: disposeBag)
+            signUpPageView.stepDrvier
+                .asObservable()
+                .withUnretained(self)
+                .bind(onNext: { owner, step in
+                owner.stepChanged(step)
+            })
 
-        backButton.rx.tap
-            .bind(onNext: { [weak self] in
-            self?.signUpPageView.pageTransition(type: .backward)
-        }).disposed(by: disposeBag)
+            backButton.rx.tap
+                .withUnretained(self)
+                .bind(onNext: { owner, _ in
+                owner.signUpPageView.pageTransition(type: .backward)
+            })
+        }
 
         updateBottomButtonLayout()
     }
@@ -189,40 +195,38 @@ private extension SignUpViewController {
     }
 
     private func handleNicknameSubView(with handler: SignUpPresenterHandler) {
-        handler.visibleNicknameValid
-            .withUnretained(self)
-            .bind(onNext: { owner, isValid in
-            owner.signUpPageView.nickNameInputView.nicknameTextField.isValidText = isValid
-        })
-            .disposed(by: disposeBag)
+        disposeBag.insert {
+            handler.visibleNicknameValid
+                .bind(to: signUpPageView.nickNameInputView.nicknameTextField.rx.isValidText)
 
-        handler.nicknameCheckValid
-            .withUnretained(self)
-            .filter { owner, errorString in
-            guard !errorString.isEmpty else {
-                return true
-            }
-
-            if errorString == "400" {
-                owner.signUpPageView.nickNameInputView.nicknameTextField.do {
-                    $0.errorString = "앗 이미 사용 중인 비거너의 이름이야ㅠㅠ"
-                    $0.isValidText = false
+            handler.nicknameCheckValid
+                .withUnretained(self)
+                .filter { owner, errorString in
+                guard !errorString.isEmpty else {
+                    return true
                 }
-            } else {
-                owner.showToast(errorString, toastStyle: .error)
+
+                if errorString == "400" {
+                    owner.signUpPageView.nickNameInputView.nicknameTextField.do {
+                        $0.errorString = "앗 이미 사용 중인 비거너의 이름이야ㅠㅠ"
+                        $0.isValidText = false
+                    }
+                } else {
+                    owner.showToast(errorString, toastStyle: .error)
+                }
+                return false
             }
-            return false
+                .subscribe(onNext: { owner, _ in
+                owner.signUpPageView.pageTransition(type: .forward)
+            })
         }
-            .subscribe(onNext: { owner, _ in
-            owner.signUpPageView.pageTransition(type: .forward)
-        }).disposed(by: self.disposeBag)
     }
 
     private func handleGenderSubView(with handler: SignUpPresenterHandler) {
         handler.genderInputValid
-            .bind(onNext: { [weak self] tag in
-            guard let self = self else { return }
-            let vc = self.signUpPageView.genderInputView
+            .withUnretained(self)
+            .bind(onNext: { owner, tag in
+            let vc = owner.signUpPageView.genderInputView
             vc.selectButtons.forEach {
                 if $0.tag == tag {
                     $0.hasFocused = true
@@ -236,19 +240,19 @@ private extension SignUpViewController {
 
     private func handleBirthSubView(with handler: SignUpPresenterHandler) {
         handler.visibleBirthInputValid
-            .bind(onNext: { [weak self] isValid in
-            self?.signUpPageView.birthInputView.birthTextFields
+            .withUnretained(self)
+            .bind(onNext: { owner, isValid in
+            owner.signUpPageView.birthInputView.birthTextFields
                 .forEach({ $0.isValidText = isValid })
         })
             .disposed(by: disposeBag)
-
     }
 
     private func handleVeganStageSubView(with handler: SignUpPresenterHandler) {
         handler.veganStageInputValid
-            .bind(onNext: { [weak self] tag in
-            guard let self = self else { return }
-            let vc = self.signUpPageView.veganInputView
+            .withUnretained(self)
+            .bind(onNext: { owner, tag in
+            let vc = owner.signUpPageView.veganInputView
             vc.imageButtons.forEach {
                 if $0.tag == tag {
                     $0.hasFocused = true
@@ -261,19 +265,23 @@ private extension SignUpViewController {
     }
 
     private func handleBottomButton(with handler: SignUpPresenterHandler) {
-        handler.textDoneButton
-            .map(\.rawValue)
-            .bind(to: bottomButton.rx.titleText)
-            .disposed(by: self.disposeBag)
+        disposeBag.insert {
+            handler.textDoneButton
+                .map(\.rawValue)
+                .bind(to: bottomButton.rx.titleText)
 
-        handler.enableButton
-            .bind(to: bottomButton.rx.hasFocused)
-            .disposed(by: self.disposeBag)
+            handler.enableButton
+                .bind(to: bottomButton.rx.hasFocused)
 
-        handler.didTapButton
-            .subscribe(onNext: { [weak self] in
-            if $0 {
-                self?.signUpPageView.pageTransition(type: .forward)
+            handler.didTapButton
+                .withUnretained(self)
+                .subscribe(onNext: { owner, isForward in
+                if isForward {
+                    owner.signUpPageView.pageTransition(type: .forward)
+                }
+            })
+        }
+    }
 
     private func handleSignUpComplete(with handler: SignUpPresenterHandler) {
         handler.signUpCompleteValid
@@ -337,7 +345,6 @@ private extension SignUpViewController {
     private func updateProgressBar(when step: SignUpSteps) {
         switch step {
         case .exit:
-            // TODO: SignIn RIB 연결
             listener?.didTapBackButton()
             return
         case .nickname:
