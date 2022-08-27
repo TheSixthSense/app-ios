@@ -13,6 +13,7 @@ import RxSwift
 
 public protocol ChallengeRegisterRouting: ViewableRouting {
     func routeToRecommend()
+    func routeToHome()
 }
 
 protocol ChallengeRegisterPresentable: Presentable {
@@ -67,6 +68,10 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 
     override func willResignActive() {
         super.willResignActive()
+    }
+
+    func returnToHome() {
+        router?.routeToHome()
     }
 
     private func bind() {

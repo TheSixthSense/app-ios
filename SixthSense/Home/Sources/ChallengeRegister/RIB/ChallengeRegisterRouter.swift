@@ -15,6 +15,7 @@ protocol ChallengeRegisterInteractable: Interactable, ChallengeRecommendListener
 }
 
 protocol ChallengeRegisterViewControllable: ViewControllable {
+    func routeToHome()
 }
 
 final class ChallengeRegisterRouter: ViewableRouter<ChallengeRegisterInteractable, ChallengeRegisterViewControllable>, ChallengeRegisterRouting {
@@ -39,5 +40,13 @@ final class ChallengeRegisterRouter: ViewableRouter<ChallengeRegisterInteractabl
         viewControllable.present(viewController, animated: false, completion: nil)
         self.childRouting = router
         attachChild(router)
+    }
+
+    func routeToHome() {
+        guard let router = childRouting else { return }
+        detachChild(router)
+        viewController.dismiss(animated: true, completion: nil)
+        self.childRouting = nil
+        self.viewController.routeToHome()
     }
 }

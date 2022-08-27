@@ -171,6 +171,10 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         super.viewDidAppear(animated)
         configureLayout()
     }
+
+    func routeToHome() {
+        tabBarController?.selectedIndex = 0
+    }
 }
 
 private extension ChallengeRegisterViewController {

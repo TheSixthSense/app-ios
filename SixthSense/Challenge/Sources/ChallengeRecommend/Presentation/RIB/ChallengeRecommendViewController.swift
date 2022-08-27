@@ -190,6 +190,12 @@ private extension ChallengeRecommendViewController {
 extension ChallengeRecommendViewController: ChallengeRecommendPresenterAction {
 
     var viewWillAppear: Observable<Void> { rx.viewWillAppear.map { _ in () }.asObservable() }
+
+    var doneButtonDidTap: Observable<Void> {
+        doneButton.rx.tap
+            .throttle(.seconds(2), scheduler: MainScheduler.instance)
+            .asObservable()
+    }
 }
 
 private extension Reactive where Base: UICollectionView {
