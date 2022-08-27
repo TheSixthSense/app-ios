@@ -150,7 +150,8 @@ private extension ChallengeRecommendViewController {
                 .map { return 2 }
                 .bind(to: pageControl.rx.currentPage,
                       recommendCollectionView.rx.didHorizontalScroll,
-                      doneButton.rx.isLastPage)
+                      doneButton.rx.isLastPage,
+                      skipButton.rx.isLastPage)
 
             handler.sections
                 .asDriver(onErrorJustReturn: [])
@@ -173,7 +174,8 @@ private extension ChallengeRecommendViewController {
             return Int(cellIndex)
         }).bind(to: pageControl.rx.currentPage,
                 recommendCollectionView.rx.didHorizontalScroll,
-                doneButton.rx.isLastPage)
+                doneButton.rx.isLastPage,
+                skipButton.rx.isLastPage)
     }
 }
 
@@ -198,6 +200,17 @@ private extension Reactive where Base: AppButton {
             let enableButton = (index == 2) ? true : false
             view.isHidden = !enableButton
             view.hasFocused = enableButton
+            view.isUserInteractionEnabled = enableButton
+        }
+    }
+}
+
+private extension Reactive where Base: UIButton {
+
+    var isLastPage: Binder<Int> {
+        return Binder(self.base) { view, index in
+            let enableButton = (index == 2) ? false : true
+            view.isHidden = !enableButton
             view.isUserInteractionEnabled = enableButton
         }
     }
