@@ -36,4 +36,11 @@ extension CategorySectionItem: RawRepresentable {
         }
         self = .item(rawValue)
     }
+
+    var categoryId: Int {
+        switch self {
+        case .item(let categoryCellViewModel):
+            return categoryCellViewModel.categoryId
+        }
+    }
 }

@@ -39,3 +39,4 @@ extension ChallengeListSectionItem: RawRepresentable {
         self = .item(rawValue)
     }
 }
+

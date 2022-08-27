@@ -15,12 +15,14 @@ struct ChallengeListItemCellViewModel: Mappable {
     var categoryId: Int
     var emoji: String
     var title: String
+    var sort: Int
 
     init?(map: Map) {
         id = -1
         categoryId = -1
         emoji = ""
         title = ""
+        sort = -1
     }
 
     init() {
@@ -28,6 +30,7 @@ struct ChallengeListItemCellViewModel: Mappable {
         categoryId = -1
         emoji = ""
         title = ""
+        sort = -1
     }
 
     mutating func mapping(map: Map) {
@@ -35,5 +38,12 @@ struct ChallengeListItemCellViewModel: Mappable {
         categoryId <- map["categoryId"]
         emoji <- map["emoji"]
         title <- map["name"]
+        sort <- map["sort"]
+    }
+}
+
+extension ChallengeListItemCellViewModel: Comparable {
+    static func < (lhs: ChallengeListItemCellViewModel, rhs: ChallengeListItemCellViewModel) -> Bool {
+        return lhs.sort < rhs.sort
     }
 }
