@@ -7,41 +7,22 @@
 //
 
 import Foundation
-import ObjectMapper
 
-struct CategoryCellViewModel: Mappable {
+struct CategoryCellViewModel {
 
     var id: Int
     var title: String
     var description: String
 
-    init?(map: Map) {
-        id = -1
-        title = ""
-        description = ""
-    }
-
-    init(categoryId: Int, title: String, description: String, sort: Int) {
-        self.id = categoryId
-        self.title = title
-        self.description = description
-    }
-
-    init() {
-        id = -1
-        title = ""
-        description = ""
-    }
-
-    mutating func mapping(map: Map) {
-        id <- map["id"]
-        title <- map["name"]
-        description <- map["description"]
+    init(model: CategoryModel) {
+        id = model.id
+        title = model.title
+        description = model.description
     }
 }
 
 extension CategoryCellViewModel: Comparable {
-    static func < (lhs: CategoryCellViewModel, rhs: CategoryCellViewModel) -> Bool {
+    public static func < (lhs: CategoryCellViewModel, rhs: CategoryCellViewModel) -> Bool {
         return lhs.id < rhs.id
     }
 }

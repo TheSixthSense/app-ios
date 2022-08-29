@@ -186,9 +186,9 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .fetchChallengeCategories()
             .catch({ [weak self] error in
             self?.errorRelay.accept(error.localizedDescription)
-            return .just("")
+            return .just([])
         })
-            .compactMap({ DataViewModel<CategoryCellViewModel>(JSONString: $0)?.data?.sorted(by: <) })
+            .compactMap({ $0.compactMap { CategoryCellViewModel(model: $0) }.sorted(by: <) })
     }
 
     private func fetchChallengeLists() -> Observable<[ChallengeListItemCellViewModel]> {
@@ -196,9 +196,9 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .fetchChallengeRegisterLists()
             .catch({ [weak self] error in
             self?.errorRelay.accept(error.localizedDescription)
-            return .just("")
+            return .just([])
         })
-            .compactMap({ DataViewModel<ChallengeListItemCellViewModel>(JSONString: $0)?.data?.sorted(by: <) })
+            .compactMap({ $0.compactMap { ChallengeListItemCellViewModel(model: $0) }.sorted(by: <) })
     }
 }
 
