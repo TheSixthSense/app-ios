@@ -25,7 +25,7 @@ protocol ChallengeRegisterPresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
     var viewWillDisappear: Observable<Void> { get }
     var didChangeCategory: Observable<(Int, CategorySectionItem)> { get }
-    var didSelectChallenge: Observable <(Int, ChallengeListSectionItem)> { get }
+    var didSelectChallenge: Observable <(IndexPath, ChallengeListSectionItem)> { get }
     var didTapDoneButton: Observable<Void> { get }
     var didTapCalendarView: Observable<Void> { get }
     var calendarBeginEditing: Observable<(row: Int, component: Int)> { get }
@@ -38,7 +38,9 @@ protocol ChallengeRegisterPresenterHandler: AnyObject {
     var categorySections: Observable<[CategorySection]> { get }
     var challengeListSections: Observable<[ChallengeListSection]> { get }
     var updateCategoryIndex: Observable<Int> { get }
+    var selectedCellIndex: Observable<IndexPath> { get }
     var showErrorMessage: Observable<String> { get }
+    var buttonState: Observable<Bool> { get }
 }
 
 public protocol ChallengeRegisterListener: AnyObject {
@@ -59,6 +61,8 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     private let challengeListSectionsRelay: PublishRelay<[ChallengeListSection]> = .init()
     private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
     private let updateCategoryIndexRelay: PublishRelay<Int> = .init()
+    private let selectedCellIndexRelay: PublishRelay<IndexPath> = .init()
+    private let buttonStateRelay: PublishRelay<Bool> = .init()
 
     private let categoryIndex: BehaviorRelay<Int> = .init(value: 1)
     private lazy var dataObservable = Observable.combineLatest(
@@ -108,15 +112,18 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         action.didChangeCategory
             .withUnretained(self)
             .subscribe(onNext: { owner, item in
+            owner.selectedChallengeId = -1
             owner.updateCategoryIndexRelay.accept(item.0)
             owner.categoryIndex.accept(item.1.categoryId)
+            owner.buttonStateRelay.accept(false)
         }).disposeOnDeactivate(interactor: self)
 
         action.didSelectChallenge
             .withUnretained(self)
             .subscribe(onNext: { owner, item in
-            // TODO: - update cell index
             owner.selectedChallengeId = item.1.id
+            owner.selectedCellIndexRelay.accept(item.0)
+            owner.buttonStateRelay.accept(true)
         }).disposeOnDeactivate(interactor: self)
 
         action.didTapDoneButton
@@ -208,5 +215,7 @@ extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
     var challengeListSections: Observable<[ChallengeListSection]> { challengeListSectionsRelay.asObservable() }
     var calenarDataSource: Observable<[[Int]]> { calendarDataSourceRelay.asObservable() }
     var updateCategoryIndex: Observable<Int> { updateCategoryIndexRelay.asObservable() }
+    var selectedCellIndex: Observable<IndexPath> { selectedCellIndexRelay.asObservable() }
     var showErrorMessage: Observable<String> { errorRelay.asObservable() }
+    var buttonState: Observable<Bool> { buttonStateRelay.asObservable() }
 }
