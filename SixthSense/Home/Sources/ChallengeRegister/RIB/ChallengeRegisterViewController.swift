@@ -294,6 +294,7 @@ private extension ChallengeRegisterViewController {
                 .bind(onNext: { owner, item in
                 let cell = owner.contentTableView.cellForRow(at: item.0) as? ChallengeListItemCell
                 cell?.selected()
+
             })
 
             contentTableView.rx.itemDeselected
@@ -357,6 +358,10 @@ extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
     var viewWillDisappear: Observable<Void> { rx.viewWillDisappear.map { _ in () }.asObservable() }
     var didChangeCategory: Observable<(Int, CategorySectionItem)> {
         Observable.zip(categoryTabView.rx.itemSelected.map { $0.row }, categoryTabView.rx.modelSelected(CategorySectionItem.self))
+            .distinctUntilChanged(\.0)
+    }
+    var didSelectChallenge: Observable <(Int, ChallengeListSectionItem)> {
+        Observable.zip(contentTableView.rx.itemSelected.map { $0.row }, contentTableView.rx.modelSelected(ChallengeListSectionItem.self))
             .distinctUntilChanged(\.0)
     }
     var didTapDoneButton: Observable<Void> {

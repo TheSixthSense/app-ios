@@ -38,5 +38,13 @@ extension ChallengeListSectionItem: RawRepresentable {
         }
         self = .item(rawValue)
     }
+
+    var id: Int {
+        switch self {
+        case .item(let challengeListItemCellViewModel):
+            return challengeListItemCellViewModel.id
+        case .description(_): return -1
+        }
+    }
 }
 

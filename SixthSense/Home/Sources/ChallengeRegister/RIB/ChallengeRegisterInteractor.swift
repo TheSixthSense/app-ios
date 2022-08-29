@@ -12,7 +12,7 @@ import RxCocoa
 import RxSwift
 
 public protocol ChallengeRegisterRouting: ViewableRouting {
-    func routeToRecommend()
+    func routeToRecommend(id: String)
     func routeToHome()
 }
 
@@ -25,6 +25,7 @@ protocol ChallengeRegisterPresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
     var viewWillDisappear: Observable<Void> { get }
     var didChangeCategory: Observable<(Int, CategorySectionItem)> { get }
+    var didSelectChallenge: Observable <(Int, ChallengeListSectionItem)> { get }
     var didTapDoneButton: Observable<Void> { get }
     var didTapCalendarView: Observable<Void> { get }
     var calendarBeginEditing: Observable<(row: Int, component: Int)> { get }
@@ -66,6 +67,8 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 
     private let errorRelay: PublishRelay<String> = .init()
     private var disposeBag = DisposeBag()
+
+    private var selectedChallengeId: Int = -1
 
     init(presenter: ChallengeRegisterPresentable,
          dependency: ChallengeRegisterDependency) {
@@ -109,10 +112,17 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             owner.categoryIndex.accept(item.1.categoryId)
         }).disposeOnDeactivate(interactor: self)
 
+        action.didSelectChallenge
+            .withUnretained(self)
+            .subscribe(onNext: { owner, item in
+            // TODO: - update cell index
+            owner.selectedChallengeId = item.1.id
+        }).disposeOnDeactivate(interactor: self)
+
         action.didTapDoneButton
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-            owner.router?.routeToRecommend()
+            owner.router?.routeToRecommend(id: String(owner.selectedChallengeId))
         }).disposeOnDeactivate(interactor: self)
 
         action.didTapCalendarView
