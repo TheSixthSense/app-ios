@@ -16,7 +16,9 @@ let project = Project.library(
     .rxRelay,
     .rxDataSources,
     .ribs,
-    .rxGesture
+    .rxGesture,
+    .objectMapper,
+    .kingfisher
   ] + [Module.utils, .repository, .designSystem].map(\.project),
   additionalTargets: [],
   resources: .default
