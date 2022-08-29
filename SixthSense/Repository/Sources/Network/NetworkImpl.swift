@@ -65,7 +65,7 @@ public final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
             return .error(APIError.message("알 수 없는 에러 발생"))
         }
 
-        let errorMessage = APIError.error(badRequestResponse)
+        let errorMessage = APIError.error(badRequestResponse, status.statusCode.description)
         return .error(errorMessage)
     }
 }

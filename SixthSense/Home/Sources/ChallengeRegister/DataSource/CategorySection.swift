@@ -17,12 +17,30 @@ struct CategorySection {
 }
 
 extension CategorySection: SectionModelType {
-    init(original: CategorySection, items: [CategorySectionItem]) {
+    internal init(original: CategorySection, items: [CategorySectionItem]) {
         self = .init(identity: original.identity, items: items)
     }
 }
 
 enum CategorySectionItem {
-    case item(String)
+    case item(CategoryCellViewModel)
 }
 
+extension CategorySectionItem: RawRepresentable {
+    typealias RawValue = CategoryCellViewModel?
+    var rawValue: CategoryCellViewModel? { nil }
+
+    init?(rawValue: CategoryCellViewModel?) {
+        guard let rawValue = rawValue else {
+            return nil
+        }
+        self = .item(rawValue)
+    }
+
+    var categoryId: Int {
+        switch self {
+        case .item(let categoryCellViewModel):
+            return categoryCellViewModel.categoryId
+        }
+    }
+}

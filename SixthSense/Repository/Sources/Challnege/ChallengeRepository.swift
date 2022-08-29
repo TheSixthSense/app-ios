@@ -10,6 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol ChallengeRepository: AnyObject {
+    func categoryLists() -> Single<String>
     func registerLists() -> Single<String>
     func recommendLists(itemId: String) -> Single<String>
 }

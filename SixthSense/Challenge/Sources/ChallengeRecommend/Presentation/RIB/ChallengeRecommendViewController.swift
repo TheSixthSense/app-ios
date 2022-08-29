@@ -24,6 +24,14 @@ final class ChallengeRecommendViewController: UIViewController, ChallengeRecomme
 
     private enum Constants {
         enum Height {
+            static let button = 68.0
+        }
+
+        enum Inset {
+            static let base = 20.0
+            static let collectionTop = 32.0
+            static let collectionBottom = -44.0
+            static let pageControlBottom = -70.0
         }
     }
 
@@ -116,25 +124,25 @@ private extension ChallengeRecommendViewController {
     private func configureLayout() {
 
         skipButton.snp.makeConstraints {
-            $0.right.equalToSuperview().inset(20)
+            $0.right.equalToSuperview().inset(Constants.Inset.base)
             $0.top.equalToSuperview().inset(view.safeAreaInsets.top + 11)
         }
 
         recommendCollectionView.snp.makeConstraints {
             $0.left.right.equalToSuperview()
-            $0.top.equalTo(skipButton.snp.bottom).offset(32)
-            $0.bottom.equalTo(pageControl.snp.top).offset(-44)
+            $0.top.equalTo(skipButton.snp.bottom).offset(Constants.Inset.collectionTop)
+            $0.bottom.equalTo(pageControl.snp.top).offset(Constants.Inset.collectionBottom)
         }
 
         pageControl.snp.makeConstraints {
             $0.left.right.equalToSuperview()
-            $0.bottom.equalTo(doneButton.snp.top).offset(-70)
+            $0.bottom.equalTo(doneButton.snp.top).offset(Constants.Inset.pageControlBottom)
         }
 
         doneButton.snp.makeConstraints {
-            $0.left.right.equalToSuperview().inset(20)
+            $0.left.right.equalToSuperview().inset(Constants.Inset.base)
             $0.bottom.equalToSuperview().inset(view.safeAreaInsets.bottom + 24)
-            $0.height.equalTo(68)
+            $0.height.equalTo(Constants.Height.button)
         }
     }
 
@@ -150,7 +158,8 @@ private extension ChallengeRecommendViewController {
                 .map { return 2 }
                 .bind(to: pageControl.rx.currentPage,
                       recommendCollectionView.rx.didHorizontalScroll,
-                      doneButton.rx.isLastPage)
+                      doneButton.rx.isLastPage,
+                      skipButton.rx.isLastPage)
 
             handler.sections
                 .asDriver(onErrorJustReturn: [])
@@ -173,13 +182,20 @@ private extension ChallengeRecommendViewController {
             return Int(cellIndex)
         }).bind(to: pageControl.rx.currentPage,
                 recommendCollectionView.rx.didHorizontalScroll,
-                doneButton.rx.isLastPage)
+                doneButton.rx.isLastPage,
+                skipButton.rx.isLastPage)
     }
 }
 
 extension ChallengeRecommendViewController: ChallengeRecommendPresenterAction {
 
     var viewWillAppear: Observable<Void> { rx.viewWillAppear.map { _ in () }.asObservable() }
+
+    var doneButtonDidTap: Observable<Void> {
+        doneButton.rx.tap
+            .throttle(.seconds(2), scheduler: MainScheduler.instance)
+            .asObservable()
+    }
 }
 
 private extension Reactive where Base: UICollectionView {
@@ -198,6 +214,17 @@ private extension Reactive where Base: AppButton {
             let enableButton = (index == 2) ? true : false
             view.isHidden = !enableButton
             view.hasFocused = enableButton
+            view.isUserInteractionEnabled = enableButton
+        }
+    }
+}
+
+private extension Reactive where Base: UIButton {
+
+    var isLastPage: Binder<Int> {
+        return Binder(self.base) { view, index in
+            let enableButton = (index == 2) ? false : true
+            view.isHidden = !enableButton
             view.isUserInteractionEnabled = enableButton
         }
     }

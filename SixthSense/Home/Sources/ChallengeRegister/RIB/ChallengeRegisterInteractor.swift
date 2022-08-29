@@ -13,6 +13,7 @@ import RxSwift
 
 public protocol ChallengeRegisterRouting: ViewableRouting {
     func routeToRecommend()
+    func routeToHome()
 }
 
 protocol ChallengeRegisterPresentable: Presentable {
@@ -22,6 +23,8 @@ protocol ChallengeRegisterPresentable: Presentable {
 
 protocol ChallengeRegisterPresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
+    var viewWillDisappear: Observable<Void> { get }
+    var didChangeCategory: Observable<(Int, CategorySectionItem)> { get }
     var didTapDoneButton: Observable<Void> { get }
     var didTapCalendarView: Observable<Void> { get }
     var calendarBeginEditing: Observable<(row: Int, component: Int)> { get }
@@ -33,6 +36,8 @@ protocol ChallengeRegisterPresenterHandler: AnyObject {
     var calenarDataSource: Observable<[[Int]]> { get }
     var categorySections: Observable<[CategorySection]> { get }
     var challengeListSections: Observable<[ChallengeListSection]> { get }
+    var updateCategoryIndex: Observable<Int> { get }
+    var showErrorMessage: Observable<String> { get }
 }
 
 public protocol ChallengeRegisterListener: AnyObject {
@@ -52,6 +57,15 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     private let categorySectionsRelay: PublishRelay<[CategorySection]> = .init()
     private let challengeListSectionsRelay: PublishRelay<[ChallengeListSection]> = .init()
     private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
+    private let updateCategoryIndexRelay: PublishRelay<Int> = .init()
+
+    private let categoryIndex: BehaviorRelay<Int> = .init(value: 1)
+    private lazy var dataObservable = Observable.combineLatest(
+        self.fetchChallengeCategories(), self.fetchChallengeLists(), self.categoryIndex
+    )
+
+    private let errorRelay: PublishRelay<String> = .init()
+    private var disposeBag = DisposeBag()
 
     init(presenter: ChallengeRegisterPresentable,
          dependency: ChallengeRegisterDependency) {
@@ -69,6 +83,10 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         super.willResignActive()
     }
 
+    func returnToHome() {
+        router?.routeToHome()
+    }
+
     private func bind() {
         guard let action = presenter.action else { return }
 
@@ -76,6 +94,19 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
             owner.makeListSections()
+        }).disposeOnDeactivate(interactor: self)
+
+        action.viewWillDisappear
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+            owner.disposeBag = DisposeBag()
+        }).disposeOnDeactivate(interactor: self)
+
+        action.didChangeCategory
+            .withUnretained(self)
+            .subscribe(onNext: { owner, item in
+            owner.updateCategoryIndexRelay.accept(item.0)
+            owner.categoryIndex.accept(item.1.categoryId)
         }).disposeOnDeactivate(interactor: self)
 
         action.didTapDoneButton
@@ -115,23 +146,48 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .disposeOnDeactivate(interactor: self)
     }
 
-    // FIXME: - API로 변경
     private func makeListSections() {
-        challengeListSectionsRelay.accept([
-                .init(identity: .item,
-                      items: [.description("귀리로 만든 우유, 친환경 계란 등 음식을 통해 비건을\n실천할 수 있어!")]),
-                .init(identity: .item,
-                      items: [
-                                  .item(ChallengeListItemCellViewModel.init(id: 0, emoji: "❤️", title: "우유 대신 두유로 마시기")),
-                                  .item(ChallengeListItemCellViewModel.init(id: 1, emoji: "❤️", title: "우유 대신 두유로 마시기")),
-                                  .item(ChallengeListItemCellViewModel.init(id: 2, emoji: "❤️", title: "우유 대신 두유로 마시기"))
-                      ])
-        ])
+        dataObservable
+            .distinctUntilChanged(at: \.2)
+            .withUnretained(self)
+            .subscribe(onNext: { (owner, values) in
+            let (categories, challenges, index) = values
 
-        categorySectionsRelay.accept([.init(
-                identity: .item,
-                items: [.item("음식으로"), .item("제품으로"), .item("마음으로")])
-        ])
+            let categorySections: [CategorySection] = [
+                    .init(identity: .item,
+                          items: categories.compactMap(CategorySectionItem.init))
+            ]
+
+            let sections: [ChallengeListSection] = [
+                    .init(identity: .description,
+                          items: [.description(categories[index - 1].description)]),
+                    .init(identity: .item,
+                          items: challenges.filter { $0.categoryId == index }.compactMap(ChallengeListSectionItem.init))
+            ]
+
+            owner.challengeListSectionsRelay.accept(sections)
+            owner.categorySectionsRelay.accept(categorySections)
+
+        }).disposed(by: disposeBag)
+    }
+
+    private func fetchChallengeCategories() -> Observable<[CategoryCellViewModel]> {
+        // TODO: - API로 수정
+        return Observable<[CategoryCellViewModel]>.just([
+                .init(categoryId: 1, title: "음식으로", description: "한가지 재료를 조금씩 바꿔보면서\n음식을 통해 비건을 실천할 수 있어!\n'음식으로' 챌린지 같이 해보지 않을래?", sort: 0),
+                .init(categoryId: 2, title: "제품으로", description: "일상에서 사용하는 생활용품으로\n다양하게 비건을 경험할 수 있다는 점!\n'제품으로' 챌린지 한번 도전해볼까?", sort: 1),
+                .init(categoryId: 3, title: "마음으로", description: "가장 중요한 건 비건을 지지하는 마음\n나에게 비건은 어떤 의미일까?\n'마음으로' 챌린지 함께 시작해보자!", sort: 2)
+        ].sorted(by: <))
+    }
+
+    private func fetchChallengeLists() -> Observable<[ChallengeListItemCellViewModel]> {
+        return dependency.challengeRegisterUseCase
+            .fetchChallengeRegisterLists()
+            .catch({ [weak self] error in
+            self?.errorRelay.accept(error.localizedDescription)
+            return .just("")
+        })
+            .compactMap({ DataViewModel<ChallengeListItemCellViewModel>(JSONString: $0)?.data?.sorted(by: <) })
     }
 }
 
@@ -140,4 +196,6 @@ extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
     var categorySections: Observable<[CategorySection]> { categorySectionsRelay.asObservable() }
     var challengeListSections: Observable<[ChallengeListSection]> { challengeListSectionsRelay.asObservable() }
     var calenarDataSource: Observable<[[Int]]> { calendarDataSourceRelay.asObservable() }
+    var updateCategoryIndex: Observable<Int> { updateCategoryIndexRelay.asObservable() }
+    var showErrorMessage: Observable<String> { errorRelay.asObservable() }
 }

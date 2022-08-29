@@ -11,17 +11,21 @@ import Moya
 import Utils
 
 enum ChallengeAPI {
+    case categoryLists
     case registerLists
     case recommendLists(String)
 }
 
-extension ChallengeAPI: BaseAPI {
+extension ChallengeAPI: BaseAPI, AccessTokenAuthorizable {
+
     var baseURL: URL {
         return API.EndPoint.base.url
     }
 
     var path: String {
         switch self {
+        case .categoryLists:
+            return "/"
         case .registerLists:
             return "/challenge/list"
         case .recommendLists(let itemId):
@@ -34,6 +38,10 @@ extension ChallengeAPI: BaseAPI {
         default:
             return .get
         }
+    }
+
+    var authorizationType: AuthorizationType? {
+        return .bearer
     }
 
     var task: Task {

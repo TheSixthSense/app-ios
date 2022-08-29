@@ -8,24 +8,32 @@
 
 import Foundation
 
-enum APIError: Error {
+public enum APIError: Error {
     case unknown
     case message(String)
-    case error(ErrorResponse)
+    case error(ErrorResponse, String)
     case tokenExpired
 }
 
 extension APIError: LocalizedError {
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
-            case .unknown:
-                return NSLocalizedString("unknown", comment: "serverError")
-            case .message(let message):
-                return NSLocalizedString(message, comment: "serverError")
-            case .error(let response):
-                return NSLocalizedString(response.userMessage, comment: "serverError")
-            case .tokenExpired:
-                return NSLocalizedString("토큰이 만료되었습니다", comment: "tokenError")
+        case .unknown:
+            return NSLocalizedString("unknown", comment: "serverError")
+        case .message(let message):
+            return NSLocalizedString(message, comment: "serverError")
+        case .error(let response, _):
+            return NSLocalizedString(response.userMessage, comment: "serverError")
+        case .tokenExpired:
+            return NSLocalizedString("토큰이 만료되었습니다", comment: "tokenError")
+        }
+    }
+
+    public var errorStatusCode: String? {
+        switch self {
+        case .error(_, let statusCode):
+            return NSLocalizedString(statusCode, comment: "serverError")
+        default: return nil
         }
     }
 }

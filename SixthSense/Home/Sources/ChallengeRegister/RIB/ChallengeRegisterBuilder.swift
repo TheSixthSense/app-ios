@@ -18,13 +18,15 @@ public protocol ChallengeRegisterDependency: Dependency {
 
 public final class ChallengeRegisterComponent: Component<ChallengeRegisterDependency>,
     ChallengeRecommendDependency {
-//    var useCase: ChallengeRegisterUseCase
-//    var network: Network { dependency.network }
-//
-//    override init(dependency: ChallengeRegisterDependency) {
-//        self.useCase = ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository)
-//        super.init(dependency: dependency)
-//    }
+
+    var useCase: ChallengeRegisterUseCase
+    public var challengeRepository: ChallengeRepository { dependency.challengeRepository }
+    public var network: Network { dependency.network }
+
+    override init(dependency: ChallengeRegisterDependency) {
+        self.useCase = ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository)
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder

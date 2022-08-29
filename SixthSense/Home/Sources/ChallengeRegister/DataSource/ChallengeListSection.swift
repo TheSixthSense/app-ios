@@ -11,6 +11,7 @@ import RxDataSources
 struct ChallengeListSection {
     enum Identity: Int {
         case item
+        case description
     }
     let identity: Identity
     var items: [ChallengeListSectionItem]
@@ -26,3 +27,16 @@ enum ChallengeListSectionItem {
     case description(String)
     case item(ChallengeListItemCellViewModel)
 }
+
+extension ChallengeListSectionItem: RawRepresentable {
+    typealias RawValue = ChallengeListItemCellViewModel?
+    var rawValue: ChallengeListItemCellViewModel? { nil }
+
+    init?(rawValue: ChallengeListItemCellViewModel?) {
+        guard let rawValue = rawValue else {
+            return nil
+        }
+        self = .item(rawValue)
+    }
+}
+
