@@ -10,41 +10,39 @@ import UIKit
 import Then
 import SnapKit
 import DesignSystem
+import Kingfisher
 
 final class RecommendItemCell: UICollectionViewCell {
 
-    private lazy var recommendImageView = UIImageView().then {
+    private var recommendImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
-        $0.image = ChallengeAsset.sample.image
     }
 
-    private lazy var defaultLabel = AppLabel().then {
+    private var defaultLabel = AppLabel().then {
         $0.setText("이렇게 실천해보면 어떨까?", font: AppFont.body2)
         $0.textColor = .systemGray500
         $0.textAlignment = .center
     }
 
-    private lazy var titleLabel = AppLabel().then {
-        $0.setText("오트와 두유 베이스의 라떼", font: AppFont.title2Bold)
+    private var titleLabel = AppLabel().then {
         $0.textColor = .black
         $0.textAlignment = .center
-
     }
 
-    private lazy var subTitleLabel = AppLabel().then {
+    private var subTitleLabel = AppLabel().then {
         $0.textColor = .black
         $0.textAlignment = .center
-        var paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineHeightMultiple = 1.44
-        $0.attributedText = NSAttributedString(
-            string: "<스타벅스>에서 라떼 주문할 때 오트밀크를 선택해보자\n오트와 두유는 단백질을 채워주고, 고소한 풍미를 더해줘!",
-            attributes: [.kern: -0.41, .paragraphStyle: paragraphStyle, .font: AppFont.body2])
+    }
 
+    private let paragraphStyle = NSMutableParagraphStyle().then {
+        $0.lineHeightMultiple = 1.44
+        $0.alignment = .center
     }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
+        configureLayout()
     }
 
     required init?(coder: NSCoder) {
@@ -57,10 +55,18 @@ final class RecommendItemCell: UICollectionViewCell {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+    }
+
+    private func configureUI() {
+        addSubviews(recommendImageView, defaultLabel, titleLabel, subTitleLabel)
+    }
+
+    private func configureLayout() {
 
         recommendImageView.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.left.right.equalToSuperview().inset(56)
+            $0.height.equalTo(250).multipliedBy(262 / 246)
         }
 
         defaultLabel.snp.makeConstraints {
@@ -79,11 +85,12 @@ final class RecommendItemCell: UICollectionViewCell {
         }
     }
 
-    private func configureUI() {
-        addSubviews(recommendImageView, defaultLabel, titleLabel, subTitleLabel)
-    }
 
-    func bind(item: String) {
-
+    func bind(viewModel: ChallengeRecommendViewModel) {
+        recommendImageView.setImage(with: viewModel.imageUrl)
+        titleLabel.setText(viewModel.title, font: AppFont.title2Bold)
+        subTitleLabel.attributedText = NSAttributedString(
+            string: viewModel.description,
+            attributes: [.kern: -0.41, .paragraphStyle: paragraphStyle, .font: AppFont.body2])
     }
 }
