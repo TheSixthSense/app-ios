@@ -7,11 +7,11 @@
 //
 
 import Foundation
-import ObjectMapper
 import RxSwift
 import Repository
 
 public protocol ChallengeRegisterUseCase {
+    func fetchChallengeCategories() -> Observable<String>
     func fetchChallengeRegisterLists() -> Observable<String>
 }
 
@@ -20,6 +20,10 @@ final class ChallengeRegisterUseCaseImpl: ChallengeRegisterUseCase {
 
     init(challengeRepository: ChallengeRepository) {
         self.challengeRepository = challengeRepository
+    }
+
+    func fetchChallengeCategories() -> Observable<String> {
+        return challengeRepository.categoryLists().asObservable()
     }
 
     func fetchChallengeRegisterLists() -> Observable<String> {

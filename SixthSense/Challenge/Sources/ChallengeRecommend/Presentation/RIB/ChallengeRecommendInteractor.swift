@@ -10,8 +10,7 @@ import RIBs
 import RxCocoa
 import RxSwift
 
-public protocol ChallengeRecommendRouting: ViewableRouting {
-}
+public protocol ChallengeRecommendRouting: ViewableRouting { }
 
 protocol ChallengeRecommendPresentable: Presentable {
     var handler: ChallengeRecommendPresenterHandler? { get set }
@@ -20,6 +19,7 @@ protocol ChallengeRecommendPresentable: Presentable {
 
 protocol ChallengeRecommendPresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
+    var doneButtonDidTap: Observable<Void> { get }
 }
 
 protocol ChallengeRecommendPresenterHandler: AnyObject {
@@ -27,6 +27,7 @@ protocol ChallengeRecommendPresenterHandler: AnyObject {
 }
 
 public protocol ChallengeRecommendListener: AnyObject {
+    func returnToHome()
 }
 
 final class ChallengeRecommendInteractor: PresentableInteractor<ChallengeRecommendPresentable>, ChallengeRecommendInteractable {
@@ -58,6 +59,12 @@ final class ChallengeRecommendInteractor: PresentableInteractor<ChallengeRecomme
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
             owner.makeListSections()
+        }).disposeOnDeactivate(interactor: self)
+
+        action.doneButtonDidTap
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.listener?.returnToHome()
         }).disposeOnDeactivate(interactor: self)
     }
 

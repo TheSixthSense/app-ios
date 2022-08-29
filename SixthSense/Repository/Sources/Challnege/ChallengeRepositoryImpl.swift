@@ -10,10 +10,19 @@ import RxSwift
 import Moya
 
 public final class ChallengeRepositoryImpl: ChallengeRepository {
+
     private let network: Network
 
     public init(network: Network) {
         self.network = network
+    }
+
+    public func categoryLists() -> Single<String> {
+        return network.request(ChallengeAPI.categoryLists)
+            .mapString()
+            .flatMap { data -> Single<String> in
+            return .just(data)
+        }
     }
 
     public func registerLists() -> Single<String> {

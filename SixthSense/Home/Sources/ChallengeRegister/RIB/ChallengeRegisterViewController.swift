@@ -15,6 +15,7 @@ import RxCocoa
 import SnapKit
 import Then
 import UIKit
+import UICore
 
 final class ChallengeRegisterViewController: UIViewController, ChallengeRegisterPresentable, ChallengeRegisterViewControllable {
 
@@ -46,7 +47,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         switch item {
         case .item(let item):
             guard let cell = collectionView.dequeue(CategoryTabItemCell.self, for: indexPath) as? CategoryTabItemCell else { return UICollectionViewCell() }
-            cell.setCategory(with: item)
+            cell.setCategory(with: item.title)
             // default selection
             if indexPath.row == 0 {
                 cell.isSelected = true
@@ -171,6 +172,10 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         super.viewDidAppear(animated)
         configureLayout()
     }
+
+    func routeToHome() {
+        tabBarController?.selectedIndex = 0
+    }
 }
 
 private extension ChallengeRegisterViewController {
@@ -265,20 +270,24 @@ private extension ChallengeRegisterViewController {
 
             handler.calenarDataSource
                 .bind(to: pickerView.rx.items(adapter: pickerAdapter))
+
+            handler.updateCategoryIndex
+                .withUnretained(self)
+                .bind(onNext: { owner, row in
+                owner.updateIndicator(row)
+            })
+
+            handler.showErrorMessage
+                .withUnretained(self)
+                .bind(onNext: { owner, message in
+                owner.showToast(message, toastStyle: .error)
+            })
         }
     }
 
     private func bindLists() {
         disposeBag.insert {
-            categoryTabView.rx
-                .itemSelected
-                .distinctUntilChanged()
-                .withUnretained(self)
-                .bind(onNext: { owner, index in
-                owner.updateIndicator(index.row)
-            })
 
-            // FIXME: - cell data API 추가
             Observable
                 .zip(contentTableView.rx.itemSelected, contentTableView.rx.modelSelected(ChallengeListSectionItem.self))
                 .withUnretained(self)
@@ -344,7 +353,12 @@ private extension ChallengeRegisterViewController {
 }
 
 extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
-    var viewWillAppear: Observable<Void> { rx.viewWillAppear.asObservable().map { _ in () } }
+    var viewWillAppear: Observable<Void> { rx.viewWillAppear.map { _ in () }.asObservable() }
+    var viewWillDisappear: Observable<Void> { rx.viewWillDisappear.map { _ in () }.asObservable() }
+    var didChangeCategory: Observable<(Int, CategorySectionItem)> {
+        Observable.zip(categoryTabView.rx.itemSelected.map { $0.row }, categoryTabView.rx.modelSelected(CategorySectionItem.self))
+            .distinctUntilChanged(\.0)
+    }
     var didTapDoneButton: Observable<Void> {
         doneButton.rx.tap
             .throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance)
