@@ -26,7 +26,8 @@ final class ChallengeRecommendComponent: Component<ChallengeRecommendDependency>
 // MARK: - Builder
 
 public protocol ChallengeRecommendBuildable: Buildable {
-    func build(withListener listener: ChallengeRecommendListener) -> ChallengeRecommendRouting
+    func build(withListener listener: ChallengeRecommendListener,
+               selectedChallengeId: String) -> ChallengeRecommendRouting
 }
 
 public final class ChallengeRecommendBuilder: Builder<ChallengeRecommendDependency>, ChallengeRecommendBuildable {
@@ -35,10 +36,13 @@ public final class ChallengeRecommendBuilder: Builder<ChallengeRecommendDependen
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: ChallengeRecommendListener) -> ChallengeRecommendRouting {
+    public func build(withListener listener: ChallengeRecommendListener,
+                      selectedChallengeId: String) -> ChallengeRecommendRouting {
         let component = ChallengeRecommendComponent(dependency: dependency)
         let viewController = ChallengeRecommendViewController()
-        let interactor = ChallengeRecommendInteractor(presenter: viewController, component: component)
+        let interactor = ChallengeRecommendInteractor(presenter: viewController,
+                                                      component: component,
+                                                      selectedChallengeId: selectedChallengeId)
         interactor.listener = listener
         return ChallengeRecommendRouter(interactor: interactor, viewController: viewController)
     }

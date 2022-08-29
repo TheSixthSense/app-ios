@@ -37,8 +37,13 @@ final class ChallengeRecommendInteractor: PresentableInteractor<ChallengeRecomme
     private let dependency: ChallengeRecommendComponent
     private let sectionsRelay: PublishRelay<[RecommendSection]> = .init()
 
-    init(presenter: ChallengeRecommendPresentable, component: ChallengeRecommendComponent) {
+    private let selectedChallengeId: String
+
+    init(presenter: ChallengeRecommendPresentable,
+         component: ChallengeRecommendComponent,
+         selectedChallengeId: String) {
         self.dependency = component
+        self.selectedChallengeId = selectedChallengeId
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -66,13 +71,12 @@ final class ChallengeRecommendInteractor: PresentableInteractor<ChallengeRecomme
 
     private func makeListSections() {
 
-        // FIXME: selected 값 받아오기
-        dependency.useCase.fetchChallengeRecommendLists(itemId: "1")
+        dependency.useCase.fetchChallengeRecommendLists(itemId: selectedChallengeId)
             .catch({ error in
             return .just([])
         })
             .debug()
-            .compactMap({ $0.compactMap { ChallengeRecommendViewModel(model: $0) } })
+            .compactMap({ $0.compactMap { ChallengeRecommendViewModel(model: $0) }.sorted(by: <) })
             .withUnretained(self)
             .subscribe(onNext: { owner, data in
 
