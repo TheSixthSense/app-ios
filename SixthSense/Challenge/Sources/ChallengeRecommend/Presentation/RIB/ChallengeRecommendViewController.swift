@@ -39,7 +39,7 @@ final class ChallengeRecommendViewController: UIViewController, ChallengeRecomme
         switch item {
         case .item(let item):
             guard let cell = collectionView.dequeue(RecommendItemCell.self, for: indexPath) as? RecommendItemCell else { return UICollectionViewCell() }
-            cell.bind(item: item)
+            cell.bind(viewModel: item)
             return cell
         }
     }
@@ -188,8 +188,6 @@ private extension ChallengeRecommendViewController {
 }
 
 extension ChallengeRecommendViewController: ChallengeRecommendPresenterAction {
-
-    var viewWillAppear: Observable<Void> { rx.viewWillAppear.map { _ in () }.asObservable() }
 
     var doneButtonDidTap: Observable<Void> {
         doneButton.rx.tap

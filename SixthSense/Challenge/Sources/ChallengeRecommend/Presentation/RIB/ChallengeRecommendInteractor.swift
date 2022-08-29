@@ -18,7 +18,6 @@ protocol ChallengeRecommendPresentable: Presentable {
 }
 
 protocol ChallengeRecommendPresenterAction: AnyObject {
-    var viewWillAppear: Observable<Void> { get }
     var doneButtonDidTap: Observable<Void> { get }
 }
 
@@ -35,15 +34,18 @@ final class ChallengeRecommendInteractor: PresentableInteractor<ChallengeRecomme
     weak var router: ChallengeRecommendRouting?
     weak var listener: ChallengeRecommendListener?
 
+    private let dependency: ChallengeRecommendComponent
     private let sectionsRelay: PublishRelay<[RecommendSection]> = .init()
 
-    override init(presenter: ChallengeRecommendPresentable) {
+    init(presenter: ChallengeRecommendPresentable, component: ChallengeRecommendComponent) {
+        self.dependency = component
         super.init(presenter: presenter)
         presenter.handler = self
     }
 
     override func didBecomeActive() {
         super.didBecomeActive()
+        makeListSections()
         bind()
     }
 
@@ -55,12 +57,6 @@ final class ChallengeRecommendInteractor: PresentableInteractor<ChallengeRecomme
 
         guard let action = presenter.action else { return }
 
-        action.viewWillAppear
-            .withUnretained(self)
-            .subscribe(onNext: { owner, _ in
-            owner.makeListSections()
-        }).disposeOnDeactivate(interactor: self)
-
         action.doneButtonDidTap
             .withUnretained(self)
             .bind(onNext: { owner, _ in
@@ -68,13 +64,29 @@ final class ChallengeRecommendInteractor: PresentableInteractor<ChallengeRecomme
         }).disposeOnDeactivate(interactor: self)
     }
 
-    // FIXME: - API
     private func makeListSections() {
-        sectionsRelay.accept([
-                .init(identity: .item, items: [.item("1"), .item("1"), .item("1")])
-        ])
+
+        // FIXME: selected 값 받아오기
+        dependency.useCase.fetchChallengeRecommendLists(itemId: "1")
+            .catch({ error in
+            return .just([])
+        })
+            .debug()
+            .compactMap({ $0.compactMap { ChallengeRecommendViewModel(model: $0) } })
+            .withUnretained(self)
+            .subscribe(onNext: { owner, data in
+
+            let sections: [RecommendSection] = [
+                    .init(identity: .item,
+                          items: data.compactMap(RecommendSectionItem.init))
+            ]
+
+            owner.sectionsRelay.accept(sections)
+        })
+            .disposeOnDeactivate(interactor: self)
     }
 }
+
 extension ChallengeRecommendInteractor: ChallengeRecommendPresenterHandler {
     var sections: Observable<[RecommendSection]> { sectionsRelay.asObservable() }
 }

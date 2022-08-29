@@ -7,11 +7,20 @@
 //
 
 import RIBs
+import Repository
 
 public protocol ChallengeRecommendDependency: Dependency {
+    var network: Network { get }
+    var challengeRepository: ChallengeRepository { get }
 }
 
 final class ChallengeRecommendComponent: Component<ChallengeRecommendDependency> {
+    var useCase: ChallengeRecommendUseCase
+
+    override init(dependency: ChallengeRecommendDependency) {
+        self.useCase = ChallengeRecommendUseCaseImpl(challengeRepository: dependency.challengeRepository)
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
@@ -29,7 +38,7 @@ public final class ChallengeRecommendBuilder: Builder<ChallengeRecommendDependen
     public func build(withListener listener: ChallengeRecommendListener) -> ChallengeRecommendRouting {
         let component = ChallengeRecommendComponent(dependency: dependency)
         let viewController = ChallengeRecommendViewController()
-        let interactor = ChallengeRecommendInteractor(presenter: viewController)
+        let interactor = ChallengeRecommendInteractor(presenter: viewController, component: component)
         interactor.listener = listener
         return ChallengeRecommendRouter(interactor: interactor, viewController: viewController)
     }

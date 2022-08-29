@@ -24,5 +24,18 @@ extension RecommendSection: SectionModelType {
 }
 
 enum RecommendSectionItem {
-    case item(String)
+    case item(ChallengeRecommendViewModel)
+}
+
+extension RecommendSectionItem: RawRepresentable {
+    var rawValue: ChallengeRecommendViewModel? { nil }
+
+    typealias RawValue = ChallengeRecommendViewModel?
+
+    init?(rawValue: ChallengeRecommendViewModel?) {
+        guard let rawValue = rawValue else {
+            return nil
+        }
+        self = .item(rawValue)
+    }
 }
