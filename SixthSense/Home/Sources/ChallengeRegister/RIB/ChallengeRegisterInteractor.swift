@@ -172,12 +172,13 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     }
 
     private func fetchChallengeCategories() -> Observable<[CategoryCellViewModel]> {
-        // TODO: - API로 수정
-        return Observable<[CategoryCellViewModel]>.just([
-                .init(categoryId: 1, title: "음식으로", description: "한가지 재료를 조금씩 바꿔보면서\n음식을 통해 비건을 실천할 수 있어!\n'음식으로' 챌린지 같이 해보지 않을래?", sort: 0),
-                .init(categoryId: 2, title: "제품으로", description: "일상에서 사용하는 생활용품으로\n다양하게 비건을 경험할 수 있다는 점!\n'제품으로' 챌린지 한번 도전해볼까?", sort: 1),
-                .init(categoryId: 3, title: "마음으로", description: "가장 중요한 건 비건을 지지하는 마음\n나에게 비건은 어떤 의미일까?\n'마음으로' 챌린지 함께 시작해보자!", sort: 2)
-        ].sorted(by: <))
+        return dependency.challengeRegisterUseCase
+            .fetchChallengeCategories()
+            .catch({ [weak self] error in
+            self?.errorRelay.accept(error.localizedDescription)
+            return .just("")
+        })
+            .compactMap({ DataViewModel<CategoryCellViewModel>(JSONString: $0)?.data?.sorted(by: <) })
     }
 
     private func fetchChallengeLists() -> Observable<[ChallengeListItemCellViewModel]> {

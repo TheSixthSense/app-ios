@@ -21,7 +21,7 @@ let dependencies = Dependencies(
             .netfox,
             .lottie,
             .rxKeyboard,
-			.rxAppState,
+            .rxAppState,
             .rxGesture,
             .jtAppleCalendar
     ],

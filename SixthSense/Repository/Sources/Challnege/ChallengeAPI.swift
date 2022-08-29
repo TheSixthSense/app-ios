@@ -25,7 +25,7 @@ extension ChallengeAPI: BaseAPI, AccessTokenAuthorizable {
     var path: String {
         switch self {
         case .categoryLists:
-            return "/"
+            return "/category/list"
         case .registerLists:
             return "/challenge/list"
         case .recommendLists(let itemId):
