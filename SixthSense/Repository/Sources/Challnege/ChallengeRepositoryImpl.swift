@@ -40,4 +40,12 @@ public final class ChallengeRepositoryImpl: ChallengeRepository {
             return .just(data)
         }
     }
+
+    public func joinChallenge(request: ChallengeJoinRequest) -> Single<String> {
+        return network.request(ChallengeAPI.joinChallenge(request))
+            .mapString()
+            .flatMap { data -> Single<String> in
+            return .just("")
+        }
+    }
 }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Then
 import ObjectMapper
 
 public struct SignUpRequest: Mappable {
