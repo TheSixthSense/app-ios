@@ -193,7 +193,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .fetchChallengeCategories()
             .catch({ [weak self] error in
             self?.errorRelay.accept(error.localizedDescription)
-            return .just([])
+            return .empty()
         })
             .compactMap({ $0.compactMap { CategoryCellViewModel(model: $0) }.sorted(by: <) })
     }
@@ -203,7 +203,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .fetchChallengeRegisterLists()
             .catch({ [weak self] error in
             self?.errorRelay.accept(error.localizedDescription)
-            return .just([])
+            return .empty()
         })
             .compactMap({ $0.compactMap { ChallengeListItemCellViewModel(model: $0) }.sorted(by: <) })
     }

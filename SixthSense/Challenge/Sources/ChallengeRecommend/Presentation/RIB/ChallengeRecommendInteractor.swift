@@ -73,7 +73,7 @@ final class ChallengeRecommendInteractor: PresentableInteractor<ChallengeRecomme
 
         dependency.useCase.fetchChallengeRecommendLists(itemId: selectedChallengeId)
             .catch({ error in
-            return .just([])
+            return .empty()
         })
             .debug()
             .compactMap({ $0.compactMap { ChallengeRecommendViewModel(model: $0) }.sorted(by: <) })
