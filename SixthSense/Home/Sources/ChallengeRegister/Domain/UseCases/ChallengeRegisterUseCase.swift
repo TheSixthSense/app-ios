@@ -13,6 +13,7 @@ import Repository
 public protocol ChallengeRegisterUseCase {
     func fetchChallengeCategories() -> Observable<[CategoryModel]>
     func fetchChallengeRegisterLists() -> Observable<[ChallengeRegisterModel]>
+    func joinChallenge(request: ChallengeJoinRequest) -> Observable<String>
 }
 
 final class ChallengeRegisterUseCaseImpl: ChallengeRegisterUseCase {
@@ -31,5 +32,9 @@ final class ChallengeRegisterUseCaseImpl: ChallengeRegisterUseCase {
     func fetchChallengeRegisterLists() -> Observable<[ChallengeRegisterModel]> {
         return challengeRepository.registerLists()
             .compactMap({ DataModel<ChallengeRegisterModel>(JSONString: $0)?.data }).asObservable()
+    }
+
+    func joinChallenge(request: ChallengeJoinRequest) -> Observable<String> {
+        return challengeRepository.joinChallenge(request: request).asObservable()
     }
 }

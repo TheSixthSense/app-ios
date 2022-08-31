@@ -7,9 +7,11 @@
 //
 
 import Foundation
+import Then
 import RIBs
 import RxCocoa
 import RxSwift
+import Repository
 
 public protocol ChallengeRegisterRouting: ViewableRouting {
     func routeToRecommend(id: String)
@@ -72,6 +74,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     private let errorRelay: PublishRelay<String> = .init()
     private var disposeBag = DisposeBag()
 
+    private var request: ChallengeJoinRequest = ChallengeJoinRequest.init()
     private var selectedChallengeId: Int = -1
 
     init(presenter: ChallengeRegisterPresentable,
@@ -92,6 +95,13 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 
     func returnToHome() {
         router?.routeToHome()
+    }
+
+    private func configureRequestModel(date: String) {
+        self.request = request.with {
+            $0.challengeDate = date
+            $0.challengeId = selectedChallengeId
+        }
     }
 
     private func bind() {
@@ -129,7 +139,8 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         action.didTapDoneButton
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-            owner.router?.routeToRecommend(id: String(owner.selectedChallengeId))
+            owner.configureRequestModel(date: Date().toString(dateFormat: "YYYY-MM-dd"))
+            owner.joinChallenge(request: owner.request)
         }).disposeOnDeactivate(interactor: self)
 
         action.didTapCalendarView
@@ -207,6 +218,17 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         })
             .compactMap({ $0.compactMap { ChallengeListItemCellViewModel(model: $0) }.sorted(by: <) })
     }
+
+    // TODO: - 에러 팝업
+    private func joinChallenge(request: ChallengeJoinRequest) {
+        dependency.challengeRegisterUseCase
+            .joinChallenge(request: request)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+            owner.router?.routeToRecommend(id: String(request.challengeId))
+        })
+            .disposeOnDeactivate(interactor: self)
+    }
 }
 
 extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
@@ -219,3 +241,5 @@ extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
     var showErrorMessage: Observable<String> { errorRelay.asObservable() }
     var buttonState: Observable<Bool> { buttonStateRelay.asObservable() }
 }
+
+extension ChallengeJoinRequest: Then { }
