@@ -7,12 +7,14 @@
 //
 
 import Foundation
+import Then
 import RIBs
 import RxCocoa
 import RxSwift
+import Repository
 
 public protocol ChallengeRegisterRouting: ViewableRouting {
-    func routeToRecommend()
+    func routeToRecommend(id: String)
     func routeToHome()
 }
 
@@ -25,6 +27,7 @@ protocol ChallengeRegisterPresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
     var viewWillDisappear: Observable<Void> { get }
     var didChangeCategory: Observable<(Int, CategorySectionItem)> { get }
+    var didSelectChallenge: Observable <(IndexPath, ChallengeListSectionItem)> { get }
     var didTapDoneButton: Observable<Void> { get }
     var didTapCalendarView: Observable<Void> { get }
     var calendarBeginEditing: Observable<(row: Int, component: Int)> { get }
@@ -37,7 +40,9 @@ protocol ChallengeRegisterPresenterHandler: AnyObject {
     var categorySections: Observable<[CategorySection]> { get }
     var challengeListSections: Observable<[ChallengeListSection]> { get }
     var updateCategoryIndex: Observable<Int> { get }
+    var selectedCellIndex: Observable<IndexPath> { get }
     var showErrorMessage: Observable<String> { get }
+    var buttonState: Observable<Bool> { get }
 }
 
 public protocol ChallengeRegisterListener: AnyObject {
@@ -58,6 +63,8 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     private let challengeListSectionsRelay: PublishRelay<[ChallengeListSection]> = .init()
     private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
     private let updateCategoryIndexRelay: PublishRelay<Int> = .init()
+    private let selectedCellIndexRelay: PublishRelay<IndexPath> = .init()
+    private let buttonStateRelay: PublishRelay<Bool> = .init()
 
     private let categoryIndex: BehaviorRelay<Int> = .init(value: 1)
     private lazy var dataObservable = Observable.combineLatest(
@@ -66,6 +73,9 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 
     private let errorRelay: PublishRelay<String> = .init()
     private var disposeBag = DisposeBag()
+
+    private var request: ChallengeJoinRequest = ChallengeJoinRequest.init()
+    private var selectedChallengeId: Int = -1
 
     init(presenter: ChallengeRegisterPresentable,
          dependency: ChallengeRegisterDependency) {
@@ -87,6 +97,13 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         router?.routeToHome()
     }
 
+    private func configureRequestModel(date: String) {
+        self.request = request.with {
+            $0.challengeDate = date
+            $0.challengeId = selectedChallengeId
+        }
+    }
+
     private func bind() {
         guard let action = presenter.action else { return }
 
@@ -105,14 +122,25 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         action.didChangeCategory
             .withUnretained(self)
             .subscribe(onNext: { owner, item in
+            owner.selectedChallengeId = -1
             owner.updateCategoryIndexRelay.accept(item.0)
             owner.categoryIndex.accept(item.1.categoryId)
+            owner.buttonStateRelay.accept(false)
+        }).disposeOnDeactivate(interactor: self)
+
+        action.didSelectChallenge
+            .withUnretained(self)
+            .subscribe(onNext: { owner, item in
+            owner.selectedChallengeId = item.1.id
+            owner.selectedCellIndexRelay.accept(item.0)
+            owner.buttonStateRelay.accept(true)
         }).disposeOnDeactivate(interactor: self)
 
         action.didTapDoneButton
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-            owner.router?.routeToRecommend()
+            owner.configureRequestModel(date: Date().toString(dateFormat: "YYYY-MM-dd"))
+            owner.joinChallenge(request: owner.request)
         }).disposeOnDeactivate(interactor: self)
 
         action.didTapCalendarView
@@ -172,12 +200,13 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     }
 
     private func fetchChallengeCategories() -> Observable<[CategoryCellViewModel]> {
-        // TODO: - API로 수정
-        return Observable<[CategoryCellViewModel]>.just([
-                .init(categoryId: 1, title: "음식으로", description: "한가지 재료를 조금씩 바꿔보면서\n음식을 통해 비건을 실천할 수 있어!\n'음식으로' 챌린지 같이 해보지 않을래?", sort: 0),
-                .init(categoryId: 2, title: "제품으로", description: "일상에서 사용하는 생활용품으로\n다양하게 비건을 경험할 수 있다는 점!\n'제품으로' 챌린지 한번 도전해볼까?", sort: 1),
-                .init(categoryId: 3, title: "마음으로", description: "가장 중요한 건 비건을 지지하는 마음\n나에게 비건은 어떤 의미일까?\n'마음으로' 챌린지 함께 시작해보자!", sort: 2)
-        ].sorted(by: <))
+        return dependency.challengeRegisterUseCase
+            .fetchChallengeCategories()
+            .catch({ [weak self] error in
+            self?.errorRelay.accept(error.localizedDescription)
+            return .empty()
+        })
+            .compactMap({ $0.compactMap { CategoryCellViewModel(model: $0) }.sorted(by: <) })
     }
 
     private func fetchChallengeLists() -> Observable<[ChallengeListItemCellViewModel]> {
@@ -185,9 +214,20 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .fetchChallengeRegisterLists()
             .catch({ [weak self] error in
             self?.errorRelay.accept(error.localizedDescription)
-            return .just("")
+            return .empty()
         })
-            .compactMap({ DataViewModel<ChallengeListItemCellViewModel>(JSONString: $0)?.data?.sorted(by: <) })
+            .compactMap({ $0.compactMap { ChallengeListItemCellViewModel(model: $0) }.sorted(by: <) })
+    }
+
+    // TODO: - 에러 팝업
+    private func joinChallenge(request: ChallengeJoinRequest) {
+        dependency.challengeRegisterUseCase
+            .joinChallenge(request: request)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+            owner.router?.routeToRecommend(id: String(request.challengeId))
+        })
+            .disposeOnDeactivate(interactor: self)
     }
 }
 
@@ -197,5 +237,9 @@ extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
     var challengeListSections: Observable<[ChallengeListSection]> { challengeListSectionsRelay.asObservable() }
     var calenarDataSource: Observable<[[Int]]> { calendarDataSourceRelay.asObservable() }
     var updateCategoryIndex: Observable<Int> { updateCategoryIndexRelay.asObservable() }
+    var selectedCellIndex: Observable<IndexPath> { selectedCellIndexRelay.asObservable() }
     var showErrorMessage: Observable<String> { errorRelay.asObservable() }
+    var buttonState: Observable<Bool> { buttonStateRelay.asObservable() }
 }
+
+extension ChallengeJoinRequest: Then { }

@@ -23,7 +23,10 @@ extension APIError: LocalizedError {
         case .message(let message):
             return NSLocalizedString(message, comment: "serverError")
         case .error(let response, _):
-            return NSLocalizedString(response.userMessage, comment: "serverError")
+            guard response.userMessage.isEmpty else {
+                return NSLocalizedString(response.userMessage, comment: "serverError")
+            }
+            return NSLocalizedString("\(response.status) \(response.error)", comment: "serverError")
         case .tokenExpired:
             return NSLocalizedString("토큰이 만료되었습니다", comment: "tokenError")
         }

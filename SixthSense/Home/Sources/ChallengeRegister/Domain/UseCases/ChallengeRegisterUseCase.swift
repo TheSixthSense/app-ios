@@ -11,22 +11,30 @@ import RxSwift
 import Repository
 
 public protocol ChallengeRegisterUseCase {
-    func fetchChallengeCategories() -> Observable<String>
-    func fetchChallengeRegisterLists() -> Observable<String>
+    func fetchChallengeCategories() -> Observable<[CategoryModel]>
+    func fetchChallengeRegisterLists() -> Observable<[ChallengeRegisterModel]>
+    func joinChallenge(request: ChallengeJoinRequest) -> Observable<String>
 }
 
 final class ChallengeRegisterUseCaseImpl: ChallengeRegisterUseCase {
+
     private let challengeRepository: ChallengeRepository
 
     init(challengeRepository: ChallengeRepository) {
         self.challengeRepository = challengeRepository
     }
 
-    func fetchChallengeCategories() -> Observable<String> {
-        return challengeRepository.categoryLists().asObservable()
+    func fetchChallengeCategories() -> Observable<[CategoryModel]> {
+        return challengeRepository.categoryLists()
+            .compactMap({ DataModel<CategoryModel>(JSONString: $0)?.data }).asObservable()
     }
 
-    func fetchChallengeRegisterLists() -> Observable<String> {
-        return challengeRepository.registerLists().asObservable()
+    func fetchChallengeRegisterLists() -> Observable<[ChallengeRegisterModel]> {
+        return challengeRepository.registerLists()
+            .compactMap({ DataModel<ChallengeRegisterModel>(JSONString: $0)?.data }).asObservable()
+    }
+
+    func joinChallenge(request: ChallengeJoinRequest) -> Observable<String> {
+        return challengeRepository.joinChallenge(request: request).asObservable()
     }
 }

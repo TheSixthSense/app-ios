@@ -1,5 +1,5 @@
 //
-//  DataViewModel.swift
+//  DataModel.swift
 //  Home
 //
 //  Created by Allie Kim on 2022/08/28.
@@ -9,7 +9,7 @@
 import Foundation
 import ObjectMapper
 
-struct DataViewModel<T: Mappable>: Mappable {
+struct DataModel<T: Mappable>: Mappable {
     var data: [T]?
 
     init?(map: Map) { }

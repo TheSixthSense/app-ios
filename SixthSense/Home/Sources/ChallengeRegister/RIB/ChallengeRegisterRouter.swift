@@ -20,6 +20,7 @@ protocol ChallengeRegisterViewControllable: ViewControllable {
 
 final class ChallengeRegisterRouter: ViewableRouter<ChallengeRegisterInteractable, ChallengeRegisterViewControllable>, ChallengeRegisterRouting {
 
+
     private let recommendBuilder: ChallengeRecommendBuildable
 
     private var childRouting: ViewableRouting?
@@ -32,9 +33,9 @@ final class ChallengeRegisterRouter: ViewableRouter<ChallengeRegisterInteractabl
         interactor.router = self
     }
 
-    func routeToRecommend() {
+    func routeToRecommend(id: String) {
         if childRouting != nil { return }
-        let router = recommendBuilder.build(withListener: self.interactor)
+        let router = recommendBuilder.build(withListener: self.interactor, selectedChallengeId: id)
         let viewController = router.viewControllable
         viewController.uiviewController.modalPresentationStyle = .fullScreen
         viewControllable.present(viewController, animated: false, completion: nil)

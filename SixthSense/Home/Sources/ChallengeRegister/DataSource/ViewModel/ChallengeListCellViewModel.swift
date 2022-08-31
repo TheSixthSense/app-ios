@@ -7,9 +7,8 @@
 //
 
 import Foundation
-import ObjectMapper
 
-struct ChallengeListItemCellViewModel: Mappable {
+struct ChallengeListItemCellViewModel {
 
     var id: Int
     var categoryId: Int
@@ -17,33 +16,17 @@ struct ChallengeListItemCellViewModel: Mappable {
     var title: String
     var sort: Int
 
-    init?(map: Map) {
-        id = -1
-        categoryId = -1
-        emoji = ""
-        title = ""
-        sort = -1
-    }
-
-    init() {
-        id = -1
-        categoryId = -1
-        emoji = ""
-        title = ""
-        sort = -1
-    }
-
-    mutating func mapping(map: Map) {
-        id <- map["id"]
-        categoryId <- map["categoryId"]
-        emoji <- map["emoji"]
-        title <- map["name"]
-        sort <- map["sort"]
+    init(model: ChallengeRegisterModel) {
+        id = model.id
+        categoryId = model.categoryId
+        emoji = model.emoji
+        title = model.title
+        sort = model.sort
     }
 }
 
 extension ChallengeListItemCellViewModel: Comparable {
-    static func < (lhs: ChallengeListItemCellViewModel, rhs: ChallengeListItemCellViewModel) -> Bool {
+    public static func < (lhs: ChallengeListItemCellViewModel, rhs: ChallengeListItemCellViewModel) -> Bool {
         return lhs.sort < rhs.sort
     }
 }

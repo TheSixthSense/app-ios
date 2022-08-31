@@ -144,11 +144,11 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
     }
 
     private var doneButton = AppButton(title: "챌린지 선택 완료").then {
-        $0.hasFocused = true // TEST
+        $0.hasFocused = false
         $0.layer.cornerRadius = 10
     }
 
-    private let disposeBag = DisposeBag()
+    private var disposeBag = DisposeBag()
 
     // MARK: - LifeCycle
 
@@ -277,24 +277,26 @@ private extension ChallengeRegisterViewController {
                 owner.updateIndicator(row)
             })
 
+            handler.selectedCellIndex
+                .withUnretained(self)
+                .bind(onNext: { owner, indexPath in
+                let cell = owner.contentTableView.cellForRow(at: indexPath) as? ChallengeListItemCell
+                cell?.selected()
+            })
+
             handler.showErrorMessage
                 .withUnretained(self)
                 .bind(onNext: { owner, message in
                 owner.showToast(message, toastStyle: .error)
             })
+
+            handler.buttonState
+                .bind(to: doneButton.rx.hasFocused)
         }
     }
 
     private func bindLists() {
         disposeBag.insert {
-
-            Observable
-                .zip(contentTableView.rx.itemSelected, contentTableView.rx.modelSelected(ChallengeListSectionItem.self))
-                .withUnretained(self)
-                .bind(onNext: { owner, item in
-                let cell = owner.contentTableView.cellForRow(at: item.0) as? ChallengeListItemCell
-                cell?.selected()
-            })
 
             contentTableView.rx.itemDeselected
                 .withUnretained(self)
@@ -359,6 +361,11 @@ extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
         Observable.zip(categoryTabView.rx.itemSelected.map { $0.row }, categoryTabView.rx.modelSelected(CategorySectionItem.self))
             .distinctUntilChanged(\.0)
     }
+    var didSelectChallenge: Observable <(IndexPath, ChallengeListSectionItem)> {
+        Observable.zip(contentTableView.rx.itemSelected, contentTableView.rx.modelSelected(ChallengeListSectionItem.self))
+            .distinctUntilChanged(at: \.1.id)
+
+    }
     var didTapDoneButton: Observable<Void> {
         doneButton.rx.tap
             .throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance)
@@ -367,4 +374,5 @@ extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
     var didTapCalendarView: Observable<Void> { calenderLabel.rx.controlEvent(.editingDidBegin).map { () }.asObservable() }
     var calendarBeginEditing: Observable<(row: Int, component: Int)> { pickerView.rx.itemSelected.asObservable() }
     var calendarDidSelected: Observable<Void> { pickerDoneButton.rx.tap.asObservable() }
+
 }
