@@ -38,14 +38,14 @@ public final class HomeBuilder: Builder<HomeDependency>, HomeBuildable {
         interactor.listener = listener
 
         let challenge = ChallengeBuilder(dependency: component)
-        let feed = FeedBuilder(dependency: component)
+        let mypage = MyPageBuilder(dependency: component)
         let challengeRegister = ChallengeRegisterBuilder(dependency: component)
 
         return HomeRouter(
             interactor: interactor,
             viewController: tabBar,
             challengeHome: challenge,
-            feedHome: feed,
-            challengeRegisterHome: challengeRegister)
+            challengeRegisterHome: challengeRegister,
+            mypageHome: mypage)
     }
 }
