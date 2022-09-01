@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import SVGKit
 import Kingfisher
 
 extension UIImageView {
