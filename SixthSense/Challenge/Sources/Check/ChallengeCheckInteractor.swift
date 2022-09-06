@@ -64,6 +64,28 @@ final class ChallengeCheckInteractor: PresentableInteractor<ChallengeCheckPresen
     }
     
     private func bind() {
+        guard let action = presenter.action else { return }
+        action.backDidTap
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.listener?.challengeCheckDidTapClose()
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        Observable.combineLatest(action.imageDidLoaded, action.commentAvailable) { ($0 != nil) && $1 }
+            .withUnretained(self)
+            .subscribe(onNext: { owner, available in
+                owner.doneButtonActiveRelay.accept(available)
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        action.doneDidTap
+            .withUnretained(self)
+            .subscribe(onNext: { owner, request in
+                // TODO: 이미지와 텍스트 API를 붙혀요
+                print("🦊 === \(request.image), \(request.text)")
+            })
+            .disposeOnDeactivate(interactor: self)
     }
 }
 
