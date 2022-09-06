@@ -12,7 +12,7 @@ import Challenge
 
 protocol HomeInteractable: Interactable,
                            ChallengeListener,
-                           FeedListener,
+                           MyPageListener,
                            ChallengeRegisterListener {
     var router: HomeRouting? { get set }
     var listener: HomeListener? { get set }
@@ -26,8 +26,8 @@ final class HomeRouter: ViewableRouter<HomeInteractable, HomeViewControllable>, 
     private let challengeHome: ChallengeBuildable
     private var challengeHomeRouting: ViewableRouting?
     
-    private let feedHome: FeedBuildable
-    private var feedHomeRouting: ViewableRouting?
+    private let mypageHome: MyPageBuildable
+    private var mypageHomeRouting: ViewableRouting?
 
     private let challengeRegisterHome: ChallengeRegisterBuildable
     private var challengeRegisterRouting: ViewableRouting?
@@ -35,11 +35,11 @@ final class HomeRouter: ViewableRouter<HomeInteractable, HomeViewControllable>, 
     init(interactor: HomeInteractable,
          viewController: HomeViewControllable,
          challengeHome: ChallengeBuildable,
-         feedHome: FeedBuildable,
-         challengeRegisterHome: ChallengeRegisterBuildable) {
+         challengeRegisterHome: ChallengeRegisterBuildable,
+         mypageHome: MyPageBuildable) {
         
         self.challengeHome = challengeHome
-        self.feedHome = feedHome
+        self.mypageHome = mypageHome
         self.challengeRegisterHome = challengeRegisterHome
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
@@ -48,16 +48,16 @@ final class HomeRouter: ViewableRouter<HomeInteractable, HomeViewControllable>, 
     func attachTabs() {
         let challengeRouting = challengeHome.build(withListener: interactor)
         let challengeRegisterRouting = challengeRegisterHome.build(withListener: interactor)
-        let feedRouting = feedHome.build(withListener: interactor)
+        let mypageRouting = mypageHome.build(withListener: interactor)
         
         attachChild(challengeRouting)
         attachChild(challengeRegisterRouting)
-        attachChild(feedRouting)
+        attachChild(mypageRouting)
         
         let viewControllers = [
             NavigationControllerable(root: challengeRouting.viewControllable),
             NavigationControllerable(root: challengeRegisterRouting.viewControllable),
-            NavigationControllerable(root: feedRouting.viewControllable)
+            NavigationControllerable(root: mypageRouting.viewControllable)
         ]
         
         viewController.setViewControllers(viewControllers)

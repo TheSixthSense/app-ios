@@ -17,7 +17,7 @@ public enum AppIcon {
     public static var close: UIImage {
         return UIImage(.xmark)!.color(.systemGray300)
     }
-    
+
     public static var error: UIImage {
         return UIImage(.error)!.color(.red500)
     }
@@ -25,10 +25,15 @@ public enum AppIcon {
     public static var calendar: UIImage {
         return UIImage(.calendar)!.color(.systemBlack)
     }
+
+    public static var next: UIImage {
+        return UIImage(.next)!.color(.systemGray500)
+    }
 }
 
 enum SFSymbolKey: String {
     case back = "chevron.left"
+    case next = "chevron.right"
     case xmark
     case error = "exclamationmark.circle"
     case calendar

@@ -12,7 +12,7 @@ import Repository
 
 final class HomeComponent: Component<HomeDependency>,
                             ChallengeDependency,
-                            FeedDependency,
+                            MyPageDependency,
                            ChallengeRegisterDependency {
 
     var challengeRegisterUseCase: ChallengeRegisterUseCase
