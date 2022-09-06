@@ -6,11 +6,14 @@
 //  Copyright © 2022 kr.co.thesixthsense. All rights reserved.
 //
 
+import Foundation
 import RIBs
 import RxRelay
 import RxSwift
 
 protocol MyPageRouting: ViewableRouting {
+    func routeToWebView(urlString: String, titleString: String)
+    func detachWebView()
 }
 
 protocol MyPagePresentable: Presentable {
@@ -65,6 +68,10 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         myPageSectionsRelay.accept([
                 .init(identity: .header, items: [.header, .item, .item, .item, .item, .item])
         ])
+    }
+
+    func pop() {
+        router?.detachWebView()
     }
 }
 extension MyPageInteractor: MyPagePresenterHandler {
