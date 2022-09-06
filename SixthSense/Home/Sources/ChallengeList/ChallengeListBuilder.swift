@@ -9,13 +9,15 @@
 import RIBs
 import RxRelay
 import Foundation
+import Challenge
 
 protocol ChallengeListDependency: Dependency {
     var targetDate: PublishRelay<Date> { get }
 }
 
 final class ChallengeListComponent: Component<ChallengeListDependency>,
-                                    ChallengeListInteractorDependency {
+                                    ChallengeListInteractorDependency,
+                                    ChallengeCheckDependency{
     var usecase: ChallengeListUseCase { ChallengeListUseCaseImpl() }
     var targetDate: PublishRelay<Date> { dependency.targetDate }
 }
@@ -37,6 +39,12 @@ final class ChallengeListBuilder: Builder<ChallengeListDependency>, ChallengeLis
         let viewController = ChallengeListViewController()
         let interactor = ChallengeListInteractor(presenter: viewController, dependency: component)
         interactor.listener = listener
-        return ChallengeListRouter(interactor: interactor, viewController: viewController)
+        
+        let checkBuilder = ChallengeCheckBuilder(dependency: component)
+
+        return ChallengeListRouter(
+            interactor: interactor,
+            viewController: viewController,
+            checkBuilder: checkBuilder)
     }
 }
