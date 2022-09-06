@@ -364,7 +364,6 @@ extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
     var didSelectChallenge: Observable <(IndexPath, ChallengeListSectionItem)> {
         Observable.zip(contentTableView.rx.itemSelected, contentTableView.rx.modelSelected(ChallengeListSectionItem.self))
             .distinctUntilChanged(at: \.1.id)
-
     }
     var didTapDoneButton: Observable<Void> {
         doneButton.rx.tap
