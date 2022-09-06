@@ -25,5 +25,25 @@ extension MyPageSection: SectionModelType {
 
 enum MyPageSectionItem {
     case header
-    case item
+    case item(MyPageItemCellViewModel)
+}
+
+extension MyPageSectionItem: RawRepresentable {
+    typealias RawValue = MyPageItemCellViewModel?
+
+    init?(rawValue: MyPageItemCellViewModel?) {
+        guard let rawValue = rawValue else {
+            return nil
+        }
+        self = .item(rawValue)
+    }
+
+    var rawValue: MyPageItemCellViewModel? {
+        switch self {
+        case .item(let myPageItemCellViewModel):
+            return myPageItemCellViewModel
+        case .header:
+            return nil
+        }
+    }
 }
