@@ -24,10 +24,12 @@ protocol MyPagePresentable: Presentable {
 protocol MyPagePresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
     var didSelectItem: Observable <MyPageItemCellViewModel> { get }
+    var loggedOut: Observable<Void> { get }
 }
 
 protocol MyPagePresenterHandler: AnyObject {
     var myPageSections: Observable<[MyPageSection]> { get }
+    var presentLogoutPopup: Observable<Void> { get }
 }
 
 protocol MyPageListener: AnyObject {
@@ -39,6 +41,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     weak var listener: MyPageListener?
 
     private let myPageSectionsRelay: PublishRelay<[MyPageSection]> = .init()
+    private let logoutPopupRelay: PublishRelay<Bool> = .init()
 
     override init(presenter: MyPagePresentable) {
         super.init(presenter: presenter)
@@ -59,9 +62,28 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
 
         action.viewWillAppear
             .withUnretained(self)
-            .subscribe(onNext: { owner, _ in
-            owner.makeSection()
+            .subscribe(onNext: { owner, _ in owner.makeSection() })
+            .disposeOnDeactivate(interactor: self)
+
+        action.didSelectItem
+            .withUnretained(self)
+            .subscribe(onNext: { owner, item in
+            switch item.type {
+            case .privacyPolicy, .termsOfService:
+                owner.router?.routeToWebView(urlString: item.type.url ?? "", titleString: item.type.title)
+                return
+            case .logout:
+                return owner.logoutPopupRelay.accept(true)
+            default: return
+            }
         }).disposeOnDeactivate(interactor: self)
+
+        action.loggedOut
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in owner.loggedOut() })
+            .disposeOnDeactivate(interactor: self)
+
+
     }
 
     private func makeSection() {
@@ -78,10 +100,15 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         ])
     }
 
+    private func loggedOut() {
+        // TODO: - 로그아웃 API & AccessToken 제거
+    }
+
     func pop() {
         router?.detachWebView()
     }
 }
 extension MyPageInteractor: MyPagePresenterHandler {
     var myPageSections: Observable<[MyPageSection]> { myPageSectionsRelay.asObservable() }
+    var presentLogoutPopup: Observable<Void> { logoutPopupRelay.map { _ in () }.asObservable() }
 }
