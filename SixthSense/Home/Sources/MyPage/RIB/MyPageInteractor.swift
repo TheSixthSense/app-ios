@@ -23,6 +23,7 @@ protocol MyPagePresentable: Presentable {
 
 protocol MyPagePresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
+    var didSelectItem: Observable <MyPageItemCellViewModel> { get }
 }
 
 protocol MyPagePresenterHandler: AnyObject {
@@ -64,9 +65,16 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     }
 
     private func makeSection() {
-        // Mock
         myPageSectionsRelay.accept([
-                .init(identity: .header, items: [.header, .item, .item, .item, .item, .item])
+                .init(identity: .header, items: [
+                    .header,
+                    .item(MyPageItemCellViewModel(id: 0, type: .modifyProfile)),
+                    .item(MyPageItemCellViewModel(id: 1, type: .privacyPolicy)),
+                    .item(MyPageItemCellViewModel(id: 2, type: .termsOfService)),
+                    .item(MyPageItemCellViewModel(id: 3, type: .version)),
+                    .item(MyPageItemCellViewModel(id: 4, type: .credits)),
+                    .item(MyPageItemCellViewModel(id: 5, type: .logout)),
+            ])
         ])
     }
 
@@ -75,5 +83,5 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     }
 }
 extension MyPageInteractor: MyPagePresenterHandler {
-    var myPageSections: Observable<[MyPageSection]> { myPageSectionsRelay.asObservable().debug() }
+    var myPageSections: Observable<[MyPageSection]> { myPageSectionsRelay.asObservable() }
 }

@@ -18,15 +18,15 @@ import UIKit
 final class MyPageViewController: UIViewController, MyPagePresentable, MyPageViewControllable {
     typealias MyPageSections = RxTableViewSectionedReloadDataSource<MyPageSection>
 
-    var handler: MyPagePresenterHandler?
-    var action: MyPagePresenterAction?
+    weak var handler: MyPagePresenterHandler?
+    weak var action: MyPagePresenterAction?
 
     private let myPageDataSource = MyPageSections { _, tableView, indexPath, item in
         switch item {
-        case .item:
+        case .item(let viewModel):
             guard let cell = tableView.dequeue(MyPageItemCell.self, for: indexPath) as? MyPageItemCell else { return UITableViewCell() }
-                cell.bind()
-                return cell
+            cell.bind(viewModel: viewModel)
+            return cell
         case .header:
             guard let cell = tableView.dequeue(MyPageHeaderItemCell.self, for: indexPath) as? MyPageHeaderItemCell else {
                 return UITableViewCell()
@@ -115,4 +115,7 @@ extension MyPageViewController {
 }
 extension MyPageViewController: MyPagePresenterAction {
     var viewWillAppear: Observable<Void> { rx.viewWillAppear.map { _ in () }.asObservable() }
+    var didSelectItem: Observable <MyPageItemCellViewModel> {
+        myPageTableView.rx.modelSelected(MyPageSectionItem.self).compactMap(\.rawValue)
+    }
 }

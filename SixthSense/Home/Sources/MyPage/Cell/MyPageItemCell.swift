@@ -71,7 +71,7 @@ final class MyPageItemCell: UITableViewCell {
         }
     }
 
-    func bind() {
-        titleLabel.setText("회원 정보 수정", font: AppFont.body1)
+    func bind(viewModel: MyPageItemCellViewModel) {
+        titleLabel.setText(viewModel.type.title, font: AppFont.body1)
     }
 }
