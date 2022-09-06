@@ -17,8 +17,7 @@ final class TextFieldErrorView: UIView {
         static let description: (Int) -> String = { "\($0)자가 넘어갔어!" }
     }
     
-    private let icon = UIImageView(image:.init(systemName: "exclamationmark.circle")?
-        .withTintColor(.red500, renderingMode: .alwaysOriginal))
+    private let icon = UIImageView(image: AppIcon.error)
     
     private let descriptionLabel = UILabel().then {
         $0.font = AppFont.caption
