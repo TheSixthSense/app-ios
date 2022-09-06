@@ -15,14 +15,14 @@ import AVFAudio
 final class CommentInputField: UIView {
     enum Constants {
         static let placeholderText = "챌린지 실천 내용이나 느낀 점을 기록해볼까?"
-        static let borderColor: (Bool) -> CGColor = {
-            $0 ? UIColor.systemGray300.cgColor : UIColor.red500.cgColor
+        static let tintColor: (Bool) -> UIColor = {
+            $0 ? UIColor.systemGray300 : UIColor.red500
         }
     }
     
     private let containerView = UIView().then {
         $0.layer.cornerRadius = 10
-        $0.layer.borderColor = Constants.borderColor(true)
+        $0.layer.borderColor = Constants.tintColor(true).cgColor
         $0.layer.borderWidth = 1
     }
     
@@ -108,8 +108,8 @@ final class CommentInputField: UIView {
     }
     
     private func showErrorStatus(_ visible: Bool) {
-        containerView.layer.borderColor = Constants.borderColor(!visible)
-        indicator.textColor = visible ? .red500 : .systemGray300
+        containerView.layer.borderColor = Constants.tintColor(!visible).cgColor
+        indicator.textColor = Constants.tintColor(!visible)
         errorView.isHidden = !visible
     }
 }
