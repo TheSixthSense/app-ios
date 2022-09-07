@@ -58,6 +58,7 @@ class ChallengeItemCell: UITableViewCell {
     }
 
     func configureViews() {
+        selectionStyle = .none
         self.setNeedsUpdateConstraints()
         contentView.addSubviews(container)
         container.addSubviews(emoji, titleLabel, badge)
@@ -68,7 +69,6 @@ class ChallengeItemCell: UITableViewCell {
         container.snp.makeConstraints {
             $0.edges.equalToSuperview()
             $0.height.equalTo(58)
-            $0.bottom.equalToSuperview().offset(-8)
         }
         
         emoji.snp.makeConstraints {
