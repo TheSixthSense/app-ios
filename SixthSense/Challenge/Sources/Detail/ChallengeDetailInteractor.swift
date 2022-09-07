@@ -8,6 +8,8 @@
 
 import RIBs
 import RxSwift
+import RxRelay
+import UIKit
 
 public protocol ChallengeDetailRouting: ViewableRouting { }
 
@@ -15,7 +17,11 @@ protocol ChallengeDetailPresenterAction: AnyObject {
     var closeDidTap: Observable<Void> { get }
 }
 
-protocol ChallengeDetailPresenterHandler: AnyObject { }
+protocol ChallengeDetailPresenterHandler: AnyObject {
+    var image: Observable<UIImage> { get }
+    var date: Observable<Date> { get }
+    var comment: Observable<String?> { get }
+}
 
 protocol ChallengeDetailPresentable: Presentable {
     var handler: ChallengeDetailPresenterHandler? { get set }
@@ -34,6 +40,10 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
     weak var router: ChallengeDetailRouting?
     weak var listener: ChallengeDetailListener?
     private let dependency: ChallengeDetailInteractorDependency
+    
+    private let imageRelay: PublishRelay<UIImage> = .init()
+    private let dateRelay: PublishRelay<Date> = .init()
+    private let commentRelay: PublishRelay<String?> = .init()
     
     init(presenter: ChallengeDetailPresentable,
          dependency: ChallengeDetailInteractorDependency) {
@@ -65,5 +75,7 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
 
 // MARK: - Handler
 extension ChallengeDetailInteractor: ChallengeDetailPresenterHandler {
-    
+    var image: Observable<UIImage> { imageRelay.asObservable() }
+    var date: Observable<Date> { dateRelay.asObservable() }
+    var comment: Observable<String?> { commentRelay.asObservable() }
 }
