@@ -37,6 +37,12 @@ protocol ChallengeListInteractorDependency {
 
 final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresentable>,
                                      ChallengeListInteractable {
+    private enum Constants {
+        static let itemWithSpacing: ([ChallengeSectionItem]) -> [ChallengeSectionItem] = {
+            return zip($0, Array(repeating: ChallengeSectionItem.spacing, count: $0.count)).flatMap { [$0, $1] }
+        }
+    }
+    
     weak var router: ChallengeListRouting?
     weak var listener: ChallengeListListener?
     private let dependency: ChallengeListInteractorDependency
@@ -84,7 +90,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             .subscribe(onNext: { owner, items in
                 // TODO: 미완성된 기능입니다
                 var sections: [ChallengeSection] = [
-                    .init(identity: .item, items: items)
+                    .init(identity: .item, items: Constants.itemWithSpacing(items) )
                 ]
                 
                 // TODO: Usecase로 로직 이동시켜요

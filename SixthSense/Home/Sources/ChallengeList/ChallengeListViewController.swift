@@ -24,8 +24,7 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
     
     private let tableView = UITableView().then {
         $0.separatorStyle = .none
-        $0.backgroundColor = .white
-        $0.allowsSelection = false
+        $0.allowsMultipleSelection = false
         $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = UITableView.automaticDimension
         $0.alwaysBounceVertical = false
@@ -34,6 +33,7 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
         $0.register(ChallengeFailedItemCell.self)
         $0.register(ChallengeWaitingItemCell.self)
         $0.register(ChallengeAddCell.self)
+        $0.register(ChallengeSpacingCell.self)
     }
     
     private let dataSource = Section { _, tableView, indexPath, item in
@@ -49,6 +49,9 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
             case .waiting(let viewModel):
                 guard let cell = tableView.dequeue(ChallengeWaitingItemCell.self, for: indexPath) as? ChallengeWaitingItemCell else { return UITableViewCell() }
                 cell.configure(viewModel: viewModel)
+                return cell
+            case .spacing:
+                guard let cell = tableView.dequeue(ChallengeSpacingCell.self, for: indexPath) as? ChallengeSpacingCell else { return .init() }
                 return cell
             case .add:
                 guard let cell = tableView.dequeue(ChallengeAddCell.self, for: indexPath) as? ChallengeAddCell else { return .init() }
