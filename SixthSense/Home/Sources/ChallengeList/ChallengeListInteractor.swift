@@ -22,6 +22,7 @@ protocol ChallengeListRouting: ViewableRouting {
 
 protocol ChallengeListPresenterAction: AnyObject {
     var viewDidAppear: Observable<Void> { get }
+    var itemSelected: Observable<IndexPath> { get }
 }
 
 protocol ChallengeListPresenterHandler: AnyObject {
@@ -54,6 +55,8 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     weak var listener: ChallengeListListener?
     private let dependency: ChallengeListInteractorDependency
     
+    private var sectionsItem: [ChallengeSection] = []
+    
     private let sectionsRelay: PublishRelay<[ChallengeSection]> = .init()
     private let hasItemRelay: PublishRelay<Bool> = .init()
     
@@ -79,6 +82,13 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
                 owner.fetch(by: Date())
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        action.itemSelected
+            .withUnretained(self)
+            .subscribe(onNext: { owner, index in
+                owner.itemSelected(index)
             })
             .disposeOnDeactivate(interactor: self)
         
@@ -108,11 +118,36 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
                     sections.append(.init(identity: .add, items: [.add]))
                 }
                 owner.sectionsRelay.accept(sections)
+                owner.sectionsItem = sections
 //                owner.hasItemRelay.accept(!items.isEmpty)
                 owner.hasItemRelay.accept(false)
 
             })
             .disposeOnDeactivate(interactor: self)
+    }
+    
+    private func itemSelected(_ indexPath: IndexPath) {
+        // FIXME: Array에 safe를 적용해요
+        let item = sectionsItem[indexPath.section].items[indexPath.row]
+        switch item {
+            case .success:
+                router?.attachDetail()
+            // TODO: 오늘 날짜 이후인데 waiting 상태인 경우 분기처리 추가
+            case .waiting:
+                router?.attachCheck()
+            case .add:
+                router?.routeToRegister()
+            case .failed, .spacing:
+                break
+        }
+    }
+    
+    func challengeCheckDidTapClose() {
+        router?.detachCheck()
+    }
+    
+    func detailDidTapClose() {
+        router?.detachDetail()
     }
 }
 
