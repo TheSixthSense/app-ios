@@ -12,6 +12,7 @@ import UIKit
 import RxAppState
 import RxDataSources
 import SnapKit
+import Then
 
 // TODO: 미완성된 뷰입니다 추후 완성할 예정
 final class ChallengeListViewController: UIViewController, ChallengeListPresentable, ChallengeListViewControllable {
@@ -96,7 +97,11 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
     }
     
     private func bind() {
+        tableView.rx.setDelegate(self)
+            .disposed(by: self.disposeBag)
+        
         guard let handler = handler else { return }
+        
         handler.sections
             .asDriver(onErrorJustReturn: [])
             .drive(tableView.rx.items(dataSource: dataSource))
@@ -117,6 +122,49 @@ extension ChallengeListViewController {
         emptyView.isHidden = visible
     }
 }
+
+extension ChallengeListViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, willBeginEditingRowAt indexPath: IndexPath) {
+        tableView.subviews.forEach {
+            if NSStringFromClass($0.classForCoder) == "_UITableViewCellSwipeContainerView" {
+                $0.layer.cornerRadius = 10
+                $0.clipsToBounds = true
+
+                $0.subviews.forEach {
+                    if NSStringFromClass($0.classForCoder) == "UISwipeActionPullView" {
+                        $0.layer.cornerRadius = 10
+                        $0.clipsToBounds = true
+                    }
+                }
+            }
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        switch dataSource[indexPath.section].items[indexPath.row] {
+            case .success, .failed, .waiting:
+                return configureSwipeDeleteButton()
+            case .add, .spacing:
+                return UISwipeActionsConfiguration(actions: [])
+        }
+    }
+    
+    private func configureSwipeDeleteButton() -> UISwipeActionsConfiguration? {
+        let delete = UIContextualAction(style: .normal, title: nil) { (contextualAction, view, completion) in completion(true) }.then {
+            $0.image = UIImage(systemName: "trash",
+                               withConfiguration: UIImage.SymbolConfiguration(
+                                pointSize: 16,
+                                weight: .regular,
+                                scale: .default)
+            )?.withTintColor(.white, renderingMode: .alwaysTemplate)
+            $0.backgroundColor = .red500
+        }
+        return UISwipeActionsConfiguration(actions: [delete]).then {
+            $0.performsFirstActionWithFullSwipe = true
+        }
+    }
+}
+
 
 extension ChallengeListViewController: ChallengeListPresenterAction {
     var viewDidAppear: Observable<Void> { rx.viewDidAppear.asObservable().map { _ in () } }
