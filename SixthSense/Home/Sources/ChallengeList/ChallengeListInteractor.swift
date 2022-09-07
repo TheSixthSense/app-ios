@@ -10,8 +10,15 @@ import RIBs
 import RxSwift
 import RxRelay
 import Foundation
+import UIKit
 
-protocol ChallengeListRouting: ViewableRouting {}
+protocol ChallengeListRouting: ViewableRouting {
+    func attachCheck()
+    func detachCheck()
+    func attachDetail()
+    func detachDetail()
+    func routeToRegister()
+}
 
 protocol ChallengeListPresenterAction: AnyObject {
     var viewDidAppear: Observable<Void> { get }
