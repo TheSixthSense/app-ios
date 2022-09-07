@@ -12,13 +12,22 @@ import UIKit
 import SnapKit
 import Then
 import DesignSystem
+import Foundation
 
 final class ChallengeDetailViewController: UIViewController, ChallengeDetailPresentable, ChallengeDetailViewControllable {
     private let disposeBag = DisposeBag()
     weak var handler: ChallengeDetailPresenterHandler?
     weak var action: ChallengeDetailPresenterAction?
     
-    private enum Constants { }
+    private enum Constants {
+        static let dateTransform: (Date) -> String = {
+            DateFormatter().then {
+                $0.dateFormat = "yyyy.MM.dd(E)"
+                $0.timeZone = TimeZone(identifier: "KST")
+                $0.locale = Locale(identifier:"ko_KR")
+            }.string(from: $0)
+        }
+    }
     
     private let headerView = UIView()
     private let titleLabel = UILabel().then {
@@ -31,6 +40,36 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
     private let closeButton = UIButton().then {
         $0.setImage(AppIcon.close, for: .normal)
         $0.setTitleColor(.systemGray500, for: .normal)
+    }
+    
+    private let contentsView = UIView()
+    private let scrollView = UIScrollView().then {
+        $0.showsVerticalScrollIndicator = false
+    }
+    private let stackView = UIStackView().then {
+        $0.axis = .vertical
+        $0.spacing = 0
+        $0.alignment = .fill
+        $0.distribution = .fill
+        $0.translatesAutoresizingMaskIntoConstraints = false
+    }
+
+    private let imageView = UIImageView().then {
+        $0.backgroundColor = .systemGray300
+        $0.layer.cornerRadius = 30
+        $0.clipsToBounds = true
+    }
+    private let dateLabel = UILabel().then {
+        $0.font = AppFont.body1
+        $0.textColor = .black.withAlphaComponent(0.4)
+        $0.numberOfLines = 1
+        $0.sizeToFit()
+    }
+    private let commentLabel = UILabel().then {
+        $0.font = AppFont.body2
+        $0.textColor = .black
+        $0.numberOfLines = 0
+        $0.sizeToFit()
     }
     
     init() {
@@ -51,8 +90,15 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
     
     private func configureViews() {
         view.backgroundColor = .white
-        view.addSubviews(headerView)
+        view.addSubviews(headerView, contentsView)
+        contentsView.addSubviews(scrollView)
+        scrollView.addSubviews(stackView)
         headerView.addSubviews(titleLabel, closeButton)
+        stackView.addArrangedSubviews(imageView, dateLabel, commentLabel)
+        stackView.do {
+            $0.setCustomSpacing(10, after: imageView)
+            $0.setCustomSpacing(24, after: dateLabel)
+        }
     }
     
     private func configureConstraints() {
@@ -69,10 +115,43 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
             $0.centerY.equalToSuperview()
             $0.right.equalToSuperview().inset(16)
         }
+        
+        contentsView.snp.makeConstraints {
+            $0.top.equalTo(headerView.snp.bottom).offset(24)
+            $0.left.right.equalToSuperview().inset(20)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-32)
+        }
+        
+        scrollView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+
+        stackView.snp.makeConstraints {
+            $0.width.equalToSuperview()
+            $0.edges.equalTo(scrollView.contentLayoutGuide.snp.edges)
+            $0.height.equalTo(scrollView.frameLayoutGuide.snp.height).priority(1)
+        }
+        
+        imageView.snp.makeConstraints {
+            $0.height.equalTo(imageView.snp.width)
+        }
     }
     
     private func bind() {
         guard let handler = handler else { return }
+        
+        handler.image
+            .bind(to: imageView.rx.image)
+            .disposed(by: self.disposeBag)
+        
+        handler.date
+            .map(Constants.dateTransform)
+            .bind(to: dateLabel.rx.text)
+            .disposed(by: self.disposeBag)
+        
+        handler.comment
+            .bind(to: commentLabel.rx.text)
+            .disposed(by: self.disposeBag)
     }
 }
 
