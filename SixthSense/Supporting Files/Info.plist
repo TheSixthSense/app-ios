@@ -17,5 +17,9 @@
 	<string>$(SWIFTYBEAVER_ENCRYPT_KEY)</string>
 	<key>SERVER_BASE_URL</key>
 	<string>$(SERVER_BASE_URL)</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>챌린지 인증 시, 사진을 촬영하거나 라이브러리 내 사진을 등록할 수 있도록 접근을 허용합니다.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>챌린지 인증 시, 사진을 촬영하거나 라이브러리 내 사진을 등록할 수 있도록 접근을 허용합니다.</string>
 </dict>
 </plist>
