@@ -25,6 +25,16 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
             static let headerHeight: CGFloat = 44
             static let contentsHeight: CGFloat = 370
         }
+        
+        enum Picker {
+            static let suffix: (Int) -> String = {
+                switch $0 {
+                    case 0: return "년"
+                    case 1: return "월"
+                    default: return .init()
+                }
+            }
+        }
     }
     
     let swipeCalendarRelay: PublishRelay<Date> = .init()
@@ -38,7 +48,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
             return items[component].count
         },
         titleForRow: { _, _, items, row, component -> String? in
-            return "\(items[component][row])"
+            return "\(items[component][row])\(Constants.Picker.suffix(component))"
         }
     )
 
