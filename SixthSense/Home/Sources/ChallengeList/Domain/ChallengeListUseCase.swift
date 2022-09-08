@@ -11,6 +11,7 @@ import RxSwift
 
 protocol ChallengeListUseCase {
     func list(by date: Date) -> Observable<[ChallengeItem]>
+    func delete(id: String) -> Observable<Void>
 }
 
 struct ChallengeListUseCaseImpl: ChallengeListUseCase {
@@ -22,6 +23,11 @@ struct ChallengeListUseCaseImpl: ChallengeListUseCase {
             .init(id: "아이디아이디3", emoji: "🥬", title: "하루 채식", status: .success),
             .init(id: "아이디아이디4", emoji: "🥵", title: "하루 채식", status: .waiting),
         ])
+    }
+    
+    func delete(id: String) -> Observable<Void> {
+        // TODO: 테스트 코드 제거
+        return .just(())
     }
 }
 
