@@ -125,6 +125,7 @@ final class MyPageHeaderItemCell: UITableViewCell {
         challengeVerifiedView.addArrangedSubviews(challengeVerifiedStaticLabel, challengeVerifiedLabel)
         challengeWaitingView.addArrangedSubviews(challengeWaitingStaticLabel, challengeWaitingLabel)
         selectionStyle = .none
+        isUserInteractionEnabled = false
     }
 
     private func configureLayout() {

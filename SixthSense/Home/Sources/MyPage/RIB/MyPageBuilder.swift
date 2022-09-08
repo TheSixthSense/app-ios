@@ -11,7 +11,7 @@ import RIBs
 protocol MyPageDependency: Dependency {
 }
 
-final class MyPageComponent: Component<MyPageDependency> {
+final class MyPageComponent: Component<MyPageDependency>, MyPageWebViewDependency {
 }
 
 // MARK: - Builder
@@ -31,6 +31,8 @@ final class MyPageBuilder: Builder<MyPageDependency>, MyPageBuildable {
         let viewController = MyPageViewController()
         let interactor = MyPageInteractor(presenter: viewController)
         interactor.listener = listener
-        return MyPageRouter(interactor: interactor, viewController: viewController)
+
+        let myPageWebViewBuilder = MyPageWebViewBuilder(dependency: component)
+        return MyPageRouter(interactor: interactor, viewController: viewController, myPageWebView: myPageWebViewBuilder)
     }
 }

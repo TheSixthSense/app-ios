@@ -43,7 +43,7 @@ extension ChallengeListSectionItem: RawRepresentable {
         switch self {
         case .item(let challengeListItemCellViewModel):
             return challengeListItemCellViewModel.id
-        case .description(_): return -1
+        case .description: return -1
         }
     }
 }
