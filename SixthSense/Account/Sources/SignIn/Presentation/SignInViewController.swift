@@ -26,14 +26,14 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
     
     private let logoImage = UIImageView().then {
         $0.contentMode = .scaleToFill
-        $0.image = UIImage(asset: AccountAsset.onboardTitle)
+        $0.image = UIImage(asset: DesignSystemAsset.biTitleWhite)
     }
     
     private let catchphraseLabel = UILabel().then {
-        $0.text = "브랜드 관련 캐치프라이즈 영역\n두줄정도면 좋을 것 같아요"
+        $0.text = "완벽하지 않아도 괜찮아요\n지구를 위한 작은 하루 실천 하나"
         $0.textAlignment = .center
         $0.font = AppFont.body1
-        $0.textColor = .sub900
+        $0.textColor = .white
         $0.numberOfLines = 2
         $0.sizeToFit()
     }
@@ -45,7 +45,7 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
     private lazy var skipButton = UIButton().then {
         $0.setTitle("회원가입 없이 시작하기", for: .normal)
         $0.titleLabel?.font = AppFont.body2
-        $0.setTitleColor(.systemGray500, for: .normal)
+        $0.setTitleColor(.white, for: .normal)
         $0.addTarget(self, action: #selector(skipButtonDidTap), for: .touchUpInside)
     }
     
@@ -55,10 +55,8 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
     }
         
     func configureUI() {
-        [logoImage, catchphraseLabel, signInButton, skipButton].forEach {
-            view.addSubview($0)
-        }
-        
+        view.backgroundColor = .main
+        view.addSubviews(logoImage, catchphraseLabel, signInButton, skipButton)
         configureConstraints()
     }
     
