@@ -56,8 +56,14 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
     
-    let pickerView = UIPickerView()
-    let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: nil)    
+    let pickerView = UIPickerView().then {
+        $0.backgroundColor = .white
+    }
+    let cancelButton = UIBarButtonItem(title: "취소", style: .plain, target: nil, action: nil).then {
+        $0.tintColor = .systemGray500
+    }
+    let todayButton = UIBarButtonItem(title: "오늘", style: .plain, target: nil, action: nil)
+    let doneButton = UIBarButtonItem(title: "완료", style: .plain, target: nil, action: nil)
 
     private let weekdayView = CalendarWeekdayView().then {
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -118,8 +124,13 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
     
     private func configureDatePicker() {
         let toolbar = UIToolbar().then {
+            $0.barTintColor = .white
             $0.sizeToFit()
-            $0.setItems([doneButton], animated: true)
+            $0.setItems([cancelButton,
+                         UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+                         todayButton,
+                         UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+                         doneButton], animated: true)
         }
         
         headerView.monthLabel.do {
@@ -151,6 +162,12 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
     }
     
     private func bind() {
+        cancelButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                self?.headerView.monthLabel.resignFirstResponder()
+            })
+            .disposed(by: self.disposeBag)
+        
         guard let handler = handler else { return }
         
         handler.basisDate
@@ -190,6 +207,7 @@ extension ChallengeCalendarViewController: ChallengeCalendarPresenterAction {
         pickerView.rx.itemSelected.asObservable()
     }
     var monthDidSelected: Observable<Void> { doneButton.rx.tap.asObservable() }
+    var todayDidTap: Observable<Void> { todayButton.rx.tap.asObservable() }
     var swipeCalendar: Observable<Date> { swipeCalendarRelay.asObservable() }
     var dateDidSelected: Observable<Date> { dateSelectRelay.asObservable() }
 }
