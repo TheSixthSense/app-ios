@@ -207,6 +207,13 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
         handler.doneButtonActive
             .bind(to: button.rx.hasFocused)
             .disposed(by: self.disposeBag)
+        
+        handler.showDonePopUp
+            .asDriver(onErrorJustReturn: .init())
+            .drive(onNext: { [weak self] in
+                self?.showCompletePopUp($0)
+            })
+            .disposed(by: self.disposeBag)
     }
 
     private func configureNavigationBar() {
@@ -265,6 +272,9 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
             owner.doneRelay.accept(request)
         })
         .disposed(by: self.disposeBag)
+    }
+    
+    private func showCompletePopUp(_ data: ChallengeCheckComplete) {
     }
     
     private func showCameraView() {

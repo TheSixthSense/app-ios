@@ -23,6 +23,7 @@ protocol ChallengeCheckPresenterAction: AnyObject {
 
 protocol ChallengeCheckPresenterHandler: AnyObject {
     var doneButtonActive: Observable<Bool> { get }
+    var showDonePopUp: Observable<ChallengeCheckComplete> { get }
 }
 
 protocol ChallengeCheckPresentable: Presentable {
@@ -46,6 +47,7 @@ final class ChallengeCheckInteractor: PresentableInteractor<ChallengeCheckPresen
     private let dependency: ChallengeCheckInteractorDependency
     
     private let doneButtonActiveRelay: PublishRelay<Bool> = .init()
+    private let showDonePopUpRelay: PublishRelay<ChallengeCheckComplete> = .init()
 
     init(presenter: ChallengeCheckPresentable,
          dependency: ChallengeCheckInteractorDependency) {
@@ -82,8 +84,16 @@ final class ChallengeCheckInteractor: PresentableInteractor<ChallengeCheckPresen
         action.doneDidTap
             .withUnretained(self)
             .subscribe(onNext: { owner, request in
-                // TODO: 이미지와 텍스트 API를 붙혀요
-                print("🦊 === \(request.image), \(request.text)")
+                owner.registerChallenge(request: request)
+            })
+            .disposeOnDeactivate(interactor: self)
+    }
+    
+    private func registerChallenge(request: ChallengeCheckRequest) {
+        dependency.usecase.register(request: request)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, response in
+                owner.showDonePopUpRelay.accept(response)
             })
             .disposeOnDeactivate(interactor: self)
     }
@@ -91,4 +101,5 @@ final class ChallengeCheckInteractor: PresentableInteractor<ChallengeCheckPresen
 
 extension ChallengeCheckInteractor: ChallengeCheckPresenterHandler {
     var doneButtonActive: Observable<Bool> { doneButtonActiveRelay.asObservable() }
+    var showDonePopUp: Observable<ChallengeCheckComplete> { showDonePopUpRelay.asObservable() }
 }
