@@ -50,6 +50,7 @@ class ChallengeAddCell: UITableViewCell {
     func configure() {}
 
     func configureViews() {
+        selectionStyle = .none
         contentView.addSubviews(container)
         container.addSubviews(contentsView)
         contentsView.addSubviews(image, titleLabel)

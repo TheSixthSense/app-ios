@@ -28,4 +28,5 @@ enum ChallengeSectionItem {
     case failed(ChallengeItemCellViewModel)
     case waiting(ChallengeItemCellViewModel)
     case add
+    case spacing
 }
