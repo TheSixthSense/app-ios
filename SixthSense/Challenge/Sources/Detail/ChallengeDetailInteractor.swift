@@ -18,7 +18,7 @@ protocol ChallengeDetailPresenterAction: AnyObject {
 }
 
 protocol ChallengeDetailPresenterHandler: AnyObject {
-    var image: Observable<UIImage> { get }
+    var imageURL: Observable<URL?> { get }
     var date: Observable<Date> { get }
     var comment: Observable<String?> { get }
 }
@@ -44,7 +44,7 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
     private let dependency: ChallengeDetailInteractorDependency
     private let id: String
     
-    private let imageRelay: PublishRelay<UIImage> = .init()
+    private let imageURLRelay: PublishRelay<URL?> = .init()
     private let dateRelay: PublishRelay<Date> = .init()
     private let commentRelay: PublishRelay<String?> = .init()
     
@@ -80,7 +80,7 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
 
 // MARK: - Handler
 extension ChallengeDetailInteractor: ChallengeDetailPresenterHandler {
-    var image: Observable<UIImage> { imageRelay.asObservable() }
+    var imageURL: Observable<URL?> { imageURLRelay.asObservable() }
     var date: Observable<Date> { dateRelay.asObservable() }
     var comment: Observable<String?> { commentRelay.asObservable() }
 }

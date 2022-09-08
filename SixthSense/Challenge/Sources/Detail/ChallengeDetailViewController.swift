@@ -13,6 +13,7 @@ import SnapKit
 import Then
 import DesignSystem
 import Foundation
+import Kingfisher
 
 final class ChallengeDetailViewController: UIViewController, ChallengeDetailPresentable, ChallengeDetailViewControllable {
     private let disposeBag = DisposeBag()
@@ -140,8 +141,11 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
     private func bind() {
         guard let handler = handler else { return }
         
-        handler.image
-            .bind(to: imageView.rx.image)
+        handler.imageURL
+            .asDriver(onErrorJustReturn: nil)
+            .drive(onNext: { [weak self] in
+                self?.imageView.kf.setImage(with: $0)
+            })
             .disposed(by: self.disposeBag)
         
         handler.date
