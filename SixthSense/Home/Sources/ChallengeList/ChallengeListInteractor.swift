@@ -56,6 +56,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     private let dependency: ChallengeListInteractorDependency
     
     private var sectionsItem: [ChallengeSection] = []
+    private var targetDate: Date = .init()
     
     private let sectionsRelay: PublishRelay<[ChallengeSection]> = .init()
     private let hasItemRelay: PublishRelay<Bool> = .init()
@@ -95,6 +96,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
         dependency.targetDate
             .withUnretained(self)
             .subscribe(onNext: { owner, date in
+                owner.targetDate = date
                 owner.fetch(by: date)
             })
             .disposeOnDeactivate(interactor: self)
