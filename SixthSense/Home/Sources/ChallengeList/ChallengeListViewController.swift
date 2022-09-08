@@ -146,14 +146,18 @@ extension ChallengeListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         switch dataSource[indexPath.section].items[indexPath.row] {
             case .success, .failed, .waiting:
-                return configureSwipeDeleteButton()
+                return configureSwipeDeleteButton(indexPath: indexPath)
             case .add, .spacing:
                 return UISwipeActionsConfiguration(actions: [])
         }
     }
     
-    private func configureSwipeDeleteButton() -> UISwipeActionsConfiguration? {
-        let delete = UIContextualAction(style: .normal, title: nil) { (contextualAction, view, completion) in completion(true) }.then {
+    private func configureSwipeDeleteButton(indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let delete = UIContextualAction(style: .normal, title: nil) { [weak self] (contextualAction, view, completion) in
+            self?.showDeleteConfirmAlert(indexPath: indexPath)
+            completion(true)
+            
+        }.then {
             $0.image = UIImage(systemName: "trash",
                                withConfiguration: UIImage.SymbolConfiguration(
                                 pointSize: 16,
@@ -165,6 +169,20 @@ extension ChallengeListViewController: UITableViewDelegate {
         return UISwipeActionsConfiguration(actions: [delete]).then {
             $0.performsFirstActionWithFullSwipe = true
         }
+    }
+    
+    
+    private func showDeleteConfirmAlert(indexPath: IndexPath) {
+        showAlert(title: "챌린지를 삭제할거야?",
+                        message: "삭제한 챌린지는 다시 찾을 수 없어요😥",
+                        actions: [.action(title: "앗.. 잠시만!", style: .negative),
+                                  .action(title: "응, 삭제할게", style: .positive)])
+        .filter { $0 == .positive }
+        .withUnretained(self)
+        .subscribe(onNext: { owner, _ in
+            owner.itemDeleteRelay.accept(indexPath)
+        })
+        .disposed(by: self.disposeBag)
     }
 }
 
