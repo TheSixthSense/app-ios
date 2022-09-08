@@ -15,6 +15,7 @@ public protocol ChallengeDetailRouting: ViewableRouting { }
 
 protocol ChallengeDetailPresenterAction: AnyObject {
     var closeDidTap: Observable<Void> { get }
+    var deleteDidTap: Observable<Void> { get }
 }
 
 protocol ChallengeDetailPresenterHandler: AnyObject {
@@ -72,6 +73,13 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
                 owner.listener?.detailDidTapClose()
             })
             .disposeOnDeactivate(interactor: self)
+        
+        action.deleteDidTap
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.delete()
+            })
+            .disposeOnDeactivate(interactor: self)
     }
     
     private func fetch() {
@@ -82,6 +90,16 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
                 owner.imageURLRelay.accept(data.imageURL)
                 owner.dateRelay.accept(data.date)
                 owner.commentRelay.accept(data.text)
+            })
+            .disposeOnDeactivate(interactor: self)
+    }
+    
+    private func delete() {
+        dependency.usecase
+            .delete(id: id)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.listener?.detailDidTapClose()
             })
             .disposeOnDeactivate(interactor: self)
     }
