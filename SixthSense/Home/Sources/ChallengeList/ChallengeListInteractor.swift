@@ -122,11 +122,9 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
                     .init(identity: .item, items: Constants.itemWithSpacing(items) )
                 ]
                 
-                // TODO: Usecase로 로직 이동시켜요
-                let calendar = Calendar.current
-                let interval = calendar.dateComponents([.year, .month, .day], from: Date(), to: date)
-            
-                if let intervalDay = interval.day, intervalDay >= 0 {
+                guard let dateType = owner.dependency.usecase.compareToday(with: date) else { return }
+                
+                if [DateType.today, .afterToday].contains(dateType) {
                     sections.append(.init(identity: .add, items: [.add]))
                 }
                 owner.sectionsRelay.accept(sections)
