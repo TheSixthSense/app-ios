@@ -293,12 +293,30 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
     
     private func checkCameraPermission() {
         AVCaptureDevice.requestAccess(for: .video) { [weak self] isAuthorized in
-            guard isAuthorized else { return }
             DispatchQueue.main.async {
+                guard isAuthorized else {
+                    self?.showPermissionRequestAlert()
+                    return
+                }
                 self?.showCameraView()
             }
         }
     }
+    
+    private func showPermissionRequestAlert() {
+        showAlert(title: "사진을 입력하려면 사진 접근 권한을 허용해야 합니다.",
+                  message: .init(),
+                        actions: [.action(title: "유지", style: .negative),
+                                  .action(title: "설정 이동", style: .positive)])
+        .filter { $0 == .positive }
+        .withUnretained(self)
+        .subscribe(onNext: { owner, _ in
+            guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+            UIApplication.shared.open(url)
+        })
+        .disposed(by: self.disposeBag)
+    }
+
     
     private func showPhotoPickerView() {
         var configuration = PHPickerConfiguration()
