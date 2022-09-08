@@ -8,11 +8,13 @@
 
 import RIBs
 import RxSwift
+import RxRelay
 import UIKit
 import SnapKit
 import Then
 import DesignSystem
 import Foundation
+import Kingfisher
 
 final class ChallengeDetailViewController: UIViewController, ChallengeDetailPresentable, ChallengeDetailViewControllable {
     private let disposeBag = DisposeBag()
@@ -28,6 +30,7 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
             }.string(from: $0)
         }
     }
+    private let itemDeleteRelay: PublishRelay<Void> = .init()
     
     private let headerView = UIView()
     private let titleLabel = UILabel().then {
@@ -72,6 +75,13 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
         $0.sizeToFit()
     }
     
+    private let footerView = UIView()
+    private let deleteButton = UIButton().then {
+        $0.setTitle("삭제", for: .normal)
+        $0.setTitleColor(.systemGray500, for: .normal)
+        $0.titleLabel?.font = AppFont.body1
+    }
+    
     init() {
         super.init(nibName: nil, bundle: nil)
         action = self
@@ -94,10 +104,12 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
         contentsView.addSubviews(scrollView)
         scrollView.addSubviews(stackView)
         headerView.addSubviews(titleLabel, closeButton)
-        stackView.addArrangedSubviews(imageView, dateLabel, commentLabel)
+        stackView.addArrangedSubviews(imageView, dateLabel, commentLabel, footerView)
+        footerView.addSubviews(deleteButton)
         stackView.do {
             $0.setCustomSpacing(10, after: imageView)
             $0.setCustomSpacing(24, after: dateLabel)
+            $0.setCustomSpacing(40, after: commentLabel)
         }
     }
     
@@ -135,13 +147,26 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
         imageView.snp.makeConstraints {
             $0.height.equalTo(imageView.snp.width)
         }
+        
+        deleteButton.snp.makeConstraints {
+            $0.top.right.bottom.equalToSuperview()
+        }
     }
     
     private func bind() {
+        deleteButton.rx.tap
+            .subscribe(onNext: { [weak self] _ in
+                self?.showDeleteConfirmAlert()
+            })
+            .disposed(by: self.disposeBag)
+        
         guard let handler = handler else { return }
         
-        handler.image
-            .bind(to: imageView.rx.image)
+        handler.imageURL
+            .asDriver(onErrorJustReturn: nil)
+            .drive(onNext: { [weak self] in
+                self?.imageView.kf.setImage(with: $0)
+            })
             .disposed(by: self.disposeBag)
         
         handler.date
@@ -153,9 +178,23 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
             .bind(to: commentLabel.rx.text)
             .disposed(by: self.disposeBag)
     }
+    
+    private func showDeleteConfirmAlert() {
+        showAlert(title: "인증글을 삭제하시겠습니까?",
+                        message: "",
+                        actions: [.action(title: "아니요", style: .negative),
+                                  .action(title: "예", style: .positive)])
+        .filter { $0 == .positive }
+        .withUnretained(self)
+        .subscribe(onNext: { owner, _ in
+            owner.itemDeleteRelay.accept(())
+        })
+        .disposed(by: self.disposeBag)
+    }
 }
 
 // MARK: - Action
 extension ChallengeDetailViewController: ChallengeDetailPresenterAction {
     var closeDidTap: Observable<Void> { closeButton.rx.tap.asObservable() }
+    var deleteDidTap: Observable<Void> { itemDeleteRelay.asObservable() }
 }
