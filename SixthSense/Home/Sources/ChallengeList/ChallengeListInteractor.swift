@@ -23,6 +23,7 @@ protocol ChallengeListRouting: ViewableRouting {
 protocol ChallengeListPresenterAction: AnyObject {
     var viewDidAppear: Observable<Void> { get }
     var itemSelected: Observable<IndexPath> { get }
+    var itemDidDeleted: Observable<IndexPath> { get }
 }
 
 protocol ChallengeListPresenterHandler: AnyObject {
@@ -93,6 +94,13 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             })
             .disposeOnDeactivate(interactor: self)
         
+        action.itemDidDeleted
+            .withUnretained(self)
+            .subscribe(onNext: { owner, index in
+                owner.itemDelete(index)
+            })
+            .disposeOnDeactivate(interactor: self)
+        
         dependency.targetDate
             .withUnretained(self)
             .subscribe(onNext: { owner, date in
@@ -143,6 +151,26 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
                 break
         }
     }
+    
+    private func itemDelete(_ indexPath: IndexPath) {
+        let item = sectionsItem[indexPath.section].items[indexPath.row]
+        switch item {
+            case .success(let viewModel), .failed(let viewModel), .waiting(let viewModel):
+                deleteChallenge(id: viewModel.id)
+            case .add, .spacing:
+                break
+        }
+    }
+    
+    private func deleteChallenge(id: String) {
+        dependency.usecase.delete(id: id)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.fetch(by: owner.targetDate)
+            })
+            .disposeOnDeactivate(interactor: self)
+    }
+
     
     func challengeCheckDidTapClose() {
         router?.detachCheck()

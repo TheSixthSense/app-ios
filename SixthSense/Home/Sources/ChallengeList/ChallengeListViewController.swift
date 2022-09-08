@@ -8,6 +8,7 @@
 
 import RIBs
 import RxSwift
+import RxRelay
 import UIKit
 import RxAppState
 import RxDataSources
@@ -20,6 +21,8 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
     private let disposeBag = DisposeBag()
     weak var handler: ChallengeListPresenterHandler?
     weak var action: ChallengeListPresenterAction?
+    
+    private let itemDeleteRelay: PublishRelay<IndexPath> = .init()
     
     private enum Constants { }
     
@@ -170,4 +173,5 @@ extension ChallengeListViewController: ChallengeListPresenterAction {
     var viewDidAppear: Observable<Void> { rx.viewDidAppear.asObservable().map { _ in () } }
     var itemSelected: Observable<IndexPath> { tableView.rx.itemSelected
         .flatMap { index -> Observable<IndexPath> in .just(index)} }
+    var itemDidDeleted: Observable<IndexPath> { itemDeleteRelay.asObservable() }
 }
