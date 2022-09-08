@@ -15,7 +15,7 @@ import UIKit
 protocol ChallengeListRouting: ViewableRouting {
     func attachCheck()
     func detachCheck()
-    func attachDetail()
+    func attachDetail(id: String)
     func detachDetail()
     func routeToRegister()
 }
@@ -142,8 +142,8 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
         // FIXME: Array에 safe를 적용해요
         let item = sectionsItem[indexPath.section].items[indexPath.row]
         switch item {
-            case .success:
-                router?.attachDetail()
+            case .success(let viewModel):
+                router?.attachDetail(id: viewModel.id)
             // TODO: 오늘 날짜 이후인데 waiting 상태인 경우 분기처리 추가
             case .waiting:
                 router?.attachCheck()

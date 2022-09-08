@@ -40,14 +40,17 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
     weak var router: ChallengeDetailRouting?
     weak var listener: ChallengeDetailListener?
     private let dependency: ChallengeDetailInteractorDependency
+    private let id: String
     
     private let imageRelay: PublishRelay<UIImage> = .init()
     private let dateRelay: PublishRelay<Date> = .init()
     private let commentRelay: PublishRelay<String?> = .init()
     
     init(presenter: ChallengeDetailPresentable,
-         dependency: ChallengeDetailInteractorDependency) {
+         dependency: ChallengeDetailInteractorDependency,
+         id: String) {
         self.dependency = dependency
+        self.id = id
         super.init(presenter: presenter)
         presenter.handler = self
     }
