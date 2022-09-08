@@ -172,7 +172,7 @@ public extension UIViewController {
     func showAlert(
         title: String,
         message: String,
-        actions: [AlertAction]
+        actions: AlertAction...
     ) -> Observable<AlertAction.Style> {
         return Observable.create { observer in
             let alert = AppAlertView(alertTitle: title,
