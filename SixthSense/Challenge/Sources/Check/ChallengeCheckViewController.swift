@@ -86,6 +86,7 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
     // MARK: Properties
     let imageRelay: PublishRelay<UIImage?> = .init()
     private let backRelay: PublishRelay<Void> = .init()
+    private let doneRelay: PublishRelay<ChallengeCheckRequest> = .init()
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -190,6 +191,16 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
             })
             .disposed(by: self.disposeBag)
         
+        button.rx.tap
+            .withLatestFrom(imageRelay.asObservable()) { $1 }
+            .withLatestFrom(commentField.rx.text) { image, text in
+                ChallengeCheckRequest(image: image, text: text)
+            }
+            .withUnretained(self)
+            .subscribe(onNext: { owner, request in
+                owner.showRequestConfirmAlert(request)
+            })
+            .disposed(by: self.disposeBag)
 
         guard let handler = handler else { return }
         
@@ -243,6 +254,19 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
         .disposed(by: self.disposeBag)
     }
     
+    private func showRequestConfirmAlert(_ request: ChallengeCheckRequest) {
+        showAlert(title: "🚨 챌린지 인증 주의사항 🚨",
+                        message: "인증 후에는 수정이 어려우니\n한번 더 꼼꼼히 확인하는 걸 추천해요",
+                        actions: [.action(title: "앗, 다시 보고올게", style: .negative),
+                                  .action(title: "응, 문제없어", style: .positive)])
+        .filter { $0 == .positive }
+        .withUnretained(self)
+        .subscribe(onNext: { owner, _ in
+            owner.doneRelay.accept(request)
+        })
+        .disposed(by: self.disposeBag)
+    }
+    
     private func showCameraView() {
         let camera = UIImagePickerController().then {
             $0.sourceType = .camera
@@ -277,11 +301,5 @@ extension ChallengeCheckViewController: ChallengeCheckPresenterAction {
     var backDidTap: Observable<Void> { backRelay.asObservable() }
     var imageDidLoaded: Observable<UIImage?> { imageRelay.asObservable() }
     var commentAvailable: Observable<Bool> { commentField.rx.available }
-    var doneDidTap: Observable<ChallengeCheckRequest> {
-        button.rx.tap
-            .withLatestFrom(imageRelay.asObservable()) { $1 }
-            .withLatestFrom(commentField.rx.text) { image, text in
-                ChallengeCheckRequest(image: image, text: text)
-            }
-    }
+    var doneDidTap: Observable<ChallengeCheckRequest> { doneRelay.asObservable() }
 }
