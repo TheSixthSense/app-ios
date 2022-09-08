@@ -17,7 +17,8 @@ protocol ChallengeListDependency: Dependency {
 
 final class ChallengeListComponent: Component<ChallengeListDependency>,
                                     ChallengeListInteractorDependency,
-                                    ChallengeCheckDependency{
+                                    ChallengeCheckDependency,
+                                    ChallengeDetailDependency {
     var usecase: ChallengeListUseCase { ChallengeListUseCaseImpl() }
     var targetDate: PublishRelay<Date> { dependency.targetDate }
 }
@@ -41,10 +42,12 @@ final class ChallengeListBuilder: Builder<ChallengeListDependency>, ChallengeLis
         interactor.listener = listener
         
         let checkBuilder = ChallengeCheckBuilder(dependency: component)
+        let detailBuilder = ChallengeDetailBuilder(dependency: component)
 
         return ChallengeListRouter(
             interactor: interactor,
             viewController: viewController,
-            checkBuilder: checkBuilder)
+            checkBuilder: checkBuilder,
+            detailBuilder: detailBuilder)
     }
 }

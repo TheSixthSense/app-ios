@@ -168,4 +168,6 @@ extension ChallengeListViewController: UITableViewDelegate {
 
 extension ChallengeListViewController: ChallengeListPresenterAction {
     var viewDidAppear: Observable<Void> { rx.viewDidAppear.asObservable().map { _ in () } }
+    var itemSelected: Observable<IndexPath> { tableView.rx.itemSelected
+        .flatMap { index -> Observable<IndexPath> in .just(index)} }
 }
