@@ -11,7 +11,14 @@ import RIBs
 public protocol ChallengeDetailDependency: Dependency { }
 
 final class ChallengeDetailComponent: Component<ChallengeDetailDependency>,
-                                      ChallengeDetailInteractorDependency { }
+                                      ChallengeDetailInteractorDependency {
+    var usecase: ChallengeDetailUseCase
+    
+    override init(dependency: ChallengeDetailDependency) {
+        usecase = ChallengeDetailUseCaseImpl()
+        super.init(dependency: dependency)
+    }
+}
 
 // MARK: - Builder
 

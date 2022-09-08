@@ -32,7 +32,9 @@ public protocol ChallengeDetailListener: AnyObject {
     func detailDidTapClose()
 }
 
-protocol ChallengeDetailInteractorDependency { }
+protocol ChallengeDetailInteractorDependency {
+    var usecase: ChallengeDetailUseCase { get }
+}
 
 final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPresentable>,
                                         ChallengeDetailInteractable {
