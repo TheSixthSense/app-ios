@@ -27,7 +27,7 @@ final class SplashViewController: UIViewController, SplashPresentable, SplashVie
     
     private let titleImage = UIImageView().then {
         $0.contentMode = .scaleToFill
-        $0.image = UIImage(asset: SplashAsset.splashTitle)
+        $0.image = UIImage(asset: DesignSystemAsset.biTitle)
     }
     
     override func viewDidLoad() {
@@ -42,17 +42,16 @@ final class SplashViewController: UIViewController, SplashPresentable, SplashVie
     
     private func configureConstraints() {
         logoImage.snp.makeConstraints {
-            $0.centerX.equalToSuperview().multipliedBy(0.922)
+            $0.centerX.equalToSuperview()
             $0.centerY.equalToSuperview().multipliedBy(0.876)
-            $0.width.equalTo(124)
-            $0.height.equalTo(134)
+            $0.width.equalTo(103)
+            $0.height.equalTo(130)
         }
         
         titleImage.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.width.equalTo(101.03)
-            $0.height.equalTo(51.4)
-            $0.top.equalTo(logoImage.snp.bottom).offset(9)
+            $0.width.equalTo(93)
+            $0.top.equalTo(logoImage.snp.bottom).offset(12)
         }
     }
 }
