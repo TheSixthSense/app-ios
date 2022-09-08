@@ -92,8 +92,3 @@ final class ChallengeCheckInteractor: PresentableInteractor<ChallengeCheckPresen
 extension ChallengeCheckInteractor: ChallengeCheckPresenterHandler {
     var doneButtonActive: Observable<Bool> { doneButtonActiveRelay.asObservable() }
 }
-
-struct ChallengeCheckRequest {
-    var image: UIImage?
-    var text: String?
-}

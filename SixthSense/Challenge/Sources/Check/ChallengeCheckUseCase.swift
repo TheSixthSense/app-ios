@@ -14,4 +14,13 @@ protocol ChallengeCheckUseCase {
 }
 
 struct ChallengeCheckUseCaseImpl: ChallengeCheckUseCase {
+
+struct ChallengeCheckRequest {
+    var image: UIImage?
+    var text: String?
+}
+
+struct ChallengeCheckComplete {
+    var titleImageURL: URL?
+    var contentsImageURL: URL?
 }
