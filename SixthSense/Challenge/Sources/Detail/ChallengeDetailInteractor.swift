@@ -60,6 +60,7 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
     override func didBecomeActive() {
         super.didBecomeActive()
         bind()
+        fetch()
     }
     
     private func bind() {
@@ -69,6 +70,18 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
                 owner.listener?.detailDidTapClose()
+            })
+            .disposeOnDeactivate(interactor: self)
+    }
+    
+    private func fetch() {
+        dependency.usecase
+            .fetch(id: id)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, data in
+                owner.imageURLRelay.accept(data.imageURL)
+                owner.dateRelay.accept(data.date)
+                owner.commentRelay.accept(data.text)
             })
             .disposeOnDeactivate(interactor: self)
     }
