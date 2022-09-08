@@ -275,6 +275,9 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
     }
     
     private func showCompletePopUp(_ data: ChallengeCheckComplete) {
+        let popUpViewController = ChallengeCheckCompletePopUp(dismissRelay: backRelay, data: data)
+        popUpViewController.modalPresentationStyle = .overCurrentContext
+        present(popUpViewController, animated: true, completion: nil)
     }
     
     private func showCameraView() {
