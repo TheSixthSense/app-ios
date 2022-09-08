@@ -182,6 +182,10 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     func detailDidTapClose() {
         router?.detachDetail()
     }
+    
+    func showToast(message: String) {
+        showToastRelay.accept(message)
+    }
 }
 
 

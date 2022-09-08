@@ -31,6 +31,7 @@ protocol ChallengeDetailPresentable: Presentable {
 
 public protocol ChallengeDetailListener: AnyObject {
     func detailDidTapClose()
+    func showToast(message: String)
 }
 
 protocol ChallengeDetailInteractorDependency {
@@ -100,6 +101,7 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
                 owner.listener?.detailDidTapClose()
+                owner.listener?.showToast(message: "인증글 삭제가 완료되었어요")
             })
             .disposeOnDeactivate(interactor: self)
     }
