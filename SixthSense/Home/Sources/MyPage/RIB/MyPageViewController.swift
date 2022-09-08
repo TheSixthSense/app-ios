@@ -120,8 +120,8 @@ extension MyPageViewController {
                 .bind(onNext: { owner, _ in
                 owner.showAlert(title: "비거너를 로그아웃 할거야?",
                                 message: "남겨둔 챌린지와 인증글은 잘 보관되어 있으니\n잠시 쉬다가 와도 걱정하지 말아요😊",
-                                actions: [.action(title: "앗.. 아냐!", style: .negative),
-                                              .action(title: "응, 로그아웃 할게", style: .positive)])
+                                actions: .action(title: "앗.. 아냐!", style: .negative),
+                                    .action(title: "응, 로그아웃 할게", style: .positive))
                     .bind(to: owner.logoutAlertActions)
                     .disposed(by: owner.disposeBag)
             })
@@ -130,13 +130,10 @@ extension MyPageViewController {
 
     private func logout() {
         logoutAlertActions
+            .filter { $0 == .positive }
             .withUnretained(self)
-            .subscribe(onNext: { owner, type in
-            switch type {
-            case .negative: return
-            case .positive:
-                return owner.logoutButtonTapped.accept(true)
-            }
+            .subscribe(onNext: { owner, _ in
+            owner.logoutButtonTapped.accept(true)
         }).disposed(by: disposeBag)
     }
 }
