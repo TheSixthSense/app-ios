@@ -29,6 +29,7 @@ protocol ChallengeListPresenterAction: AnyObject {
 protocol ChallengeListPresenterHandler: AnyObject {
     var sections: Observable<[ChallengeSection]> { get }
     var hasItem: Observable<Bool> { get }
+    var showToast: Observable<String> { get }
 }
 
 protocol ChallengeListPresentable: Presentable {
@@ -61,6 +62,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     
     private let sectionsRelay: PublishRelay<[ChallengeSection]> = .init()
     private let hasItemRelay: PublishRelay<Bool> = .init()
+    private let showToastRelay: PublishRelay<String> = .init()
     
     init(presenter: ChallengeListPresentable, dependency: ChallengeListInteractorDependency) {
         self.dependency = dependency
@@ -167,6 +169,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
                 owner.fetch(by: owner.targetDate)
+                owner.showToastRelay.accept("챌린지 삭제가 완료되었어요")
             })
             .disposeOnDeactivate(interactor: self)
     }
@@ -186,6 +189,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
 extension ChallengeListInteractor: ChallengeListPresenterHandler {
     var sections: Observable<[ChallengeSection]> { sectionsRelay.asObservable() }
     var hasItem: Observable<Bool> { hasItemRelay.asObservable() }
+    var showToast: Observable<String> { showToastRelay.asObservable() }
 }
 
 extension ChallengeSectionItem: RawRepresentable {

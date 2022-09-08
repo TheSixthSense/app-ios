@@ -116,6 +116,13 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
                 self?.listVisible(hasItem)
             })
             .disposed(by: self.disposeBag)
+        
+        handler.showToast
+            .asDriver(onErrorJustReturn: .init())
+            .drive(onNext: { [weak self] in
+                self?.showToast($0)
+            })
+            .disposed(by: self.disposeBag)
     }
 }
 
