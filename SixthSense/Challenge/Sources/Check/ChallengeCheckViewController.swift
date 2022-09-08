@@ -83,7 +83,9 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
         $0.layer.cornerRadius = 10
     }
     
+    // MARK: Properties
     let imageRelay: PublishRelay<UIImage?> = .init()
+    private let backRelay: PublishRelay<Void> = .init()
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -181,6 +183,13 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
             })
             .disposed(by: self.disposeBag)
         
+        backButton.rx.tap
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.showBackConfirmAlert()
+            })
+            .disposed(by: self.disposeBag)
+        
 
         guard let handler = handler else { return }
         
@@ -221,6 +230,19 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
         self.present(alert, animated: true)
     }
     
+    private func showBackConfirmAlert() {
+        showAlert(title: "챌린지 인증을 종료할거야?",
+                        message: "아쉽지만🥲 다음에 다른 챌린지로 또 만나요!",
+                        actions: [.action(title: "앗..실수였어..", style: .negative),
+                                  .action(title: "응, 종료할게", style: .positive)])
+        .filter { $0 == .positive }
+        .withUnretained(self)
+        .subscribe(onNext: { owner, _ in
+            owner.backRelay.accept(())
+        })
+        .disposed(by: self.disposeBag)
+    }
+    
     private func showCameraView() {
         let camera = UIImagePickerController().then {
             $0.sourceType = .camera
@@ -252,7 +274,7 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
 }
 
 extension ChallengeCheckViewController: ChallengeCheckPresenterAction {
-    var backDidTap: Observable<Void> { backButton.rx.tap.map { _ in () } }
+    var backDidTap: Observable<Void> { backRelay.asObservable() }
     var imageDidLoaded: Observable<UIImage?> { imageRelay.asObservable() }
     var commentAvailable: Observable<Bool> { commentField.rx.available }
     var doneDidTap: Observable<ChallengeCheckRequest> {
