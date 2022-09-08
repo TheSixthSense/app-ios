@@ -14,10 +14,11 @@ public struct AlertAction {
     public enum Style {
         case positive // 오른쪽
         case negative // 왼쪽
+        case error // 에러 (postivie와 동일 UI)
 
         var attributes: [NSAttributedString.Key: Any] {
             switch self {
-            case .positive:
+            case .positive, .error:
                 return [.font: AppFont.body2Bold, .foregroundColor: UIColor.white]
             case .negative:
                 return [.font: AppFont.body2Bold, .foregroundColor: AppColor.systemGray500]
@@ -26,7 +27,7 @@ public struct AlertAction {
 
         var background: UIColor {
             switch self {
-            case .positive:
+            case .positive, .error:
                 return AppColor.main
             case .negative:
                 return .white
@@ -35,7 +36,7 @@ public struct AlertAction {
 
         var borderColor: CGColor {
             switch self {
-            case .positive:
+            case .positive, .error:
                 return AppColor.main.cgColor
             case .negative:
                 return AppColor.systemGray300.cgColor

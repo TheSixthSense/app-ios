@@ -130,13 +130,10 @@ extension MyPageViewController {
 
     private func logout() {
         logoutAlertActions
+            .filter { $0 == .positive }
             .withUnretained(self)
-            .subscribe(onNext: { owner, type in
-            switch type {
-            case .negative: return
-            case .positive:
-                return owner.logoutButtonTapped.accept(true)
-            }
+            .subscribe(onNext: { owner, _ in
+            owner.logoutButtonTapped.accept(true)
         }).disposed(by: disposeBag)
     }
 }
