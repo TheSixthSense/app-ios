@@ -73,6 +73,13 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
         $0.sizeToFit()
     }
     
+    private let footerView = UIView()
+    private let deleteButton = UIButton().then {
+        $0.setTitle("삭제", for: .normal)
+        $0.setTitleColor(.systemGray500, for: .normal)
+        $0.titleLabel?.font = AppFont.body1
+    }
+    
     init() {
         super.init(nibName: nil, bundle: nil)
         action = self
@@ -95,10 +102,12 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
         contentsView.addSubviews(scrollView)
         scrollView.addSubviews(stackView)
         headerView.addSubviews(titleLabel, closeButton)
-        stackView.addArrangedSubviews(imageView, dateLabel, commentLabel)
+        stackView.addArrangedSubviews(imageView, dateLabel, commentLabel, footerView)
+        footerView.addSubviews(deleteButton)
         stackView.do {
             $0.setCustomSpacing(10, after: imageView)
             $0.setCustomSpacing(24, after: dateLabel)
+            $0.setCustomSpacing(40, after: commentLabel)
         }
     }
     
@@ -135,6 +144,10 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
         
         imageView.snp.makeConstraints {
             $0.height.equalTo(imageView.snp.width)
+        }
+        
+        deleteButton.snp.makeConstraints {
+            $0.top.right.bottom.equalToSuperview()
         }
     }
     
