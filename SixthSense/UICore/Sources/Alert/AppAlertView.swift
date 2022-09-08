@@ -172,7 +172,7 @@ public extension UIViewController {
     func showAlert(
         title: String,
         message: String,
-        actions: AlertAction...
+        actions: [AlertAction]
     ) -> Observable<AlertAction.Style> {
         return Observable.create { observer in
             let alert = AppAlertView(alertTitle: title,
@@ -192,4 +192,27 @@ public extension UIViewController {
             return Disposables.create { alert.dismiss() }
         }
     }
+
+    func showErrorAlert(
+        title: String,
+        message: String,
+        actionTitle: String
+    ) -> Observable<Void> {
+        return Observable.create { observer in
+            let alert = AppAlertView(alertTitle: title,
+                                     message: message)
+
+            alert.addButtons(action: AlertAction.action(title: actionTitle, style: .error)) { _ in
+                observer.onNext(())
+                observer.onCompleted()
+            }
+
+            if let prevAlert = UIWindow.key?.viewWithTag(Alert.View.tag) as? AppAlertView {
+                prevAlert.removeFromSuperview()
+            }
+            UIWindow.key?.addSubview(alert)
+            return Disposables.create { alert.dismiss() }
+        }
+    }
+
 }
