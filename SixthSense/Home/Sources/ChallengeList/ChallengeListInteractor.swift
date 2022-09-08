@@ -23,11 +23,13 @@ protocol ChallengeListRouting: ViewableRouting {
 protocol ChallengeListPresenterAction: AnyObject {
     var viewDidAppear: Observable<Void> { get }
     var itemSelected: Observable<IndexPath> { get }
+    var itemDidDeleted: Observable<IndexPath> { get }
 }
 
 protocol ChallengeListPresenterHandler: AnyObject {
     var sections: Observable<[ChallengeSection]> { get }
     var hasItem: Observable<Bool> { get }
+    var showToast: Observable<String> { get }
 }
 
 protocol ChallengeListPresentable: Presentable {
@@ -56,9 +58,11 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     private let dependency: ChallengeListInteractorDependency
     
     private var sectionsItem: [ChallengeSection] = []
+    private var targetDate: Date = .init()
     
     private let sectionsRelay: PublishRelay<[ChallengeSection]> = .init()
     private let hasItemRelay: PublishRelay<Bool> = .init()
+    private let showToastRelay: PublishRelay<String> = .init()
     
     init(presenter: ChallengeListPresentable, dependency: ChallengeListInteractorDependency) {
         self.dependency = dependency
@@ -92,9 +96,17 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             })
             .disposeOnDeactivate(interactor: self)
         
+        action.itemDidDeleted
+            .withUnretained(self)
+            .subscribe(onNext: { owner, index in
+                owner.itemDelete(index)
+            })
+            .disposeOnDeactivate(interactor: self)
+        
         dependency.targetDate
             .withUnretained(self)
             .subscribe(onNext: { owner, date in
+                owner.targetDate = date
                 owner.fetch(by: date)
             })
             .disposeOnDeactivate(interactor: self)
@@ -142,6 +154,27 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
         }
     }
     
+    private func itemDelete(_ indexPath: IndexPath) {
+        let item = sectionsItem[indexPath.section].items[indexPath.row]
+        switch item {
+            case .success(let viewModel), .failed(let viewModel), .waiting(let viewModel):
+                deleteChallenge(id: viewModel.id)
+            case .add, .spacing:
+                break
+        }
+    }
+    
+    private func deleteChallenge(id: String) {
+        dependency.usecase.delete(id: id)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.fetch(by: owner.targetDate)
+                owner.showToastRelay.accept("챌린지 삭제가 완료되었어요")
+            })
+            .disposeOnDeactivate(interactor: self)
+    }
+
+    
     func challengeCheckDidTapClose() {
         router?.detachCheck()
     }
@@ -156,6 +189,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
 extension ChallengeListInteractor: ChallengeListPresenterHandler {
     var sections: Observable<[ChallengeSection]> { sectionsRelay.asObservable() }
     var hasItem: Observable<Bool> { hasItemRelay.asObservable() }
+    var showToast: Observable<String> { showToastRelay.asObservable() }
 }
 
 extension ChallengeSectionItem: RawRepresentable {
@@ -178,6 +212,7 @@ extension ChallengeSectionItem: RawRepresentable {
 
 extension ChallengeItemCellViewModel {
     init(item: ChallengeItem) {
+        self.id = item.id
         self.emoji = item.emoji
         self.title = item.title
     }
