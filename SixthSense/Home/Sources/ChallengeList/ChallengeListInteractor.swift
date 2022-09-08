@@ -178,6 +178,7 @@ extension ChallengeSectionItem: RawRepresentable {
 
 extension ChallengeItemCellViewModel {
     init(item: ChallengeItem) {
+        self.id = item.id
         self.emoji = item.emoji
         self.title = item.title
     }
