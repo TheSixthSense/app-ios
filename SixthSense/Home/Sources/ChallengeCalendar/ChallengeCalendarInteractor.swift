@@ -20,6 +20,7 @@ protocol ChallengeCalendarPresenterAction: AnyObject {
     var swipeCalendar: Observable<Date> { get }
     var monthBeginEditing: Observable<(row: Int, component: Int)> { get }
     var monthDidSelected: Observable<Void> { get }
+    var todayDidTap: Observable<Void> { get }
     var dateDidSelected: Observable<Date> { get }
 }
 
@@ -106,6 +107,14 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
         action.monthDidSelected
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
+                owner.basisDateRelay.accept(owner.calendarConfiguration.basisDate)
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        action.todayDidTap
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.calendarConfiguration.setBasisDate(date: Date())
                 owner.basisDateRelay.accept(owner.calendarConfiguration.basisDate)
             })
             .disposeOnDeactivate(interactor: self)
