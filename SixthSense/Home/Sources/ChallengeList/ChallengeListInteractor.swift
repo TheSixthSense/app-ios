@@ -136,20 +136,37 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             .disposeOnDeactivate(interactor: self)
     }
     
+    
+    private func registerAvailable() -> Bool {
+        guard let type = dependency.usecase.compareToday(with: targetDate) else { return false }
+        return type == .today
+    }
+    
     private func itemSelected(_ indexPath: IndexPath) {
         // FIXME: Array에 safe를 적용해요
         let item = sectionsItem[indexPath.section].items[indexPath.row]
         switch item {
             case .success(let viewModel):
-                router?.attachDetail(id: viewModel.id)
-            // TODO: 오늘 날짜 이후인데 waiting 상태인 경우 분기처리 추가
-            case .waiting:
-                router?.attachCheck()
+                successItemSelected(viewModel: viewModel)
+            case .waiting(let viewModel):
+                waitingItemSelected(viewModel: viewModel)
             case .add:
                 router?.routeToRegister()
             case .failed, .spacing:
                 break
         }
+    }
+    
+    private func successItemSelected(viewModel: ChallengeItemCellViewModel) {
+        guard let type = dependency.usecase.compareToday(with: targetDate),
+              type != .afterToday else { return }
+        router?.attachDetail(id: viewModel.id)
+    }
+    
+    private func waitingItemSelected(viewModel: ChallengeItemCellViewModel) {
+        guard let type = dependency.usecase.compareToday(with: targetDate),
+              type == .today else { return }
+        router?.attachCheck()
     }
     
     private func itemDelete(_ indexPath: IndexPath) {
