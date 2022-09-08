@@ -9,6 +9,7 @@
 import Foundation
 
 struct ChallengeItemCellViewModel {
+    let id: String
     let emoji: String
     let title: String
 }
