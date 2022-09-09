@@ -10,16 +10,21 @@ import RIBs
 import RxRelay
 import Foundation
 import Challenge
+import Repository
 
 protocol ChallengeListDependency: Dependency {
     var targetDate: PublishRelay<Date> { get }
+    var userChallengeRepository: UserChallengeRepository { get }
 }
 
 final class ChallengeListComponent: Component<ChallengeListDependency>,
                                     ChallengeListInteractorDependency,
                                     ChallengeCheckDependency,
                                     ChallengeDetailDependency {
-    var usecase: ChallengeListUseCase { ChallengeListUseCaseImpl() }
+    var usecase: ChallengeListUseCase {
+        ChallengeListUseCaseImpl(
+            repository: dependency.userChallengeRepository)
+    }
     var targetDate: PublishRelay<Date> { dependency.targetDate }
 }
 

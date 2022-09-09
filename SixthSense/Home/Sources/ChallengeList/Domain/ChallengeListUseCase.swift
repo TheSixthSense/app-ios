@@ -8,6 +8,7 @@
 
 import Foundation
 import RxSwift
+import Repository
 
 protocol ChallengeListUseCase {
     func list(by date: Date) -> Observable<[ChallengeItem]>
@@ -15,7 +16,12 @@ protocol ChallengeListUseCase {
     func compareToday(with date: Date) -> DateType?
 }
 
-struct ChallengeListUseCaseImpl: ChallengeListUseCase {
+final class ChallengeListUseCaseImpl: ChallengeListUseCase {
+    private let repository: UserChallengeRepository
+    init(repository: UserChallengeRepository) {
+        self.repository = repository
+    }
+    
     func list(by date: Date) -> Observable<[ChallengeItem]> {
         // TODO: 테스트 코드 제거
         return .just([

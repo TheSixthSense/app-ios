@@ -9,13 +9,19 @@
 import RIBs
 import RxRelay
 import Foundation
+import Repository
 
-protocol ChallengeDependency: Dependency { }
+protocol ChallengeDependency: Dependency {
+    var userChallengeRepository: UserChallengeRepository { get }
+}
 
 final class ChallengeComponent: Component<ChallengeDependency>,
                                 ChallengeCalendarDependency,
                                 ChallengeListDependency{
     var targetDate: PublishRelay<Date>
+    var userChallengeRepository: UserChallengeRepository {
+        dependency.userChallengeRepository
+    }
     
     override init(dependency: ChallengeDependency) {
         targetDate = .init()
