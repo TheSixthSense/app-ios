@@ -23,13 +23,14 @@ final class ChallengeListUseCaseImpl: ChallengeListUseCase {
     }
     
     func list(by date: Date) -> Observable<[ChallengeItem]> {
-        // TODO: 테스트 코드 제거
-        return .just([
-            .init(id: "아이디아이디1", emoji: "🦊", title: "하루 채식", status: .success),
-            .init(id: "아이디아이디2", emoji: "📆", title: "\(date)", status: .failed),
-            .init(id: "아이디아이디3", emoji: "🥬", title: "하루 채식", status: .success),
-            .init(id: "아이디아이디4", emoji: "🥵", title: "하루 채식", status: .waiting),
-        ])
+        return repository.dayList(by: date.toString(dateFormat: "yyyy-MM-dd"))
+            .asObservable()
+            .compactMap { UserChallengeList(JSONString: $0) }
+            .flatMap { response -> Observable<[ChallengeItem]> in
+                return .just(response.data.map {
+                    ChallengeItem(model: $0)
+                })
+            }
     }
     
     func delete(id: String) -> Observable<Void> {
