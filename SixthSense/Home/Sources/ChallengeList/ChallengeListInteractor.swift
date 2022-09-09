@@ -225,6 +225,8 @@ extension ChallengeSectionItem: RawRepresentable {
                 self = .failed(viewModel)
             case .waiting:
                 self = .waiting(viewModel)
+            case .none:
+                return nil
         }
     }
 }

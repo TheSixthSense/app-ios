@@ -59,13 +59,20 @@ struct ChallengeItem {
     let id: String
     let emoji: String
     let title: String
-    let status: ChallengeAchievedStatus
+    let status: ChallengeAchievedStatus?
+    
+    init(model: UserChallengeItem) {
+        self.id = model.id
+        self.emoji = model.emoji
+        self.title = model.name
+        self.status = .init(rawValue: model.verificationStatus)
+    }
 }
 
-enum ChallengeAchievedStatus {
-    case success
-    case failed
-    case waiting
+enum ChallengeAchievedStatus: String {
+    case success = "SUCCESS"
+    case failed = "FAILED"
+    case waiting = "WAITING"
 }
 
 enum DateType {
