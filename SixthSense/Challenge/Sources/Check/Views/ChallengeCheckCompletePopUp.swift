@@ -84,7 +84,6 @@ final class ChallengeCheckCompletePopUp: UIViewController {
     func configureConstraints() {
         celebrate.snp.makeConstraints {
             $0.width.equalTo(335)
-            $0.width.equalTo(335)
             $0.centerY.equalTo(popUpView.snp.top)
             $0.centerX.equalTo(popUpView)
         }
