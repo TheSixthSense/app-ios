@@ -183,17 +183,19 @@ final class MyPageHeaderItemCell: UITableViewCell {
         }
     }
 
-    func bind() {
-        let nicknameString = NSMutableAttributedString(string: "닉네임", attributes: [.font: AppFont.body1Bold,
-                                                                                       .foregroundColor: AppColor.systemBlack])
+    func bind(viewModel: MyPageHeaderViewModel) {
+        let nicknameString = NSMutableAttributedString(string: viewModel.nickname,
+                                                       attributes: [.font: AppFont.body1Bold,
+                                                                        .foregroundColor: AppColor.systemBlack])
         nicknameString.append(NSAttributedString(string: "님의", attributes: Constants.labelStyle))
         nicknameLabel.attributedText = nicknameString
 
         dateChallengeLabel.attributedText = NSAttributedString(string: "\(Date().month)월 챌린지 현황", attributes: Constants.labelStyle)
 
-        challengeCountLabel.attributedText = NSAttributedString(string: "10", attributes: Constants.boldLabelStyle)
-        challengeVerifiedLabel.attributedText = NSAttributedString(string: "10", attributes: Constants.boldLabelStyle)
-        challengeWaitingLabel.attributedText = NSAttributedString(string: "10", attributes: Constants.boldLabelStyle)
+        let stats = viewModel.statData
+        challengeCountLabel.attributedText = NSAttributedString(string: "\(stats.totalCount)", attributes: Constants.boldLabelStyle)
+        challengeVerifiedLabel.attributedText = NSAttributedString(string: "\(stats.successCount)", attributes: Constants.boldLabelStyle)
+        challengeWaitingLabel.attributedText = NSAttributedString(string: "\(stats.waitingCount)", attributes: Constants.boldLabelStyle)
     }
 }
 extension Date {

@@ -7,6 +7,7 @@
 //
 
 import RIBs
+import RxRelay
 import RxSwift
 
 protocol MyPageModifyRouting: ViewableRouting {
@@ -18,14 +19,17 @@ protocol MyPageModifyPresentable: Presentable {
 }
 
 protocol MyPageModifyPresenterHandler: AnyObject {
-
+    var userInfoPayload: Observable<UserInfoPayload> { get }
 }
 
 protocol MyPageModifyPresenterAction: AnyObject {
-
+    var viewWillAppear: Observable<Void> { get }
+    var didTapBackButton: Observable<Void> { get }
+    var withDrawConfirmed: Observable<Void> { get }
 }
 
 protocol MyPageModifyListener: AnyObject {
+    func popModifyView()
 }
 
 final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentable>, MyPageModifyInteractable {
@@ -33,21 +37,52 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
     weak var router: MyPageModifyRouting?
     weak var listener: MyPageModifyListener?
 
-    override init(presenter: MyPageModifyPresentable) {
+    private var userInfo: UserInfoPayload
+
+    private let userInfoPayloadRelay: PublishRelay<UserInfoPayload> = .init()
+    private let withDrawPopupRelay: PublishRelay<Void> = .init()
+
+    private var disposeBag = DisposeBag()
+
+    init(presenter: MyPageModifyPresentable, userPayload: UserInfoPayload) {
+        self.userInfo = userPayload
         super.init(presenter: presenter)
         presenter.handler = self
     }
 
     override func didBecomeActive() {
         super.didBecomeActive()
-
+        bind()
     }
 
     override func willResignActive() {
         super.willResignActive()
+        disposeBag = DisposeBag()
+    }
+
+    private func bind() {
+        guard let action = presenter.action else { return }
+
+        disposeBag.insert {
+
+            action.viewWillAppear
+                .withUnretained(self)
+                .bind(onNext: { owner, _ in
+                owner.userInfoPayloadRelay.accept(self.userInfo)
+            })
+
+            action.didTapBackButton
+                .withUnretained(self)
+                .bind(onNext: { owner, _ in
+                owner.listener?.popModifyView()
+            })
+
+
+        }
     }
 }
 
 extension MyPageModifyInteractor: MyPageModifyPresenterHandler {
-
+    var userInfoPayload: Observable<UserInfoPayload> { userInfoPayloadRelay.asObservable() }
 }
+

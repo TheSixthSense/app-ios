@@ -24,7 +24,7 @@ extension MyPageSection: SectionModelType {
 }
 
 enum MyPageSectionItem {
-    case header
+    case header(MyPageHeaderViewModel)
     case item(MyPageItemCellViewModel)
 }
 

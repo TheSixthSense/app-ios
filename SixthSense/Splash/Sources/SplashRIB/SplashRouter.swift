@@ -11,7 +11,7 @@ import UIKit
 import Account
 import Home
 
-protocol SplashInteractable: Interactable, UserInfoListener, HomeListener {
+protocol SplashInteractable: Interactable, HomeListener {
     var router: SplashRouting? { get set }
     var listener: SplashListener? { get set }
 }
@@ -19,7 +19,6 @@ protocol SplashInteractable: Interactable, UserInfoListener, HomeListener {
 protocol SplashViewControllable: ViewControllable { }
 
 final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControllable>, SplashRouting {
-    private let userInfoBuilder: UserInfoBuildable
     private let homeBuilder: HomeBuildable
     
     private var childRouting: ViewableRouting?
@@ -27,10 +26,8 @@ final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControlla
     public init(
         interactor: SplashInteractable,
         viewController: SplashViewControllable,
-        userInfoBuilder: UserInfoBuildable,
         homeBuilder: HomeBuildable
     ) {
-        self.userInfoBuilder = userInfoBuilder
         self.homeBuilder = homeBuilder
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
@@ -44,17 +41,6 @@ final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControlla
         viewController.uiviewController.modalPresentationStyle = .fullScreen
         viewControllable.present(viewController, animated: false)
         
-        attachChild(router)
-        self.childRouting = router
-    }
-    
-    func attachUserInfo() {
-        if childRouting != nil { return }
-        
-        let router = userInfoBuilder.build(withListener: interactor)
-        let viewController = router.viewControllable
-        viewController.uiviewController.modalPresentationStyle = .fullScreen
-        viewControllable.present(viewController, animated: false)
         attachChild(router)
         self.childRouting = router
     }

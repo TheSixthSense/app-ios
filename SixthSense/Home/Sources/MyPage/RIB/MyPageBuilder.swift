@@ -7,11 +7,14 @@
 //
 
 import RIBs
+import Repository
 
 protocol MyPageDependency: Dependency {
+    var userRepository: UserRepository { get }
+    var myPageUseCase: MyPageUseCase { get }
 }
 
-final class MyPageComponent: Component<MyPageDependency>, MyPageWebViewDependency {
+final class MyPageComponent: Component<MyPageDependency>, MyPageModifyDependency, MyPageWebViewDependency {
 }
 
 // MARK: - Builder
@@ -29,10 +32,11 @@ final class MyPageBuilder: Builder<MyPageDependency>, MyPageBuildable {
     func build(withListener listener: MyPageListener) -> MyPageRouting {
         let component = MyPageComponent(dependency: dependency)
         let viewController = MyPageViewController()
-        let interactor = MyPageInteractor(presenter: viewController)
+        let interactor = MyPageInteractor(presenter: viewController, dependency: dependency)
         interactor.listener = listener
 
         let myPageWebViewBuilder = MyPageWebViewBuilder(dependency: component)
-        return MyPageRouter(interactor: interactor, viewController: viewController, myPageWebView: myPageWebViewBuilder)
+        let myPageModifyBuilder = MyPageModifyBuilder(dependency: component)
+        return MyPageRouter(interactor: interactor, viewController: viewController, mypageModifyView: myPageModifyBuilder, myPageWebView: myPageWebViewBuilder)
     }
 }

@@ -9,8 +9,9 @@
 import RxSwift
 
 public protocol UserRepository: AnyObject {
-    func user() -> Single<String>
     func login(request: LoginRequest) -> Single<Void>
     func validateNickname(request: String) -> Single<String>
     func signUp(request: SignUpRequest) -> Single<String>
+    func info() -> Single<String>
+    func challengeStats() -> Single<String>
 }

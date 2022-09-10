@@ -17,7 +17,7 @@ final class MyPageModifyComponent: Component<MyPageModifyDependency> {
 // MARK: - Builder
 
 protocol MyPageModifyBuildable: Buildable {
-    func build(withListener listener: MyPageModifyListener) -> MyPageModifyRouting
+    func build(withListener listener: MyPageModifyListener, userData: UserInfoPayload) -> MyPageModifyRouting
 }
 
 final class MyPageModifyBuilder: Builder<MyPageModifyDependency>, MyPageModifyBuildable {
@@ -26,10 +26,10 @@ final class MyPageModifyBuilder: Builder<MyPageModifyDependency>, MyPageModifyBu
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: MyPageModifyListener) -> MyPageModifyRouting {
+    func build(withListener listener: MyPageModifyListener, userData: UserInfoPayload) -> MyPageModifyRouting {
         let component = MyPageModifyComponent(dependency: dependency)
         let viewController = MyPageModifyViewController()
-        let interactor = MyPageModifyInteractor(presenter: viewController)
+        let interactor = MyPageModifyInteractor(presenter: viewController, userPayload: userData)
         interactor.listener = listener
         return MyPageModifyRouter(interactor: interactor, viewController: viewController)
     }
