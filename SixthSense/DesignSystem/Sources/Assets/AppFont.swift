@@ -12,8 +12,6 @@ public typealias AppFont = DesignSystemFontFamily
 
 extension AppFont {
 
-    // TODO: - 브랜드 로고 폰트 사이즈 추가
-
     /// 12px
     public static var caption: UIFont {
         return UIFont(font: AppFont.Pretendard.regular, size: 12)!

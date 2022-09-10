@@ -73,6 +73,7 @@ final class ChallengeRecommendViewController: UIViewController, ChallengeRecomme
         $0.showsVerticalScrollIndicator = false
         $0.contentInsetAdjustmentBehavior = .never
         $0.decelerationRate = .fast
+        $0.isPagingEnabled = false
     }
 
     private var pageControl = AppPageControl().then {
@@ -172,14 +173,17 @@ private extension ChallengeRecommendViewController {
             .willEndDragging
             .withUnretained(self)
             .map({ owner, event -> Int in
+
             let cellWidth = UIScreen.main.bounds.width
             let offset = owner.recommendCollectionView.contentOffset.x / cellWidth
-            let cellIndex: CGFloat = round(offset)
 
-            event.targetContentOffset.pointee = CGPoint(
-                x: cellIndex * cellWidth - owner.recommendCollectionView.contentInset.left,
-                y: 0)
-            return Int(cellIndex)
+            let index = event.velocity.x > 0 ? ceil(offset) : floor(offset)
+            guard index < 3 else {
+                return Int(floor(offset))
+            }
+
+            event.targetContentOffset.pointee = CGPoint(x: index * cellWidth, y: 0)
+            return Int(index)
         }).bind(to: pageControl.rx.currentPage,
                 recommendCollectionView.rx.didHorizontalScroll,
                 doneButton.rx.isLastPage,

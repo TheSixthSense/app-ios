@@ -139,7 +139,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         action.didTapDoneButton
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-            owner.configureRequestModel(date: Date().toString(dateFormat: "YYYY-MM-dd"))
+            owner.configureRequestModel(date: owner.calendarConfiguration.basisFullDate.toString(dateFormat: "YYYY-MM-dd"))
             owner.joinChallenge(request: owner.request)
         }).disposeOnDeactivate(interactor: self)
 
