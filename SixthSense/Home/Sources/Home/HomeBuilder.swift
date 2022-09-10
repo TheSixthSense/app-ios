@@ -13,6 +13,7 @@ import Repository
 public protocol HomeDependency: Dependency {
     var network: Network { get }
     var challengeRepository: ChallengeRepository { get }
+    var userRepository: UserRepository { get }
 }
 
 // MARK: - Builder

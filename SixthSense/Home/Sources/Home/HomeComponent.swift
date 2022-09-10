@@ -13,10 +13,12 @@ import Repository
 final class HomeComponent: Component<HomeDependency>,
                             ChallengeDependency,
                             MyPageDependency,
-                           ChallengeRegisterDependency {
+                            ChallengeRegisterDependency {
 
     var challengeRegisterUseCase: ChallengeRegisterUseCase
     var challengeRepository: ChallengeRepository
+    var userRepository: UserRepository
+    var myPageUseCase: MyPageUseCase
     var network: Network
     private let rootViewController: ViewControllable
 
@@ -24,6 +26,8 @@ final class HomeComponent: Component<HomeDependency>,
          rootViewController: ViewControllable) {
         self.rootViewController = rootViewController
         self.network = dependency.network
+        self.userRepository = dependency.userRepository
+        self.myPageUseCase = MyPageUseCaseImpl(userRepository: dependency.userRepository)
         self.challengeRepository = dependency.challengeRepository
         self.challengeRegisterUseCase = ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository)
         super.init(dependency: dependency)
