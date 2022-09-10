@@ -13,7 +13,7 @@ import SnapKit
 import Then
 import UIKit
 
-final class GenderStepViewController: UIViewController {
+public final class GenderStepViewController: UIViewController {
 
     // MARK: - UI
 
@@ -50,34 +50,34 @@ final class GenderStepViewController: UIViewController {
 
     // MARK: - LifeCycle
 
-    init() {
+    public init() {
         selectButtons = [maleButton, femaleButton, etcButton, noneButton]
         selectButtonState = Observable.from(
             selectButtons
                 .map { button in
                 button.rx.tap.map { button } }
         ).merge().share()
-        
+
         selectedButton = PublishRelay.init()
-        
+
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
         bindUI()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
+    public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
     }
 
-    override func viewWillLayoutSubviews() {
+    public override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         configureLayout()
     }

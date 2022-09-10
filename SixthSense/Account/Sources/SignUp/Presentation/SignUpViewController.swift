@@ -30,7 +30,7 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
 
     var signUpPageView: SignUpPageViewController
 
-    private lazy var stepIconImageView = UIImageView().then { view in
+    private var stepIconImageView = UIImageView().then { view in
         view.image = AppImage.signUpIcon1.image
         view.contentMode = .scaleAspectFit
         view.clipsToBounds = false
@@ -62,7 +62,7 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
         label.textColor = .main
     }
 
-    private lazy var bottomButton = AppButton(title: "다음")
+    private var bottomButton = AppButton(title: "다음")
 
     // MARK: - Vars
     private let progressPositions: [Float] = [0.25, 0.5, 0.75, 1]
@@ -85,6 +85,7 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+
         bindUI()
     }
 

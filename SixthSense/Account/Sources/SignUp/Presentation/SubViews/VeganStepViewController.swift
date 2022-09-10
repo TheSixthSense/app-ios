@@ -14,7 +14,7 @@ import SnapKit
 import Then
 import UIKit
 
-final class VeganStepViewController: UIViewController {
+public final class VeganStepViewController: UIViewController {
 
     // MARK: - UI
 
@@ -55,7 +55,7 @@ final class VeganStepViewController: UIViewController {
 
     // MARK: - LifeCycle
 
-    init() {
+    public init() {
         imageButtons = [beginnerButton, juniorButton, seniorButton, retryButton]
         imageButtonState = Observable.from(
             imageButtons
@@ -71,21 +71,21 @@ final class VeganStepViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
         bindUI()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
+    public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
     }
 
-    override func viewWillLayoutSubviews() {
+    public override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         configureLaout()
     }
