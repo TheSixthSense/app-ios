@@ -28,11 +28,11 @@ final class MyPageViewController: UIViewController, MyPagePresentable, MyPageVie
             guard let cell = tableView.dequeue(MyPageItemCell.self, for: indexPath) as? MyPageItemCell else { return UITableViewCell() }
             cell.bind(viewModel: viewModel)
             return cell
-        case .header:
+        case .header(let viewModel):
             guard let cell = tableView.dequeue(MyPageHeaderItemCell.self, for: indexPath) as? MyPageHeaderItemCell else {
                 return UITableViewCell()
             }
-            cell.bind()
+            cell.bind(viewModel: viewModel)
             return cell
         }
     }
