@@ -12,7 +12,7 @@ import RxSwift
 
 protocol MyPageModifyRouting: ViewableRouting {
     func routeToModifyInfo(type: ModifyType)
-    func detachModifyView()
+    func detachModifyInfoView()
 }
 
 protocol MyPageModifyPresentable: Presentable {
@@ -65,7 +65,6 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
     private func bind() {
         guard let action = presenter.action else { return }
 
-
         action.viewWillAppear
             .withUnretained(self)
             .bind(onNext: { owner, _ in
@@ -83,6 +82,10 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
             .bind(onNext: { owner, type in
             owner.router?.routeToModifyInfo(type: type)
         }).disposeOnDeactivate(interactor: self)
+    }
+
+    func popModifyInfoView() {
+        router?.detachModifyInfoView()
     }
 }
 

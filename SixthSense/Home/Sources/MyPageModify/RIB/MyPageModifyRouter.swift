@@ -39,7 +39,7 @@ final class MyPageModifyRouter: ViewableRouter<MyPageModifyInteractable, MyPageM
         attachChild(router)
     }
 
-    func detachModifyView() {
+    func detachModifyInfoView() {
         guard let router = childRouting else { return }
         detachChild(router)
         viewController.popViewController(animated: true)
