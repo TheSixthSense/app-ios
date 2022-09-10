@@ -128,7 +128,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     }
 
     private func fetchChallengeUserData() -> Observable<UserChallengeStatModel> {
-        return dependency.myPageUseCase.fetchUserChallengeStats().asObservable().debug()
+        return dependency.myPageUseCase.fetchUserChallengeStats().asObservable()
     }
 
 
