@@ -17,7 +17,7 @@ let project = Project.library(
     .rxDataSources,
     .ribs,
     .rxGesture
-  ] + [Module.utils, .repository, .designSystem].map(\.project),
+  ] + [Module.utils, .repository, .designSystem, .uiCore].map(\.project),
   additionalTargets: [],
   resources: .default
 )

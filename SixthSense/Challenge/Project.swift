@@ -18,7 +18,8 @@ let project = Project.library(
     .ribs,
     .rxGesture,
     .objectMapper,
-    .kingfisher
+    .kingfisher,
+    .lottie
   ] + [Module.utils, .repository, .designSystem].map(\.project),
   additionalTargets: [],
   resources: .default

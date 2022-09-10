@@ -13,9 +13,16 @@ import RxRelay
 import UIKit
 import DesignSystem
 import UICore
+import Lottie
 import Kingfisher
 
 final class ChallengeCheckCompletePopUp: UIViewController {
+    private let celebrate = AnimationView().then {
+        $0.contentMode = .scaleToFill
+        $0.animation = Animation.celebrate
+        $0.loopMode = .loop
+        $0.play()
+    }
     
     private let popUpView = UIView().then {
         $0.backgroundColor = .white
@@ -70,11 +77,17 @@ final class ChallengeCheckCompletePopUp: UIViewController {
     func configureUI() {
         view.backgroundColor = UIColor.black.withAlphaComponent(0.3)
                
-        view.addSubviews(popUpView, icon)
+        view.addSubviews(celebrate, popUpView, icon)
         popUpView.addSubviews(closeButton, titleImageView, contentsImageView, doneButton)
     }
     
     func configureConstraints() {
+        celebrate.snp.makeConstraints {
+            $0.width.equalTo(335)
+            $0.centerY.equalTo(popUpView.snp.top)
+            $0.centerX.equalTo(popUpView)
+        }
+        
         popUpView.snp.makeConstraints {
             $0.center.equalToSuperview()
             $0.width.equalTo(335)

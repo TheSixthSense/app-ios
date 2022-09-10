@@ -10,4 +10,5 @@ import Lottie
 
 public extension Animation {
     static let logo: Animation? = .named("temp_logo", bundle: .module)
+    static let celebrate: Animation? = .named("celebrate", bundle: .module)
 }

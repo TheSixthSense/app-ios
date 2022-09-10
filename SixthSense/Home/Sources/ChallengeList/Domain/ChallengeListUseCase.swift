@@ -12,6 +12,7 @@ import RxSwift
 protocol ChallengeListUseCase {
     func list(by date: Date) -> Observable<[ChallengeItem]>
     func delete(id: String) -> Observable<Void>
+    func compareToday(with date: Date) -> DateType?
 }
 
 struct ChallengeListUseCaseImpl: ChallengeListUseCase {
@@ -29,6 +30,22 @@ struct ChallengeListUseCaseImpl: ChallengeListUseCase {
         // TODO: 테스트 코드 제거
         return .just(())
     }
+    
+    func compareToday(with date: Date) -> DateType? {
+        let calendar = Calendar.current
+        let interval = calendar.dateComponents([.year, .month, .day], from: Date(), to: date)
+        
+        guard let intervalDay = interval.day else { return nil }
+        
+        switch intervalDay {
+            case Int.min..<0:
+                return .beforeToday
+            case 0:
+                return .today
+            default:
+                return .afterToday
+        }
+    }
 }
 
 // TODO: 서버 스펙 확정후 엔티티 확정하면서 파일로 분리할 예정
@@ -43,4 +60,10 @@ enum ChallengeAchievedStatus {
     case success
     case failed
     case waiting
+}
+
+enum DateType {
+    case beforeToday
+    case today
+    case afterToday
 }
