@@ -11,46 +11,45 @@ import Moya
 import Utils
 
 enum UserAPI {
-    case user
+    case info
     case login(LoginRequest)
     case validateNickname(String)
     case signUp(SignUpRequest)
+    case challengeStats
 }
 
 extension UserAPI: BaseAPI, AccessTokenAuthorizable {
     var authorizationType: AuthorizationType? {
         switch self {
-            case .user, .login, .signUp, .validateNickname:
-                return .none
+        case .info, .challengeStats:
+            return .bearer
+        default:
+            return .none
         }
     }
-    
-    // FIXME: 추후 UserInfo 제거 하면서 tempURL도 제거
+
     var baseURL: URL {
-        switch self {
-        case .user:
-            return API.EndPoint.temp.url
-        case .login, .signUp, .validateNickname:
-            return API.EndPoint.base.url
-        }
+        return API.EndPoint.base.url
     }
 
     var path: String {
         switch self {
-        case .user:
-            return "/users"
+        case .info:
+            return "/user/info"
         case .login:
             return "/auth/login"
         case .signUp:
             return "/signup"
         case .validateNickname:
             return "/check/nick-name"
+        case .challengeStats:
+            return "/user/challenge/stats"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .user, .validateNickname:
+        case .info, .validateNickname, .challengeStats:
             return .get
         case .login, .signUp:
             return .post
