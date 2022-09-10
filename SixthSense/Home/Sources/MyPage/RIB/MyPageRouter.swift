@@ -59,5 +59,10 @@ final class MyPageRouter: ViewableRouter<MyPageInteractable, MyPageViewControlla
         attachChild(router)
     }
 
+    func detachModifyView() {
+        guard let router = childRouting else { return }
+        detachChild(router)
+        viewController.popViewController(animated: true)
+        self.childRouting = nil
     }
 }

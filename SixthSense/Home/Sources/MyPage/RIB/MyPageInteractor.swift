@@ -139,6 +139,10 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     func pop() {
         router?.detachWebView()
     }
+
+    func popModifyView() {
+        router?.detachModifyView()
+    }
 }
 extension MyPageInteractor: MyPagePresenterHandler {
     var myPageSections: Observable<[MyPageSection]> { myPageSectionsRelay.asObservable() }
