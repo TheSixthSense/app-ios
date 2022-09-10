@@ -81,6 +81,9 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
             .withUnretained(self)
             .subscribe(onNext: { owner, item in
             switch item.type {
+            case .modifyProfile:
+                owner.router?.routeToModifyView(userData: owner.userInfoPayload)
+                return
             case .privacyPolicy, .termsOfService:
                 owner.router?.routeToWebView(urlString: item.type.url ?? "", titleString: item.type.title)
                 return

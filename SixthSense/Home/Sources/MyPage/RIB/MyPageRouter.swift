@@ -8,7 +8,7 @@
 
 import RIBs
 
-protocol MyPageInteractable: Interactable, MyPageWebViewListener {
+protocol MyPageInteractable: Interactable, MyPageModifyListener, MyPageWebViewListener {
     var router: MyPageRouting? { get set }
     var listener: MyPageListener? { get set }
 }
@@ -21,11 +21,14 @@ final class MyPageRouter: ViewableRouter<MyPageInteractable, MyPageViewControlla
     var childRouting: ViewableRouting?
 
     var myPageWebView: MyPageWebViewBuildable
+    var mypageModifyView: MyPageModifyBuildable
 
     init(interactor: MyPageInteractable,
          viewController: MyPageViewControllable,
+         mypageModifyView: MyPageModifyBuildable,
          myPageWebView: MyPageWebViewBuildable
     ) {
+        self.mypageModifyView = mypageModifyView
         self.myPageWebView = myPageWebView
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
@@ -45,6 +48,16 @@ final class MyPageRouter: ViewableRouter<MyPageInteractable, MyPageViewControlla
         detachChild(router)
         viewController.popViewController(animated: true)
         self.childRouting = nil
+    }
+
+    func routeToModifyView(userData: UserInfoPayload) {
+        if childRouting != nil { return }
+
+        let router = mypageModifyView.build(withListener: interactor, userData: userData)
+        viewControllable.pushViewController(router.viewControllable, animated: true)
+        self.childRouting = router
+        attachChild(router)
+    }
 
     }
 }
