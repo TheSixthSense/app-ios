@@ -41,6 +41,17 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
             static var tableViewBottom = -10.0
             static var doneButtonBottom = -32.0
         }
+
+        enum Picker {
+            static let suffix: (Int) -> String = {
+                switch $0 {
+                case 0: return "년"
+                case 1: return "월"
+                case 2: return "일"
+                default: return .init()
+                }
+            }
+        }
     }
 
     private let categoryDataSource = CategorySections { _, collectionView, indexPath, item in
@@ -79,7 +90,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
             return items[component].count
         },
         titleForRow: { _, _, items, row, component -> String? in
-            return "\(items[component][row])"
+            return "\(items[component][row])\(Constants.Picker.suffix(component))"
         }
     )
 
@@ -142,7 +153,6 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         $0.backgroundColor = .clear
         $0.separatorStyle = .none
     }
-
     private var doneButton = AppButton(title: "챌린지 선택 완료").then {
         $0.hasFocused = false
         $0.layer.cornerRadius = 10
@@ -373,5 +383,4 @@ extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
     var didTapCalendarView: Observable<Void> { calenderLabel.rx.controlEvent(.editingDidBegin).map { () }.asObservable() }
     var calendarBeginEditing: Observable<(row: Int, component: Int)> { pickerView.rx.itemSelected.asObservable() }
     var calendarDidSelected: Observable<Void> { pickerDoneButton.rx.tap.asObservable() }
-
 }
