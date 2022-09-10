@@ -11,6 +11,8 @@ import RxRelay
 import RxSwift
 
 protocol MyPageModifyRouting: ViewableRouting {
+    func routeToModifyInfo(type: ModifyType)
+    func detachModifyView()
 }
 
 protocol MyPageModifyPresentable: Presentable {
@@ -26,6 +28,7 @@ protocol MyPageModifyPresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
     var didTapBackButton: Observable<Void> { get }
     var withDrawConfirmed: Observable<Void> { get }
+    var didTapEditButton: Observable<ModifyType> { get }
 }
 
 protocol MyPageModifyListener: AnyObject {
@@ -57,28 +60,29 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
 
     override func willResignActive() {
         super.willResignActive()
-        disposeBag = DisposeBag()
     }
 
     private func bind() {
         guard let action = presenter.action else { return }
 
-        disposeBag.insert {
 
-            action.viewWillAppear
-                .withUnretained(self)
-                .bind(onNext: { owner, _ in
-                owner.userInfoPayloadRelay.accept(self.userInfo)
-            })
+        action.viewWillAppear
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.userInfoPayloadRelay.accept(self.userInfo)
+        }).disposeOnDeactivate(interactor: self)
 
-            action.didTapBackButton
-                .withUnretained(self)
-                .bind(onNext: { owner, _ in
-                owner.listener?.popModifyView()
-            })
+        action.didTapBackButton
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.listener?.popModifyView()
+        }).disposeOnDeactivate(interactor: self)
 
-
-        }
+        action.didTapEditButton
+            .withUnretained(self)
+            .bind(onNext: { owner, type in
+            owner.router?.routeToModifyInfo(type: type)
+        }).disposeOnDeactivate(interactor: self)
     }
 }
 
