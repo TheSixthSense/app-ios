@@ -39,8 +39,8 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
 
     private var userInfo: UserInfoPayload
 
-    private var userInfoPayloadRelay: PublishRelay<UserInfoPayload> = .init()
-    private var withDrawPopupRelay: PublishRelay<Void> = .init()
+    private let userInfoPayloadRelay: PublishRelay<UserInfoPayload> = .init()
+    private let withDrawPopupRelay: PublishRelay<Void> = .init()
 
     private var disposeBag = DisposeBag()
 
