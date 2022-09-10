@@ -14,8 +14,6 @@ import SnapKit
 import DesignSystem
 import Then
 
-// TODO: - 닉네임 validation API 추가
-
 final class NicknameStepViewController: UIViewController {
 
     // MARK: - UI

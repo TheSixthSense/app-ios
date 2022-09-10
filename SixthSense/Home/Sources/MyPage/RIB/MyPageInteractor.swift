@@ -81,6 +81,9 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
             .withUnretained(self)
             .subscribe(onNext: { owner, item in
             switch item.type {
+            case .modifyProfile:
+                owner.router?.routeToModifyView(userData: owner.userInfoPayload)
+                return
             case .privacyPolicy, .termsOfService:
                 owner.router?.routeToWebView(urlString: item.type.url ?? "", titleString: item.type.title)
                 return
@@ -133,8 +136,12 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         // TODO: - 로그아웃 API & AccessToken 제거
     }
 
-    func pop() {
+    func popWebView() {
         router?.detachWebView()
+    }
+
+    func popModifyView() {
+        router?.detachModifyView()
     }
 }
 extension MyPageInteractor: MyPagePresenterHandler {
