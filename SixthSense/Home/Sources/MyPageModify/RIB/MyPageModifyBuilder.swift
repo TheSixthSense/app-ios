@@ -11,7 +11,7 @@ import RIBs
 protocol MyPageModifyDependency: Dependency {
 }
 
-final class MyPageModifyComponent: Component<MyPageModifyDependency> {
+final class MyPageModifyComponent: Component<MyPageModifyDependency>, MyPageModifyInfoDependency {
 }
 
 // MARK: - Builder
@@ -31,6 +31,8 @@ final class MyPageModifyBuilder: Builder<MyPageModifyDependency>, MyPageModifyBu
         let viewController = MyPageModifyViewController()
         let interactor = MyPageModifyInteractor(presenter: viewController, userPayload: userData)
         interactor.listener = listener
-        return MyPageModifyRouter(interactor: interactor, viewController: viewController)
+
+        let infoBuilder = MyPageModifyInfoBuilder(dependency: component)
+        return MyPageModifyRouter(interactor: interactor, viewController: viewController, modifyInfoBuilder: infoBuilder)
     }
 }
