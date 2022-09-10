@@ -136,7 +136,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         // TODO: - 로그아웃 API & AccessToken 제거
     }
 
-    func pop() {
+    func popWebView() {
         router?.detachWebView()
     }
 

@@ -21,10 +21,11 @@ protocol MypageWebViewPresenterAction: AnyObject {
 }
 
 protocol MyPageWebViewListener: AnyObject {
-    func pop()
+    func popWebView()
 }
 
 final class MyPageWebViewInteractor: PresentableInteractor<MyPageWebViewPresentable>, MyPageWebViewInteractable, MyPageWebViewPresentableListener {
+
     weak var router: MyPageWebViewRouting?
     weak var listener: MyPageWebViewListener?
 
@@ -42,6 +43,6 @@ final class MyPageWebViewInteractor: PresentableInteractor<MyPageWebViewPresenta
     }
 
     func pop() {
-        listener?.pop()
+        listener?.popWebView()
     }
 }
