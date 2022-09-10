@@ -19,7 +19,7 @@ public protocol SplashDependency: Dependency {
     var challengeRepository: ChallengeRepository { get }
 }
 
-final class SplashComponent: Component<SplashDependency>, UserInfoDependency, HomeDependency {
+final class SplashComponent: Component<SplashDependency>, HomeDependency {
 
     var network: Network { dependency.network }
     var userRepository: UserRepository { dependency.userRepository }
@@ -46,15 +46,13 @@ public final class SplashBuilder: Builder<SplashDependency>, SplashBuildable {
         let component = SplashComponent(dependency: dependency)
         let viewController = SplashViewController()
         let interactor = SplashInteractor(presenter: viewController)
-        
-        let userInfoBuilder = UserInfoBuilder(dependency: component)
+
         let homeBuilder = HomeBuilder(dependency: component)
         
         interactor.listener = listener
         return SplashRouter(
             interactor: interactor,
             viewController: viewController,
-            userInfoBuilder: userInfoBuilder,
             homeBuilder: homeBuilder
         )
     }
