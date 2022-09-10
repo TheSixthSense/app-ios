@@ -83,7 +83,10 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
         $0.layer.cornerRadius = 10
     }
     
+    // MARK: Properties
     let imageRelay: PublishRelay<UIImage?> = .init()
+    private let backRelay: PublishRelay<Void> = .init()
+    private let doneRelay: PublishRelay<ChallengeCheckRequest> = .init()
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -181,11 +184,35 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
             })
             .disposed(by: self.disposeBag)
         
+        backButton.rx.tap
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.showBackConfirmAlert()
+            })
+            .disposed(by: self.disposeBag)
+        
+        button.rx.tap
+            .withLatestFrom(imageRelay.asObservable()) { $1 }
+            .withLatestFrom(commentField.rx.text) { image, text in
+                ChallengeCheckRequest(image: image, text: text)
+            }
+            .withUnretained(self)
+            .subscribe(onNext: { owner, request in
+                owner.showRequestConfirmAlert(request)
+            })
+            .disposed(by: self.disposeBag)
 
         guard let handler = handler else { return }
         
         handler.doneButtonActive
             .bind(to: button.rx.hasFocused)
+            .disposed(by: self.disposeBag)
+        
+        handler.showDonePopUp
+            .asDriver(onErrorJustReturn: .init())
+            .drive(onNext: { [weak self] in
+                self?.showCompletePopUp($0)
+            })
             .disposed(by: self.disposeBag)
     }
 
@@ -221,6 +248,38 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
         self.present(alert, animated: true)
     }
     
+    private func showBackConfirmAlert() {
+        showAlert(title: "챌린지 인증을 종료할거야?",
+                        message: "아쉽지만🥲 다음에 다른 챌린지로 또 만나요!",
+                        actions: [.action(title: "앗..실수였어..", style: .negative),
+                                  .action(title: "응, 종료할게", style: .positive)])
+        .filter { $0 == .positive }
+        .withUnretained(self)
+        .subscribe(onNext: { owner, _ in
+            owner.backRelay.accept(())
+        })
+        .disposed(by: self.disposeBag)
+    }
+    
+    private func showRequestConfirmAlert(_ request: ChallengeCheckRequest) {
+        showAlert(title: "🚨 챌린지 인증 주의사항 🚨",
+                        message: "인증 후에는 수정이 어려우니\n한번 더 꼼꼼히 확인하는 걸 추천해요",
+                        actions: [.action(title: "앗, 다시 보고올게", style: .negative),
+                                  .action(title: "응, 문제없어", style: .positive)])
+        .filter { $0 == .positive }
+        .withUnretained(self)
+        .subscribe(onNext: { owner, _ in
+            owner.doneRelay.accept(request)
+        })
+        .disposed(by: self.disposeBag)
+    }
+    
+    private func showCompletePopUp(_ data: ChallengeCheckComplete) {
+        let popUpViewController = ChallengeCheckCompletePopUp(dismissRelay: backRelay, data: data)
+        popUpViewController.modalPresentationStyle = .overCurrentContext
+        present(popUpViewController, animated: true, completion: nil)
+    }
+    
     private func showCameraView() {
         let camera = UIImagePickerController().then {
             $0.sourceType = .camera
@@ -252,14 +311,8 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
 }
 
 extension ChallengeCheckViewController: ChallengeCheckPresenterAction {
-    var backDidTap: Observable<Void> { backButton.rx.tap.map { _ in () } }
+    var backDidTap: Observable<Void> { backRelay.asObservable() }
     var imageDidLoaded: Observable<UIImage?> { imageRelay.asObservable() }
     var commentAvailable: Observable<Bool> { commentField.rx.available }
-    var doneDidTap: Observable<ChallengeCheckRequest> {
-        button.rx.tap
-            .withLatestFrom(imageRelay.asObservable()) { $1 }
-            .withLatestFrom(commentField.rx.text) { image, text in
-                ChallengeCheckRequest(image: image, text: text)
-            }
-    }
+    var doneDidTap: Observable<ChallengeCheckRequest> { doneRelay.asObservable() }
 }
