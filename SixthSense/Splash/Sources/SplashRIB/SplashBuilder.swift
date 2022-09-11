@@ -14,12 +14,11 @@ import Home
 
 public protocol SplashDependency: Dependency {
     var network: Network { get }
-    var persistence: LocalPersistence { get }
     var userRepository: UserRepository { get }
     var challengeRepository: ChallengeRepository { get }
 }
 
-final class SplashComponent: Component<SplashDependency>, HomeDependency {
+final class SplashComponent: Component<SplashDependency> {
 
     var network: Network { dependency.network }
     var userRepository: UserRepository { dependency.userRepository }
@@ -43,17 +42,14 @@ public final class SplashBuilder: Builder<SplashDependency>, SplashBuildable {
     }
     
     public func build(withListener listener: SplashListener) -> SplashRouting {
-        let component = SplashComponent(dependency: dependency)
+        let _ = SplashComponent(dependency: dependency)
         let viewController = SplashViewController()
         let interactor = SplashInteractor(presenter: viewController)
-
-        let homeBuilder = HomeBuilder(dependency: component)
         
         interactor.listener = listener
         return SplashRouter(
             interactor: interactor,
-            viewController: viewController,
-            homeBuilder: homeBuilder
+            viewController: viewController
         )
     }
 }

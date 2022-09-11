@@ -19,29 +19,12 @@ protocol SplashInteractable: Interactable, HomeListener {
 protocol SplashViewControllable: ViewControllable { }
 
 final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControllable>, SplashRouting {
-    private let homeBuilder: HomeBuildable
-    
     private var childRouting: ViewableRouting?
     
-    public init(
+    override public init(
         interactor: SplashInteractable,
-        viewController: SplashViewControllable,
-        homeBuilder: HomeBuildable
-    ) {
-        self.homeBuilder = homeBuilder
+        viewController: SplashViewControllable) {
         super.init(interactor: interactor, viewController: viewController)
         interactor.router = self
-    }
-    
-    func attachHome() {
-        if childRouting != nil { return }
-        
-        let router = homeBuilder.build(withListener: interactor)
-        let viewController = router.viewControllable
-        viewController.uiviewController.modalPresentationStyle = .fullScreen
-        viewControllable.present(viewController, animated: false)
-        
-        attachChild(router)
-        self.childRouting = router
     }
 }
