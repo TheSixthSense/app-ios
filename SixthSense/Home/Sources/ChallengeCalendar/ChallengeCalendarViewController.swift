@@ -34,6 +34,14 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
                     default: return .init()
                 }
             }
+            static let dateToYearMonth: (Date) -> String = {
+                let dateFormatter = DateFormatter().then {
+                    $0.dateFormat = "yyyy년 MM월"
+                    $0.timeZone = TimeZone(identifier: "KST")
+                }
+                
+                return dateFormatter.string(from: $0)
+            }
         }
     }
     
@@ -41,7 +49,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
     let dateSelectRelay: PublishRelay<Date> = .init()
     private let fetchRelay: PublishRelay<Void> = .init()
     
-    private var disposeBag = DisposeBag()
+    private let disposeBag = DisposeBag()
     private let pickerAdapter = RxPickerViewStringAdapter<[[Int]]>(
         components: [],
         numberOfComponents: { _,_,_  in 2 },
@@ -124,7 +132,6 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        disposeBag = DisposeBag()
     }
     
     private func configureViews() {
@@ -189,7 +196,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
             .disposed(by: self.disposeBag)
         
         handler.basisDate
-            .map(dateToYearMonthString)
+            .map(Constants.Picker.dateToYearMonth)
             .asDriver(onErrorJustReturn: .init())
             .drive(onNext: { [weak self] in
                 self?.headerView.monthLabel.text = $0
@@ -207,15 +214,6 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         handler.calenarDataSource
             .bind(to: pickerView.rx.items(adapter: pickerAdapter))
             .disposed(by: self.disposeBag)
-    }
-    
-    private func dateToYearMonthString(_ date: Date) -> String {
-        let dateFormatter = DateFormatter().then {
-            $0.dateFormat = "yyyy년 MM월"
-            $0.timeZone = TimeZone(identifier: "KST")
-        }
-        
-        return dateFormatter.string(from: date)
     }
 }
 
