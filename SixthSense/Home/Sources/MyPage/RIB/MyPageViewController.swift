@@ -48,10 +48,10 @@ final class MyPageViewController: UIViewController, MyPagePresentable, MyPageVie
         $0.separatorStyle = .none
     }
 
-    private var logoutAlertActions: PublishRelay<AlertAction.Style> = PublishRelay.init()
-    private var logoutButtonTapped: PublishRelay<Bool> = PublishRelay.init()
+    private var logoutButtonTapped: PublishRelay<Void> = PublishRelay.init()
+    private var routeToSignInRelay: PublishRelay<Void> = PublishRelay.init()
 
-    private var disposeBag = DisposeBag()
+    private let disposeBag = DisposeBag()
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -111,6 +111,12 @@ extension MyPageViewController {
         guard let handler = handler else { return }
         disposeBag.insert {
 
+            handler.presentSignInPopup
+                .withUnretained(self)
+                .bind(onNext: { owner, _ in
+                owner.presentSignIn()
+            })
+
             handler.myPageSections
                 .asDriver(onErrorJustReturn: [])
                 .drive(myPageTableView.rx.items(dataSource: myPageDataSource))
@@ -124,7 +130,15 @@ extension MyPageViewController {
     }
 
     private func logout() {
-        logoutButtonTapped.accept(true)
+        logoutButtonTapped.accept(())
+    }
+
+    private func presentSignIn() {
+        showErrorAlert(title: "로그인이 필요합니다", message: "로그인 하세요", actionTitle: "오키")
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.routeToSignInRelay.accept(())
+        }).disposed(by: disposeBag)
     }
 
     private func presentLogout() {
@@ -142,5 +156,6 @@ extension MyPageViewController: MyPagePresenterAction {
     var didSelectItem: Observable <MyPageItemCellViewModel> {
         myPageTableView.rx.modelSelected(MyPageSectionItem.self).compactMap(\.rawValue)
     }
-    var loggedOut: Observable<Void> { logoutButtonTapped.map { _ in () }.asObservable().debug() }
+    var loggedOut: Observable<Void> { logoutButtonTapped.asObservable() }
+    var routeToSignIn: Observable<Void> { routeToSignInRelay.asObservable() }
 }
