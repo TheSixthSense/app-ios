@@ -22,7 +22,6 @@ final class HomeComponent: Component<HomeDependency>,
     var userChallengeRepository: UserChallengeRepository
     var challengeRepository: ChallengeRepository
     var userRepository: UserRepository
-    var myPageUseCase: MyPageUseCase
     var network: Network
     var targetDate: PublishRelay<Date>
     var persistence: LocalPersistence { dependency.persistence }
@@ -33,7 +32,6 @@ final class HomeComponent: Component<HomeDependency>,
         self.rootViewController = rootViewController
         self.network = dependency.network
         self.userRepository = dependency.userRepository
-        self.myPageUseCase = MyPageUseCaseImpl(userRepository: dependency.userRepository)
         self.challengeRepository = dependency.challengeRepository
         self.userChallengeRepository = UserChallengeRepositoryImpl(
             network: dependency.network)
