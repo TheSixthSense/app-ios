@@ -22,6 +22,10 @@ public protocol RootPresentable: Presentable {
     var listener: RootPresentableListener? { get set }
 }
 
+protocol RootInteractorDependency {
+    var usecase: RootUseCase { get }
+}
+
 protocol RootListener: AnyObject {
 }
 
@@ -29,8 +33,10 @@ public final class RootInteractor: PresentableInteractor<RootPresentable>, RootI
 
     weak var router: RootRouting?
     weak var listener: RootListener?
+    private let dependency: RootInteractorDependency
 
-    public override init(presenter: RootPresentable) {
+    init(presenter: RootPresentable, dependency: RootInteractorDependency) {
+        self.dependency = dependency
         super.init(presenter: presenter)
         presenter.listener = self
     }
@@ -65,9 +71,8 @@ extension RootInteractor {
         }
     }
     
-    // FIXME: 아직 구현이 안된 메소드입니다
     private func shouldShowSignInView() -> Bool {
-        return true
+        return !dependency.usecase.logined()
     }
     
     public func signInDidTapClose() {
