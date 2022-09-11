@@ -7,17 +7,17 @@
 //
 
 import RIBs
+import Repository
 
 public protocol ChallengeCheckDependency: Dependency {
-    // TODO: Declare the set of dependencies required by this RIB, but cannot be
-    // created by this RIB.
+    var userChallengeRepository: UserChallengeRepository { get }
 }
 
 final class ChallengeCheckComponent: Component<ChallengeCheckDependency>, ChallengeCheckInteractorDependency {
     var usecase: ChallengeCheckUseCase
     
     override init(dependency: ChallengeCheckDependency) {
-        usecase = ChallengeCheckUseCaseImpl()
+        usecase = ChallengeCheckUseCaseImpl(repository: dependency.userChallengeRepository)
         super.init(dependency: dependency)
     }
 }
@@ -25,7 +25,7 @@ final class ChallengeCheckComponent: Component<ChallengeCheckDependency>, Challe
 // MARK: - Builder
 
 public protocol ChallengeCheckBuildable: Buildable {
-    func build(withListener listener: ChallengeCheckListener) -> ChallengeCheckRouting
+    func build(withListener listener: ChallengeCheckListener, id: Int) -> ChallengeCheckRouting
 }
 
 public final class ChallengeCheckBuilder: Builder<ChallengeCheckDependency>, ChallengeCheckBuildable {
@@ -34,10 +34,12 @@ public final class ChallengeCheckBuilder: Builder<ChallengeCheckDependency>, Cha
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: ChallengeCheckListener) -> ChallengeCheckRouting {
+    public func build(withListener listener: ChallengeCheckListener, id: Int) -> ChallengeCheckRouting {
         let component = ChallengeCheckComponent(dependency: dependency)
         let viewController = ChallengeCheckViewController()
-        let interactor = ChallengeCheckInteractor(presenter: viewController, dependency: component)
+        let interactor = ChallengeCheckInteractor(presenter: viewController,
+                                                  id: id,
+                                                  dependency: component)
         interactor.listener = listener
         return ChallengeCheckRouter(interactor: interactor, viewController: viewController)
     }

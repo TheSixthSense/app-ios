@@ -46,12 +46,16 @@ final class ChallengeCheckInteractor: PresentableInteractor<ChallengeCheckPresen
     weak var listener: ChallengeCheckListener?
     private let dependency: ChallengeCheckInteractorDependency
     
+    private let id: Int
+    
     private let doneButtonActiveRelay: PublishRelay<Bool> = .init()
     private let showDonePopUpRelay: PublishRelay<ChallengeCheckComplete> = .init()
 
     init(presenter: ChallengeCheckPresentable,
+         id: Int,
          dependency: ChallengeCheckInteractorDependency) {
         self.dependency = dependency
+        self.id = id
         super.init(presenter: presenter)
         presenter.handler = self
     }

@@ -9,16 +9,34 @@
 import Foundation
 import RxSwift
 import UIKit
+import Repository
 
 protocol ChallengeCheckUseCase {
-    func register(request: ChallengeCheckRequest) -> Observable<ChallengeCheckComplete>
+    func register(id: Int, request: ChallengeCheckRequest) -> Observable<ChallengeCheckComplete>
 }
 
 final class ChallengeCheckUseCaseImpl: ChallengeCheckUseCase {
-    func register(request: ChallengeCheckRequest) -> Observable<ChallengeCheckComplete> {
-        return .just(.init(
-            titleImageURL: URL(string: "https://user-images.githubusercontent.com/69489688/189118480-d6c79102-d678-4037-a1e5-0e0a4f4dd8bb.png"),
-            contentsImageURL: URL(string: "https://user-images.githubusercontent.com/69489688/189118476-0915fdbf-0bcf-4cc8-b2f7-cc9fd1911443.png")))
+    private let repository: UserChallengeRepository
+    
+    init(repository: UserChallengeRepository) {
+        self.repository = repository
+    }
+    
+    func register(id: Int, request: ChallengeCheckRequest) -> Observable<ChallengeCheckComplete> {
+        let request: ChallengeVerifyRequest = .init(id: id,
+                                                    image: request.image,
+                                                    text: request.text)
+        
+        return repository.verify(request: request)
+            .asObservable()
+            .compactMap { Response<ChallengeCheck>(JSONString: $0) }
+            .map(\.data)
+            .flatMap { response -> Observable<ChallengeCheckComplete> in
+                dump(response)
+                return .just(.init(
+                    titleImageURL: URL(string: response.titleImage),
+                    contentsImageURL: URL(string: response.contentImage)))
+            }
     }
 }
 
