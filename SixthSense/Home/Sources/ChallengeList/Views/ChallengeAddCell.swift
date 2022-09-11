@@ -69,7 +69,8 @@ class ChallengeAddCell: UITableViewCell {
         
         image.snp.makeConstraints {
             $0.right.equalTo(titleLabel.snp.left).offset(-10)
-            $0.left.top.bottom.equalToSuperview()
+            $0.left.centerY.equalToSuperview()
+            $0.size.equalTo(20)
         }
 
         titleLabel.snp.makeConstraints {

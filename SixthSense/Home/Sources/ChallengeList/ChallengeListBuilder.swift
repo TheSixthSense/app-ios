@@ -11,19 +11,25 @@ import RxRelay
 import Foundation
 import Challenge
 import Repository
+import Storage
 
 protocol ChallengeListDependency: Dependency {
     var targetDate: PublishRelay<Date> { get }
     var userChallengeRepository: UserChallengeRepository { get }
+    var persistence: LocalPersistence { get }
 }
 
 final class ChallengeListComponent: Component<ChallengeListDependency>,
                                     ChallengeListInteractorDependency,
                                     ChallengeCheckDependency,
                                     ChallengeDetailDependency {
+    var userChallengeRepository: UserChallengeRepository { dependency.userChallengeRepository }
+    
     var usecase: ChallengeListUseCase {
         ChallengeListUseCaseImpl(
-            repository: dependency.userChallengeRepository)
+            repository: dependency.userChallengeRepository,
+            persistence: dependency.persistence
+        )
     }
     var targetDate: PublishRelay<Date> { dependency.targetDate }
 }

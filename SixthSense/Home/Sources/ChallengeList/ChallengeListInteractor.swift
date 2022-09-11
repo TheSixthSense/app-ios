@@ -22,9 +22,10 @@ protocol ChallengeListRouting: ViewableRouting {
 }
 
 protocol ChallengeListPresenterAction: AnyObject {
-    var viewDidAppear: Observable<Void> { get }
+    var fetch: Observable<Void> { get }
     var itemSelected: Observable<IndexPath> { get }
     var itemDidDeleted: Observable<IndexPath> { get }
+    var registerDidTap: Observable<Void> { get }
 }
 
 protocol ChallengeListPresenterHandler: AnyObject {
@@ -82,11 +83,10 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     
     private func bind() {
         guard let action = presenter.action else { return }
-        action.viewDidAppear
-            .take(1)
+        action.fetch
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-                owner.fetch(by: Date())
+                owner.fetch(by: owner.targetDate)
             })
             .disposeOnDeactivate(interactor: self)
         
@@ -104,6 +104,13 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             })
             .disposeOnDeactivate(interactor: self)
         
+        action.registerDidTap
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.addItemSelected()
+            })
+            .disposeOnDeactivate(interactor: self)
+        
         dependency.targetDate
             .withUnretained(self)
             .subscribe(onNext: { owner, date in
@@ -118,20 +125,14 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             .map { $0.compactMap(ChallengeSectionItem.init) }
             .withUnretained(self)
             .subscribe(onNext: { owner, items in
-                // TODO: 미완성된 기능입니다
-                var sections: [ChallengeSection] = [
-                    .init(identity: .item, items: Constants.itemWithSpacing(items) )
-                ]
-                
+                var sections: [ChallengeSection] = [ .init(identity: .item, items: Constants.itemWithSpacing(items) ) ]
                 guard let dateType = owner.dependency.usecase.compareToday(with: date) else { return }
-                
                 if [DateType.today, .afterToday].contains(dateType) {
                     sections.append(.init(identity: .add, items: [.add]))
+                    owner.hasItemRelay.accept(!items.isEmpty)
                 }
                 owner.sectionsRelay.accept(sections)
                 owner.sectionsItem = sections
-//                owner.hasItemRelay.accept(!items.isEmpty)
-                owner.hasItemRelay.accept(false)
 
             })
             .disposeOnDeactivate(interactor: self)
@@ -152,7 +153,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             case .waiting(let viewModel):
                 waitingItemSelected(viewModel: viewModel)
             case .add:
-                router?.routeToRegister()
+                addItemSelected()
             case .failed, .spacing:
                 break
         }
@@ -173,6 +174,8 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
         router?.attachCheck(id: viewModel.id)
     }
     
+    private func addItemSelected() {
+        router?.routeToRegister()
     }
     
     private func itemDelete(_ indexPath: IndexPath) {
@@ -185,7 +188,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
         }
     }
     
-    private func deleteChallenge(id: String) {
+    private func deleteChallenge(id: Int) {
         dependency.usecase.delete(id: id)
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in

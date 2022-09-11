@@ -9,17 +9,22 @@
 import Foundation
 import RxSwift
 import Repository
+import Storage
 
 protocol ChallengeListUseCase {
     func list(by date: Date) -> Observable<[ChallengeItem]>
-    func delete(id: String) -> Observable<Void>
+    func delete(id: Int) -> Observable<Void>
     func compareToday(with date: Date) -> DateType?
+    func logined() -> Bool
 }
 
 final class ChallengeListUseCaseImpl: ChallengeListUseCase {
     private let repository: UserChallengeRepository
-    init(repository: UserChallengeRepository) {
+    private let persistence: LocalPersistence
+    
+    init(repository: UserChallengeRepository, persistence: LocalPersistence) {
         self.repository = repository
+        self.persistence = persistence
     }
     
     func list(by date: Date) -> Observable<[ChallengeItem]> {
@@ -33,9 +38,12 @@ final class ChallengeListUseCaseImpl: ChallengeListUseCase {
             }
     }
     
-    func delete(id: String) -> Observable<Void> {
-        // TODO: 테스트 코드 제거
-        return .just(())
+    func delete(id: Int) -> Observable<Void> {
+        return repository.deleteVerify(id: id)
+            .asObservable()
+            .flatMap { _ -> Observable<Void> in
+                return .just(())
+            }
     }
     
     func compareToday(with date: Date) -> DateType? {
@@ -52,6 +60,11 @@ final class ChallengeListUseCaseImpl: ChallengeListUseCase {
             default:
                 return .afterToday
         }
+    }
+    
+    func logined() -> Bool {
+        guard let token: String = persistence.value(on: .accessToken) else { return false }
+        return !token.isEmpty
     }
 }
 
