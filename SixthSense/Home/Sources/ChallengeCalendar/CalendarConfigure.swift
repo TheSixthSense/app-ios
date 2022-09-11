@@ -55,6 +55,7 @@ struct CalendarConfiguration {
     mutating func setBasisDate(date: Date) {
         basisYear = date.toString(dateFormat: "yyyy")
         basisMonth = date.toString(dateFormat: "MM")
+        basisDay = date.toString(dateFormat: "dd")
     }
 }
 

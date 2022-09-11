@@ -8,12 +8,15 @@
 
 import RIBs
 import Challenge
+import Foundation
+import RxRelay
 import Repository
 
 public protocol ChallengeRegisterDependency: Dependency {
     var network: Network { get }
     var challengeRepository: ChallengeRepository { get }
     var challengeRegisterUseCase: ChallengeRegisterUseCase { get }
+    var targetDate: PublishRelay<Date> { get }
 }
 
 public final class ChallengeRegisterComponent: Component<ChallengeRegisterDependency>,
@@ -22,6 +25,7 @@ public final class ChallengeRegisterComponent: Component<ChallengeRegisterDepend
     var useCase: ChallengeRegisterUseCase
     public var challengeRepository: ChallengeRepository { dependency.challengeRepository }
     public var network: Network { dependency.network }
+    public var targetDate: PublishRelay<Date> { dependency.targetDate }
 
     override init(dependency: ChallengeRegisterDependency) {
         self.useCase = ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository)

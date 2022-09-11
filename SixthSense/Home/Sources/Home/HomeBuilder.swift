@@ -9,11 +9,13 @@
 import RIBs
 import Challenge
 import Repository
+import Storage
 
 public protocol HomeDependency: Dependency {
     var network: Network { get }
     var challengeRepository: ChallengeRepository { get }
     var userRepository: UserRepository { get }
+    var persistence: LocalPersistence { get }
 }
 
 // MARK: - Builder
