@@ -44,7 +44,7 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
     weak var router: ChallengeDetailRouting?
     weak var listener: ChallengeDetailListener?
     private let dependency: ChallengeDetailInteractorDependency
-    private let id: String
+    private let payload: ChallengeDetailPayload
     
     private let imageURLRelay: PublishRelay<URL?> = .init()
     private let dateRelay: PublishRelay<Date> = .init()
@@ -52,9 +52,9 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
     
     init(presenter: ChallengeDetailPresentable,
          dependency: ChallengeDetailInteractorDependency,
-         id: String) {
+         payload: ChallengeDetailPayload) {
         self.dependency = dependency
-        self.id = id
+        self.payload = payload
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -84,15 +84,9 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
     }
     
     private func fetch() {
-        dependency.usecase
-            .fetch(id: id)
-            .withUnretained(self)
-            .subscribe(onNext: { owner, data in
-                owner.imageURLRelay.accept(data.imageURL)
-                owner.dateRelay.accept(data.date)
-                owner.commentRelay.accept(data.text)
-            })
-            .disposeOnDeactivate(interactor: self)
+        imageURLRelay.accept(URL(string: payload.imageURL))
+        dateRelay.accept(payload.date)
+        commentRelay.accept(payload.comment)
     }
     
     private func delete() {
