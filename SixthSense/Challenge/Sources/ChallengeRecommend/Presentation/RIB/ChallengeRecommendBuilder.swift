@@ -10,7 +10,6 @@ import RIBs
 import Repository
 
 public protocol ChallengeRecommendDependency: Dependency {
-    var network: Network { get }
     var challengeRepository: ChallengeRepository { get }
 }
 
