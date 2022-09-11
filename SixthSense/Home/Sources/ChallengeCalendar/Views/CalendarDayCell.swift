@@ -122,8 +122,10 @@ final class CalendarDayCell: JTACDayCell {
 }
 
 extension ChallengeCalendarDayState {
-    var icon: UIImage {
+    var icon: UIImage? {
         switch self {
+            case .none:
+                return nil
             case .zero:
                 return HomeAsset.challengeDayZero.image
             case .overZero:

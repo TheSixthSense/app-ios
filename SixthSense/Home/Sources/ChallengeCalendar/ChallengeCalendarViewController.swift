@@ -39,6 +39,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
     
     let swipeCalendarRelay: PublishRelay<Date> = .init()
     let dateSelectRelay: PublishRelay<Date> = .init()
+    private let fetchRelay: PublishRelay<Void> = .init()
     
     private let disposeBag = DisposeBag()
     private let pickerAdapter = RxPickerViewStringAdapter<[[Int]]>(
@@ -116,6 +117,11 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         bind()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        fetchRelay.accept(())
+    }
+    
     private func configureViews() {
         view.addSubviews(stackView, bottomLineView)
         stackView.addArrangedSubviews(headerView, weekdayView, calendar)
@@ -173,7 +179,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         handler.basisDate
             .asDriver(onErrorJustReturn: .init())
             .drive(onNext: { [weak self] in
-                self?.calendar.scrollToDate($0)
+                self?.calendar.scrollToDate($0, animateScroll: false)
             })
             .disposed(by: self.disposeBag)
         
@@ -183,6 +189,13 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
             .drive(onNext: { [weak self] in
                 self?.headerView.monthLabel.text = $0
                 self?.headerView.monthLabel.resignFirstResponder()
+            })
+            .disposed(by: self.disposeBag)
+        
+        handler.reload
+            .asDriver(onErrorJustReturn: ())
+            .drive(onNext: { [weak self] in
+                self?.calendar.reloadData()
             })
             .disposed(by: self.disposeBag)
         
@@ -202,6 +215,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
 }
 
 extension ChallengeCalendarViewController: ChallengeCalendarPresenterAction {
+    var fetch: Observable<Void> { fetchRelay.asObservable() }
     var selectMonth: Observable<Void> { headerView.rx.tap }
     var monthBeginEditing: Observable<(row: Int, component: Int)> {
         pickerView.rx.itemSelected.asObservable()

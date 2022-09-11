@@ -9,14 +9,23 @@
 import RIBs
 import RxRelay
 import Foundation
+import Repository
 
 protocol ChallengeCalendarDependency: Dependency {
     var targetDate: PublishRelay<Date> { get }
+    var userChallengeRepository: UserChallengeRepository { get }
 }
 
 final class ChallengeCalendarComponent: Component<ChallengeCalendarDependency>,
                                         ChallengeCalendarInteractorDependency{
+    var usecase: ChallengeCalendarUseCase
     var targetDate: PublishRelay<Date> { dependency.targetDate }
+    
+    override init(dependency: ChallengeCalendarDependency) {
+        self.usecase = ChallengeCalendarUsCaseImpl(
+            repository: dependency.userChallengeRepository)
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder

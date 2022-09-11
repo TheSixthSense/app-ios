@@ -18,15 +18,12 @@ extension ChallengeCalendarViewController: JTACMonthViewDataSource {
 }
 
 extension ChallengeCalendarViewController: JTACMonthViewDelegate {
-    func calendar(_ calendar: JTACMonthView, willDisplay cell: JTACDayCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) {
-        guard let cell = calendar.dequeueReusableJTAppleCell(CalendarDayCell.self, for: indexPath) as? CalendarDayCell,
-              let challengeState = handler?.dayChallengeState(date) else { return }
-        cell.configure(state: .init(challengeState: challengeState, cellState: cellState))
-    }
+    func calendar(_ calendar: JTACMonthView, willDisplay cell: JTACDayCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) { }
     
     func calendar(_ calendar: JTACMonthView, cellForItemAt date: Date, cellState: CellState, indexPath: IndexPath) -> JTACDayCell {
         guard let cell = calendar.dequeueReusableJTAppleCell(CalendarDayCell.self, for: indexPath) as? CalendarDayCell,
-              let challengeState = handler?.dayChallengeState(date) else { return .init() }
+              let challengeState = handler?.dayStates(date) else { return .init() }
+
         cell.configure(state: .init(challengeState: challengeState, cellState: cellState))
         return cell
     }
@@ -55,7 +52,7 @@ struct DateState {
     var belongsToMonth: Bool { cellState.dateBelongsTo == .thisMonth }
     var title: String { cellState.text }
     var isToday: Bool { Calendar.current.isDateInToday(cellState.date) }
-    var challengeIcon: UIImage {
+    var challengeIcon: UIImage? {
         if isToday && challengeState == .waiting { return HomeAsset.challengeTodayWaiting.image}
         else { return challengeState.icon }
     }
