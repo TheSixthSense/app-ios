@@ -122,19 +122,15 @@ extension MyPageViewController {
                                 message: "남겨둔 챌린지와 인증글은 잘 보관되어 있으니\n잠시 쉬다가 와도 걱정하지 말아요😊",
                                 actions: [.action(title: "앗.. 아냐!", style: .negative),
                                               .action(title: "응, 로그아웃 할게", style: .positive)])
-                    .bind(to: owner.logoutAlertActions)
+                    .filter { $0 == .positive }
+                    .bind(onNext: { _ in owner.logout() })
                     .disposed(by: owner.disposeBag)
             })
         }
     }
 
     private func logout() {
-        logoutAlertActions
-            .filter { $0 == .positive }
-            .withUnretained(self)
-            .subscribe(onNext: { owner, _ in
-            owner.logoutButtonTapped.accept(true)
-        }).disposed(by: disposeBag)
+        logoutButtonTapped.accept(true)
     }
 }
 extension MyPageViewController: MyPagePresenterAction {
@@ -142,5 +138,5 @@ extension MyPageViewController: MyPagePresenterAction {
     var didSelectItem: Observable <MyPageItemCellViewModel> {
         myPageTableView.rx.modelSelected(MyPageSectionItem.self).compactMap(\.rawValue)
     }
-    var loggedOut: Observable<Void> { logoutButtonTapped.map { _ in () }.asObservable() }
+    var loggedOut: Observable<Void> { logoutButtonTapped.map { _ in () }.asObservable().debug() }
 }

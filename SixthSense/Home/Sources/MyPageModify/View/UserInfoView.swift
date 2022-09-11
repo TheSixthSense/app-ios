@@ -23,7 +23,7 @@ final class UserInfoview: UIView {
         $0.font = AppFont.body2
     }
 
-    private var editButton = UIButton().then {
+    var editButton = UIButton().then {
         $0.layer.do {
             $0.backgroundColor = AppColor.systemGray100.cgColor
             $0.cornerRadius = 12

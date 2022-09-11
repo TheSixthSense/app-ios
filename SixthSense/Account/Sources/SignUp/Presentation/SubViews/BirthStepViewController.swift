@@ -10,7 +10,7 @@ import UIKit
 import Then
 import DesignSystem
 
-final class BirthStepViewController: UIViewController {
+public final class BirthStepViewController: UIViewController {
 
     // MARK: - UI
 
@@ -60,21 +60,21 @@ final class BirthStepViewController: UIViewController {
 
     // MARK: - LifeCycle
 
-    init() {
+    public init() {
         birthTextFields = [yearTextField, monthTextField, dayTextField]
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
     }
 
-    override func viewWillLayoutSubviews() {
+    public override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         configureLayout()
     }

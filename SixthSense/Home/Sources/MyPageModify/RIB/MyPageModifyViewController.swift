@@ -70,6 +70,12 @@ final class MyPageModifyViewController: UIViewController, MyPageModifyPresentabl
     }
 
     private let withDrawRelay: PublishRelay<Void> = .init()
+    private let editButtonRelay: PublishRelay<ModifyType> = .init()
+
+    private var didTapNicknameButton: Observable<ModifyType> { nameSubView.editButton.rx.tap.map { _ in .nickname } }
+    private var didTapGenderButton: Observable<ModifyType> { genderSubView.editButton.rx.tap.map { _ in .gender } }
+    private var didTapBirthButton: Observable<ModifyType> { birthSubView.editButton.rx.tap.map { _ in .birthday } }
+    private var didTapVeganButton: Observable<ModifyType> { veganStageSubView.editButton.rx.tap.map { _ in .veganStage } }
 
     private let disposeBag = DisposeBag()
 
@@ -140,12 +146,18 @@ extension MyPageModifyViewController {
     private func bind() {
         bindHandler()
 
-        withdrawButton.rx.tap
-            .throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance)
-            .withUnretained(self)
-            .bind(onNext: { owner, _ in
-            owner.presentWithDrawAlert()
-        }).disposed(by: disposeBag)
+        disposeBag.insert {
+
+            withdrawButton.rx.tap
+                .throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance)
+                .withUnretained(self)
+                .bind(onNext: { owner, _ in
+                owner.presentWithDrawAlert()
+            })
+
+            Observable.merge(didTapNicknameButton, didTapGenderButton, didTapBirthButton, didTapVeganButton)
+                .bind(to: editButtonRelay)
+        }
     }
 
     private func bindHandler() {
@@ -189,4 +201,5 @@ extension MyPageModifyViewController: MyPageModifyPresenterAction {
     var viewWillAppear: Observable<Void> { rx.viewWillAppear.map { _ in () } }
     var didTapBackButton: Observable<Void> { backButton.rx.tap.throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance) }
     var withDrawConfirmed: Observable<Void> { withDrawRelay.asObservable() }
+    var didTapEditButton: Observable<ModifyType> { editButtonRelay.asObservable() }
 }

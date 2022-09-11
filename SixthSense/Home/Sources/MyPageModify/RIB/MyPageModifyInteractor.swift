@@ -11,6 +11,8 @@ import RxRelay
 import RxSwift
 
 protocol MyPageModifyRouting: ViewableRouting {
+    func routeToModifyInfo(type: ModifyType)
+    func detachModifyInfoView()
 }
 
 protocol MyPageModifyPresentable: Presentable {
@@ -26,10 +28,12 @@ protocol MyPageModifyPresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
     var didTapBackButton: Observable<Void> { get }
     var withDrawConfirmed: Observable<Void> { get }
+    var didTapEditButton: Observable<ModifyType> { get }
 }
 
 protocol MyPageModifyListener: AnyObject {
     func popModifyView()
+//    func routeToSingIn()
 }
 
 final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentable>, MyPageModifyInteractable {
@@ -37,15 +41,19 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
     weak var router: MyPageModifyRouting?
     weak var listener: MyPageModifyListener?
 
-    private var userInfo: UserInfoPayload
+    private let userInfo: UserInfoPayload
+    private let useCase: MyPageModifyUseCase
 
     private let userInfoPayloadRelay: PublishRelay<UserInfoPayload> = .init()
     private let withDrawPopupRelay: PublishRelay<Void> = .init()
 
     private var disposeBag = DisposeBag()
 
-    init(presenter: MyPageModifyPresentable, userPayload: UserInfoPayload) {
+    init(presenter: MyPageModifyPresentable,
+         userPayload: UserInfoPayload,
+         useCase: MyPageModifyUseCase) {
         self.userInfo = userPayload
+        self.useCase = useCase
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -57,28 +65,47 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
 
     override func willResignActive() {
         super.willResignActive()
-        disposeBag = DisposeBag()
     }
 
     private func bind() {
         guard let action = presenter.action else { return }
 
-        disposeBag.insert {
+        action.viewWillAppear
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.userInfoPayloadRelay.accept(self.userInfo)
+        }).disposeOnDeactivate(interactor: self)
 
-            action.viewWillAppear
-                .withUnretained(self)
-                .bind(onNext: { owner, _ in
-                owner.userInfoPayloadRelay.accept(self.userInfo)
-            })
+        action.didTapBackButton
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.listener?.popModifyView()
+        }).disposeOnDeactivate(interactor: self)
 
-            action.didTapBackButton
-                .withUnretained(self)
-                .bind(onNext: { owner, _ in
-                owner.listener?.popModifyView()
-            })
+        action.didTapEditButton
+            .withUnretained(self)
+            .bind(onNext: { owner, type in
+            owner.router?.routeToModifyInfo(type: type)
+        }).disposeOnDeactivate(interactor: self)
 
+        action.withDrawConfirmed
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.withDrawUser()
+        }).disposeOnDeactivate(interactor: self)
+    }
 
-        }
+    func popModifyInfoView() {
+        router?.detachModifyInfoView()
+    }
+
+    func withDrawUser() {
+//        useCase.withdrawUser()
+//            .withUnretained(self)
+//            .bind(onNext: { owner, _ in
+//            owner.popModifyInfoView()
+//            owner.listener?.routeToSingIn()
+//        }).disposeOnDeactivate(interactor: self)
     }
 }
 

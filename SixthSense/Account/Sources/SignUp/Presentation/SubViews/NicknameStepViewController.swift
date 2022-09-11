@@ -14,7 +14,7 @@ import SnapKit
 import DesignSystem
 import Then
 
-final class NicknameStepViewController: UIViewController {
+public final class NicknameStepViewController: UIViewController {
 
     // MARK: - UI
 
@@ -33,21 +33,21 @@ final class NicknameStepViewController: UIViewController {
     private let disposeBag = DisposeBag()
 
     // MARK: - LifeCycle
-    init() {
+    public init() {
         super.init(nibName: nil, bundle: nil)
     }
-    
-    required init?(coder: NSCoder) {
+
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    override func viewDidLoad() {
+
+    public override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
         bindUI()
     }
 
-    override func viewWillLayoutSubviews() {
+    public override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         configureLaout()
     }
@@ -72,7 +72,7 @@ private extension NicknameStepViewController {
     }
 
     private func bindUI() {
-        
+
         view.rx.tapGesture()
             .when(.recognized)
             .bind(onNext: { [weak self] _ in
