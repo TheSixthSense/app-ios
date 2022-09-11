@@ -10,23 +10,22 @@ import RIBs
 import RxRelay
 import Foundation
 import Repository
+import Storage
 
 protocol ChallengeDependency: Dependency {
     var userChallengeRepository: UserChallengeRepository { get }
+    var targetDate: PublishRelay<Date> { get }
+    var persistence: LocalPersistence { get }
 }
 
 final class ChallengeComponent: Component<ChallengeDependency>,
                                 ChallengeCalendarDependency,
                                 ChallengeListDependency{
-    var targetDate: PublishRelay<Date>
+    var targetDate: PublishRelay<Date> { dependency.targetDate }
     var userChallengeRepository: UserChallengeRepository {
         dependency.userChallengeRepository
     }
-    
-    override init(dependency: ChallengeDependency) {
-        targetDate = .init()
-        super.init(dependency: dependency)
-    }
+    var persistence: LocalPersistence { dependency.persistence }
 }
 
 // MARK: - Builder

@@ -8,7 +8,10 @@
 
 import RIBs
 import Challenge
+import RxRelay
+import Foundation
 import Repository
+import Storage
 
 final class HomeComponent: Component<HomeDependency>,
                             ChallengeDependency,
@@ -21,6 +24,8 @@ final class HomeComponent: Component<HomeDependency>,
     var userRepository: UserRepository
     var myPageUseCase: MyPageUseCase
     var network: Network
+    var targetDate: PublishRelay<Date>
+    var persistence: LocalPersistence { dependency.persistence }
     private let rootViewController: ViewControllable
 
     init(dependency: HomeDependency,
@@ -32,7 +37,7 @@ final class HomeComponent: Component<HomeDependency>,
         self.challengeRepository = dependency.challengeRepository
         self.userChallengeRepository = UserChallengeRepositoryImpl(
             network: dependency.network)
-        
+        self.targetDate = .init()
         self.challengeRegisterUseCase = ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository)
         super.init(dependency: dependency)
     }
