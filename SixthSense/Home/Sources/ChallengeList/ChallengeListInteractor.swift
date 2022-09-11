@@ -22,7 +22,7 @@ protocol ChallengeListRouting: ViewableRouting {
 }
 
 protocol ChallengeListPresenterAction: AnyObject {
-    var viewDidAppear: Observable<Void> { get }
+    var fetch: Observable<Void> { get }
     var itemSelected: Observable<IndexPath> { get }
     var itemDidDeleted: Observable<IndexPath> { get }
 }
@@ -82,11 +82,10 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     
     private func bind() {
         guard let action = presenter.action else { return }
-        action.viewDidAppear
-            .take(1)
+        action.fetch
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-                owner.fetch(by: Date())
+                owner.fetch(by: owner.targetDate)
             })
             .disposeOnDeactivate(interactor: self)
         
@@ -118,20 +117,14 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             .map { $0.compactMap(ChallengeSectionItem.init) }
             .withUnretained(self)
             .subscribe(onNext: { owner, items in
-                // TODO: 미완성된 기능입니다
-                var sections: [ChallengeSection] = [
-                    .init(identity: .item, items: Constants.itemWithSpacing(items) )
-                ]
-                
+                var sections: [ChallengeSection] = [ .init(identity: .item, items: Constants.itemWithSpacing(items) ) ]
                 guard let dateType = owner.dependency.usecase.compareToday(with: date) else { return }
-                
                 if [DateType.today, .afterToday].contains(dateType) {
                     sections.append(.init(identity: .add, items: [.add]))
+                    owner.hasItemRelay.accept(!items.isEmpty)
                 }
                 owner.sectionsRelay.accept(sections)
                 owner.sectionsItem = sections
-//                owner.hasItemRelay.accept(!items.isEmpty)
-                owner.hasItemRelay.accept(false)
 
             })
             .disposeOnDeactivate(interactor: self)

@@ -10,7 +10,6 @@ import RIBs
 import RxSwift
 import RxRelay
 import UIKit
-import RxAppState
 import RxDataSources
 import SnapKit
 import Then
@@ -22,6 +21,7 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
     weak var handler: ChallengeListPresenterHandler?
     weak var action: ChallengeListPresenterAction?
     
+    private let fetchRelay: PublishRelay<Void> = .init()
     private let itemDeleteRelay: PublishRelay<IndexPath> = .init()
     
     private enum Constants { }
@@ -83,6 +83,11 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
         configureViews()
         configureConstraints()
         bind()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchRelay.accept(())
     }
     
     private func configureViews() {
@@ -195,7 +200,7 @@ extension ChallengeListViewController: UITableViewDelegate {
 
 
 extension ChallengeListViewController: ChallengeListPresenterAction {
-    var viewDidAppear: Observable<Void> { rx.viewDidAppear.asObservable().map { _ in () } }
+    var fetch: Observable<Void> { fetchRelay.asObservable() }
     var itemSelected: Observable<IndexPath> { tableView.rx.itemSelected
         .flatMap { index -> Observable<IndexPath> in .just(index)} }
     var itemDidDeleted: Observable<IndexPath> { itemDeleteRelay.asObservable() }
