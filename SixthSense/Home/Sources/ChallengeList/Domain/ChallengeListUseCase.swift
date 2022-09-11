@@ -8,6 +8,7 @@
 
 import Foundation
 import RxSwift
+import Repository
 
 protocol ChallengeListUseCase {
     func list(by date: Date) -> Observable<[ChallengeItem]>
@@ -15,15 +16,21 @@ protocol ChallengeListUseCase {
     func compareToday(with date: Date) -> DateType?
 }
 
-struct ChallengeListUseCaseImpl: ChallengeListUseCase {
+final class ChallengeListUseCaseImpl: ChallengeListUseCase {
+    private let repository: UserChallengeRepository
+    init(repository: UserChallengeRepository) {
+        self.repository = repository
+    }
+    
     func list(by date: Date) -> Observable<[ChallengeItem]> {
-        // TODO: 테스트 코드 제거
-        return .just([
-            .init(id: "아이디아이디1", emoji: "🦊", title: "하루 채식", status: .success),
-            .init(id: "아이디아이디2", emoji: "📆", title: "\(date)", status: .failed),
-            .init(id: "아이디아이디3", emoji: "🥬", title: "하루 채식", status: .success),
-            .init(id: "아이디아이디4", emoji: "🥵", title: "하루 채식", status: .waiting),
-        ])
+        return repository.dayList(by: date.toString(dateFormat: "yyyy-MM-dd"))
+            .asObservable()
+            .compactMap { UserChallengeList(JSONString: $0) }
+            .flatMap { response -> Observable<[ChallengeItem]> in
+                return .just(response.data.map {
+                    ChallengeItem(model: $0)
+                })
+            }
     }
     
     func delete(id: String) -> Observable<Void> {
@@ -53,13 +60,20 @@ struct ChallengeItem {
     let id: String
     let emoji: String
     let title: String
-    let status: ChallengeAchievedStatus
+    let status: ChallengeAchievedStatus?
+    
+    init(model: UserChallengeItem) {
+        self.id = model.id
+        self.emoji = model.emoji
+        self.title = model.name
+        self.status = .init(rawValue: model.verificationStatus)
+    }
 }
 
-enum ChallengeAchievedStatus {
-    case success
-    case failed
-    case waiting
+enum ChallengeAchievedStatus: String {
+    case success = "SUCCESS"
+    case failed = "FAILED"
+    case waiting = "WAITING"
 }
 
 enum DateType {

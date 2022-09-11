@@ -16,6 +16,7 @@ final class HomeComponent: Component<HomeDependency>,
                             ChallengeRegisterDependency {
 
     var challengeRegisterUseCase: ChallengeRegisterUseCase
+    var userChallengeRepository: UserChallengeRepository
     var challengeRepository: ChallengeRepository
     var userRepository: UserRepository
     var myPageUseCase: MyPageUseCase
@@ -29,6 +30,9 @@ final class HomeComponent: Component<HomeDependency>,
         self.userRepository = dependency.userRepository
         self.myPageUseCase = MyPageUseCaseImpl(userRepository: dependency.userRepository)
         self.challengeRepository = dependency.challengeRepository
+        self.userChallengeRepository = UserChallengeRepositoryImpl(
+            network: dependency.network)
+        
         self.challengeRegisterUseCase = ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository)
         super.init(dependency: dependency)
     }
