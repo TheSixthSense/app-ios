@@ -7,15 +7,18 @@
 //
 
 import RIBs
+import Repository
 
-public protocol ChallengeDetailDependency: Dependency { }
+public protocol ChallengeDetailDependency: Dependency {
+    var userChallengeRepository: UserChallengeRepository { get }
+}
 
 final class ChallengeDetailComponent: Component<ChallengeDetailDependency>,
                                       ChallengeDetailInteractorDependency {
     var usecase: ChallengeDetailUseCase
     
     override init(dependency: ChallengeDetailDependency) {
-        usecase = ChallengeDetailUseCaseImpl()
+        usecase = ChallengeDetailUseCaseImpl(repository: dependency.userChallengeRepository)
         super.init(dependency: dependency)
     }
 }
