@@ -13,6 +13,7 @@ import Repository
 public protocol MyPageUseCase {
     func fetchUserData() -> Observable<UserInfoModel>
     func fetchUserChallengeStats() -> Observable<UserChallengeStatModel>
+    func logout() -> Observable<Void>
 
 }
 final class MyPageUseCaseImpl: MyPageUseCase {
@@ -32,6 +33,12 @@ final class MyPageUseCaseImpl: MyPageUseCase {
     func fetchUserChallengeStats() -> Observable<UserChallengeStatModel> {
         return userRepository.challengeStats()
             .compactMap { UserChallengeStatModel(JSONString: $0) }
+            .asObservable()
+    }
+
+    func logout() -> Observable<Void> {
+        return userRepository.logout()
+            .flatMap({ _ in .just(()) })
             .asObservable()
     }
 }
