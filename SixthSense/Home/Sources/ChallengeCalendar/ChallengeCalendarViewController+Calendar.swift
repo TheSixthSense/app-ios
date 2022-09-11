@@ -55,7 +55,7 @@ struct DateState {
     var belongsToMonth: Bool { cellState.dateBelongsTo == .thisMonth }
     var title: String { cellState.text }
     var isToday: Bool { Calendar.current.isDateInToday(cellState.date) }
-    var challengeIcon: UIImage {
+    var challengeIcon: UIImage? {
         if isToday && challengeState == .waiting { return HomeAsset.challengeTodayWaiting.image}
         else { return challengeState.icon }
     }
