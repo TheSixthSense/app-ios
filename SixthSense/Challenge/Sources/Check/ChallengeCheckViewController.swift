@@ -214,6 +214,13 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
                 self?.showCompletePopUp($0)
             })
             .disposed(by: self.disposeBag)
+        
+        handler.errorMessage
+            .asDriver(onErrorJustReturn: .init())
+            .drive(onNext: { [weak self] in
+                self?.showToast($0, toastStyle: .error)
+            })
+            .disposed(by: self.disposeBag)
     }
 
     private func configureNavigationBar() {
