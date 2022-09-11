@@ -47,11 +47,24 @@ public final class UserRepositoryImpl: UserRepository {
     }
 
     public func info() -> Single<String> {
-        return network.request(UserAPI.info)
-            .mapString()
+        return network.request(UserAPI.info).mapString()
     }
 
     public func challengeStats() -> Single<String> {
-        return network.request(UserAPI.challengeStats) .mapString()
+        return network.request(UserAPI.challengeStats).mapString()
+    }
+
+    public func logout() -> Single<String> {
+        return network.request(UserAPI.logout).mapString()
+            .flatMap { data -> Single<String> in
+            return .just("")
+        }
+    }
+
+    public func withdraw() -> Single<String> {
+        return network.request(UserAPI.withdraw).mapString()
+            .flatMap { data -> Single<String> in
+            return .just("")
+        }
     }
 }
