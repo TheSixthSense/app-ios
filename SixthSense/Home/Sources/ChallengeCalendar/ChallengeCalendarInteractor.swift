@@ -29,8 +29,8 @@ protocol ChallengeCalendarPresenterHandler: AnyObject {
     var basisDate: Observable<Date> { get }
     var calenarDataSource: Observable<[[Int]]> { get }
     var calendar: (startDate: Date, endDate: Date) { get }
-    var dayChallengeState: (Date) -> ChallengeCalendarDayState { get }
     var reload: Observable<Void> { get }
+    var dayStates: DayState { get }
 }
 
 protocol ChallengeCalendarPresentable: Presentable {
@@ -54,11 +54,9 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
     private let basisDateRelay: BehaviorRelay<Date> = .init(value: Date())
     private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
     private let reloadRelay: PublishRelay<Void> = .init()
+    private var dayStatesConfiguration: DayState = { _ in .none }
     
-    // FIXME: 개발 후에 Factory로 분리할 계획이에요
     private var calendarConfiguration = CalendarConfiguration(startYear: 2022, endYear: 2026)
-    // FIXME: 개발 후에 DI로 주입하도록 변경할거에요
-    private let factory: ChallengeCalendarFactory = ChallengeCalendarFactoryImpl()
     
     init(presenter: ChallengeCalendarPresentable,
          dependency: ChallengeCalendarInteractorDependency) {
@@ -139,23 +137,6 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
             })
             .disposeOnDeactivate(interactor: self)
     }
-}
-
-// TODO: 파일로 분리
-protocol ChallengeCalendarFactory {
-    var dayChallengeState: (Date) -> ChallengeCalendarDayState { get }
-}
-
-struct ChallengeCalendarFactoryImpl: ChallengeCalendarFactory {
-    let dayChallengeState: (Date) -> ChallengeCalendarDayState = {
-        // FIXME: 테스트 코드 제거
-        if $0 == "2022-08-25".toDate(dateFormat: "yyyy-MM-dd") {
-            return .almost
-        } else if $0 == "2022-08-17".toDate(dateFormat: "yyyy-MM-dd") {
-            return .overZero
-        } else {
-            return .waiting
-        }
     
     private func fetch(by date: Date) {
         dependency.usecase.fetch(by: date)
@@ -174,6 +155,6 @@ extension ChallengeCalendarInteractor: ChallengeCalendarPresenterHandler {
     var calendar: (startDate: Date, endDate: Date) {
         return (startDate: calendarConfiguration.startDate, endDate: calendarConfiguration.endDate)
     }
-    var dayChallengeState: (Date) -> ChallengeCalendarDayState { factory.dayChallengeState }
     var reload: Observable<Void> { reloadRelay.asObservable() }
+    var dayStates: DayState { dayStatesConfiguration }
 }

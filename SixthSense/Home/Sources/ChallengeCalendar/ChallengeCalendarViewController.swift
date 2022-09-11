@@ -179,7 +179,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         handler.basisDate
             .asDriver(onErrorJustReturn: .init())
             .drive(onNext: { [weak self] in
-                self?.calendar.scrollToDate($0)
+                self?.calendar.scrollToDate($0, animateScroll: false)
             })
             .disposed(by: self.disposeBag)
         
