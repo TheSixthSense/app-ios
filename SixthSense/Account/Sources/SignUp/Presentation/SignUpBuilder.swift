@@ -10,16 +10,14 @@ import RIBs
 import Repository
 
 public protocol SignUpDependency: Dependency {
-    var network: Network { get }
-    var useCase: SignUpUseCase { get }
+    var userRepository: UserRepository { get }
 }
 
-final class SignUpComponent: Component<SignUpDependency> {
-    var network: Network { dependency.network }
-    var payload: SignUpPayload
+final class SignUpComponent: Component<SignUpDependency>, SignUpInteractorDependency {
+    var useCase: SignUpUseCase
 
-    init(dependency: SignUpDependency, payload: SignUpPayload) {
-        self.payload = payload
+    override init(dependency: SignUpDependency) {
+        self.useCase = SignUpUseCaseImpl(userRepository: dependency.userRepository)
         super.init(dependency: dependency)
     }
 }
@@ -37,11 +35,11 @@ public final class SignUpBuilder: Builder<SignUpDependency>, SignUpBuildable {
     }
 
     public func build(withListener listener: SignUpListener, payload: SignUpPayload) -> SignUpRouting {
-        let component = SignUpComponent(dependency: dependency, payload: payload)
+        let component = SignUpComponent(dependency: dependency)
         let viewController = SignUpViewController()
         let interactor = SignUpInteractor(presenter: viewController,
-                                          dependency: dependency,
-                                          payload: component.payload)
+                                          dependency: component,
+                                          payload: payload)
         interactor.listener = listener
         return SignUpRouter(interactor: interactor, viewController: viewController)
     }

@@ -16,17 +16,17 @@ import Home
 final class RootComponent: Component<RootDependency>,
                            SplashDependency,
                            SignInDependency,
-                           HomeDependency {
+                           HomeDependency,
+                           RootInteractorDependency {
+    
     var network: Network { dependency.network }
     var persistence: LocalPersistence { dependency.persistence }
     var userRepository: UserRepository { dependency.userRepository }
     var challengeRepository: ChallengeRepository { dependency.challengeRepository }
-    var usecase: SignInUseCase
+    var usecase: RootUseCase
     
     override init(dependency: RootDependency) {
-        self.usecase = SignInUseCaseImpl(
-            userRepository: dependency.userRepository,
-            persistence: dependency.persistence)
+        self.usecase = RootUseCaseImpl(persistence: dependency.persistence)
         
         super.init(dependency: dependency)
     }

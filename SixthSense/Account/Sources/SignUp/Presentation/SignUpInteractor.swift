@@ -58,6 +58,10 @@ public protocol SignUpListener: AnyObject {
     func signUpComplete()
 }
 
+protocol SignUpInteractorDependency {
+    var useCase: SignUpUseCase { get }
+}
+
 final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpInteractable, SignUpPresentableListener {
 
     weak var router: SignUpRouting?
@@ -78,10 +82,10 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
 
     private var requests: SignUpRequest = .init()
     private let payload: SignUpPayload
-    private let dependency: SignUpDependency
+    private let dependency: SignUpInteractorDependency
 
     init(presenter: SignUpPresentable,
-         dependency: SignUpDependency,
+         dependency: SignUpInteractorDependency,
          payload: SignUpPayload) {
         self.dependency = dependency
         self.payload = payload

@@ -8,19 +8,20 @@
 
 import RIBs
 import Repository
+import Storage
 
 public protocol SignInDependency: Dependency {
-    var network: Network { get }
-    var usecase: SignInUseCase { get }
     var userRepository: UserRepository { get }
+    var persistence: LocalPersistence { get }
 }
 
-final class SignInComponent: Component<SignInDependency>, SignUpDependency {
-    var useCase: SignUpUseCase
-    var network: Network { dependency.network }
+final class SignInComponent: Component<SignInDependency>, SignUpDependency, SignInInteractorDependency {
+    var usecase: SignInUseCase
+    var userRepository: UserRepository { dependency.userRepository }
 
     override init(dependency: SignInDependency) {
-        self.useCase = SignUpUseCaseImpl(userRepository: dependency.userRepository)
+        usecase = SignInUseCaseImpl(userRepository: dependency.userRepository,
+                                    persistence: dependency.persistence)
         super.init(dependency: dependency)
     }
 }
@@ -41,7 +42,7 @@ public final class SignInBuilder: Builder<SignInDependency>, SignInBuildable {
         let component = SignInComponent(dependency: dependency)
         let viewController = SignInViewController()
         let signUpBuilder = SignUpBuilder(dependency: component)
-        let interactor = SignInInteractor(presenter: viewController, dependency: dependency)
+        let interactor = SignInInteractor(presenter: viewController, dependency: component)
         interactor.listener = listener
         return SignInRouter(interactor: interactor,
                             viewController: viewController,
