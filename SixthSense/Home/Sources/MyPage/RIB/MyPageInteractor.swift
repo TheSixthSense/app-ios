@@ -42,7 +42,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     weak var router: MyPageRouting?
     weak var listener: MyPageListener?
 
-    private var dependency: MyPageDependency
+    private var useCase: MyPageUseCase
 
     private let myPageSectionsRelay: PublishRelay<[MyPageSection]> = .init()
     private let logoutPopupRelay: PublishRelay<Bool> = .init()
@@ -52,8 +52,8 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     )
     private var userInfoPayload = UserInfoPayload()
 
-    init(presenter: MyPagePresentable, dependency: MyPageDependency) {
-        self.dependency = dependency
+    init(presenter: MyPagePresentable, useCase: MyPageUseCase) {
+        self.useCase = useCase
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -104,7 +104,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         dataObservable
             .withUnretained(self)
             .subscribe(onNext: { owner, data in
-                
+
             let (userData, challengeStatData) = data
             self.userInfoPayload = UserInfoPayload(model: userData)
 
@@ -124,16 +124,20 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     }
 
     private func fetchUserData() -> Observable<UserInfoModel> {
-        return dependency.myPageUseCase.fetchUserData().asObservable()
+        return useCase.fetchUserData().asObservable()
     }
 
     private func fetchChallengeUserData() -> Observable<UserChallengeStatModel> {
-        return dependency.myPageUseCase.fetchUserChallengeStats().asObservable()
+        return useCase.fetchUserChallengeStats().asObservable()
     }
 
 
     private func loggedOut() {
         // TODO: - 로그아웃 API & AccessToken 제거
+        useCase.logout()
+            .subscribe(onNext: { _ in
+            print("로그아웃성공")
+        }).disposeOnDeactivate(interactor: self)
     }
 
     func popWebView() {
