@@ -25,6 +25,7 @@ protocol ChallengeListPresenterAction: AnyObject {
     var fetch: Observable<Void> { get }
     var itemSelected: Observable<IndexPath> { get }
     var itemDidDeleted: Observable<IndexPath> { get }
+    var registerDidTap: Observable<Void> { get }
 }
 
 protocol ChallengeListPresenterHandler: AnyObject {
@@ -103,6 +104,13 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             })
             .disposeOnDeactivate(interactor: self)
         
+        action.registerDidTap
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.addItemSelected()
+            })
+            .disposeOnDeactivate(interactor: self)
+        
         dependency.targetDate
             .withUnretained(self)
             .subscribe(onNext: { owner, date in
@@ -145,7 +153,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             case .waiting(let viewModel):
                 waitingItemSelected(viewModel: viewModel)
             case .add:
-                router?.routeToRegister()
+                addItemSelected()
             case .failed, .spacing:
                 break
         }
@@ -166,6 +174,8 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
         router?.attachCheck(id: viewModel.id)
     }
     
+    private func addItemSelected() {
+        router?.routeToRegister()
     }
     
     private func itemDelete(_ indexPath: IndexPath) {
@@ -178,7 +188,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
         }
     }
     
-    private func deleteChallenge(id: String) {
+    private func deleteChallenge(id: Int) {
         dependency.usecase.delete(id: id)
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in

@@ -204,4 +204,5 @@ extension ChallengeListViewController: ChallengeListPresenterAction {
     var itemSelected: Observable<IndexPath> { tableView.rx.itemSelected
         .flatMap { index -> Observable<IndexPath> in .just(index)} }
     var itemDidDeleted: Observable<IndexPath> { itemDeleteRelay.asObservable() }
+    var registerDidTap: Observable<Void> { emptyView.rx.tap }
 }

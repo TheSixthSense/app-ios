@@ -88,7 +88,5 @@ final class ChallengeEmptyView: UIView {
 }
 
 extension Reactive where Base: ChallengeEmptyView {
-    var tap: Observable<Void> {
-        base.button.rx.controlEvent(.editingDidBegin).map { _ in () }
-    }
+    var tap: Observable<Void> { base.button.rx.tap.map { _ in () } }
 }
