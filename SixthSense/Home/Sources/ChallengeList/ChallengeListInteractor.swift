@@ -239,5 +239,8 @@ extension ChallengeItemCellViewModel {
         self.id = item.id
         self.emoji = item.emoji
         self.title = item.title
+        self.imageURL = item.imageURL
+        self.date = item.date
+        self.comment = item.comment
     }
 }
