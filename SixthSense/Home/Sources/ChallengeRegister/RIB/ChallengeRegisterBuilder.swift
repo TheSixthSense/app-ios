@@ -13,24 +13,15 @@ import RxRelay
 import Repository
 
 public protocol ChallengeRegisterDependency: Dependency {
-    var network: Network { get }
     var challengeRepository: ChallengeRepository { get }
-    var challengeRegisterUseCase: ChallengeRegisterUseCase { get }
     var targetDate: PublishRelay<Date> { get }
 }
 
 public final class ChallengeRegisterComponent: Component<ChallengeRegisterDependency>,
-    ChallengeRecommendDependency {
-
-    var useCase: ChallengeRegisterUseCase
+                                                 ChallengeRecommendDependency {
     public var challengeRepository: ChallengeRepository { dependency.challengeRepository }
-    public var network: Network { dependency.network }
     public var targetDate: PublishRelay<Date> { dependency.targetDate }
-
-    override init(dependency: ChallengeRegisterDependency) {
-        self.useCase = ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository)
-        super.init(dependency: dependency)
-    }
+    var useCase: ChallengeRegisterUseCase { ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository) }
 }
 
 // MARK: - Builder
@@ -49,7 +40,7 @@ public final class ChallengeRegisterBuilder: Builder<ChallengeRegisterDependency
         let component = ChallengeRegisterComponent(dependency: dependency)
         let viewController = ChallengeRegisterViewController()
         let interactor = ChallengeRegisterInteractor(presenter: viewController,
-                                                     dependency: dependency)
+                                                     dependency: component)
         interactor.listener = listener
 
         let recommendBuilder = ChallengeRecommendBuilder(dependency: component)

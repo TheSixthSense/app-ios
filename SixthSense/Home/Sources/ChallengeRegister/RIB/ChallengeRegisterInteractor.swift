@@ -25,7 +25,6 @@ protocol ChallengeRegisterPresentable: Presentable {
 
 protocol ChallengeRegisterPresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
-    var viewWillDisappear: Observable<Void> { get }
     var didChangeCategory: Observable<(Int, CategorySectionItem)> { get }
     var didSelectChallenge: Observable <(IndexPath, ChallengeListSectionItem)> { get }
     var didTapDoneButton: Observable<Void> { get }
@@ -53,7 +52,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 
     weak var router: ChallengeRegisterRouting?
     weak var listener: ChallengeRegisterListener?
-    private var dependency: ChallengeRegisterDependency
+    private var dependency: ChallengeRegisterComponent
 
     private var calendarConfiguration = CalendarConfiguration(startYear: 2022, endYear: 2026)
 
@@ -71,13 +70,12 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     )
 
     private let errorRelay: PublishRelay<String> = .init()
-    private var disposeBag = DisposeBag()
 
     private var request: ChallengeJoinRequest = ChallengeJoinRequest.init()
     private var selectedChallengeId: Int = -1
 
     init(presenter: ChallengeRegisterPresentable,
-         dependency: ChallengeRegisterDependency) {
+         dependency: ChallengeRegisterComponent) {
         self.dependency = dependency
         super.init(presenter: presenter)
         presenter.handler = self
@@ -107,26 +105,19 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         dependency.targetDate
             .bind(to: basisDateRelay)
             .disposeOnDeactivate(interactor: self)
-        
+
         dependency.targetDate
             .withUnretained(self)
             .subscribe(onNext: { owner, date in
-                owner.calendarConfiguration.setBasisDate(date: date)
-            })
-            .disposeOnDeactivate(interactor: self)
-        
+            owner.calendarConfiguration.setBasisDate(date: date)
+        }).disposeOnDeactivate(interactor: self)
+
         guard let action = presenter.action else { return }
 
         action.viewWillAppear
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
             owner.makeListSections()
-        }).disposeOnDeactivate(interactor: self)
-
-        action.viewWillDisappear
-            .withUnretained(self)
-            .subscribe(onNext: { owner, _ in
-            owner.disposeBag = DisposeBag()
         }).disposeOnDeactivate(interactor: self)
 
         action.didChangeCategory
@@ -157,8 +148,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
             owner.calendarDataSourceRelay.accept(owner.calendarConfiguration.pickerFullDataSource)
-        })
-            .disposeOnDeactivate(interactor: self)
+        }).disposeOnDeactivate(interactor: self)
 
         action.calendarBeginEditing
             .withUnretained(self)
@@ -173,15 +163,13 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             default:
                 break
             }
-        })
-            .disposeOnDeactivate(interactor: self)
+        }).disposeOnDeactivate(interactor: self)
 
         action.calendarDidSelected
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-                owner.dependency.targetDate.accept(owner.calendarConfiguration.basisFullDate)
-        })
-            .disposeOnDeactivate(interactor: self)
+            owner.dependency.targetDate.accept(owner.calendarConfiguration.basisFullDate)
+        }).disposeOnDeactivate(interactor: self)
     }
 
     private func makeListSections() {
@@ -206,11 +194,11 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             owner.challengeListSectionsRelay.accept(sections)
             owner.categorySectionsRelay.accept(categorySections)
 
-        }).disposed(by: disposeBag)
+        }).disposeOnDeactivate(interactor: self)
     }
 
     private func fetchChallengeCategories() -> Observable<[CategoryCellViewModel]> {
-        return dependency.challengeRegisterUseCase
+        return dependency.useCase
             .fetchChallengeCategories()
             .catch({ [weak self] error in
             self?.errorRelay.accept(error.localizedDescription)
@@ -220,7 +208,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     }
 
     private func fetchChallengeLists() -> Observable<[ChallengeListItemCellViewModel]> {
-        return dependency.challengeRegisterUseCase
+        return dependency.useCase
             .fetchChallengeRegisterLists()
             .catch({ [weak self] error in
             self?.errorRelay.accept(error.localizedDescription)
@@ -231,13 +219,12 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 
     // TODO: - 에러 팝업
     private func joinChallenge(request: ChallengeJoinRequest) {
-        dependency.challengeRegisterUseCase
+        dependency.useCase
             .joinChallenge(request: request)
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
             owner.router?.routeToRecommend(id: String(request.challengeId))
-        })
-            .disposeOnDeactivate(interactor: self)
+        }).disposeOnDeactivate(interactor: self)
     }
 }
 
