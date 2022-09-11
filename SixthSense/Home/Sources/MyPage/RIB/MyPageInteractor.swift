@@ -27,10 +27,12 @@ protocol MyPagePresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
     var didSelectItem: Observable <MyPageItemCellViewModel> { get }
     var loggedOut: Observable<Void> { get }
+    var routeToSignIn: Observable<Void> { get }
 }
 
 protocol MyPagePresenterHandler: AnyObject {
     var myPageSections: Observable<[MyPageSection]> { get }
+    var presentSignInPopup: Observable<Void> { get }
     var presentLogoutPopup: Observable<Void> { get }
 }
 
@@ -46,6 +48,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     private var useCase: MyPageUseCase
 
     private let myPageSectionsRelay: PublishRelay<[MyPageSection]> = .init()
+    private let signInPopupRelay: PublishRelay<Void> = .init()
     private let logoutPopupRelay: PublishRelay<Void> = .init()
 
     private lazy var dataObservable = Observable.combineLatest(
@@ -72,11 +75,17 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         guard let action = presenter.action else { return }
 
         action.viewWillAppear
+            .flatMap(isLoggedIn)
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
             owner.makeSection()
-        })
-            .disposeOnDeactivate(interactor: self)
+        }).disposeOnDeactivate(interactor: self)
+
+        action.routeToSignIn
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.routeToSignIn()
+        }).disposeOnDeactivate(interactor: self)
 
         action.didSelectItem
             .withUnretained(self)
@@ -135,8 +144,17 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         useCase.logout()
             .withUnretained(self)
             .bind(onNext: { owner, _ in
-            owner.routeToSingIn()
+            owner.routeToSignIn()
         }).disposeOnDeactivate(interactor: self)
+    }
+
+    private func isLoggedIn() -> Observable<Bool> {
+        return useCase.isLoggedIn()
+            .do(onNext: { [weak self] in
+            if !$0 {
+                self?.signInPopupRelay.accept(())
+            }
+        })
     }
 
     func popWebView() {
@@ -147,11 +165,12 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         router?.detachModifyView()
     }
 
-    func routeToSingIn() {
+    func routeToSignIn() {
         listener?.routeToSignIn()
     }
 }
 extension MyPageInteractor: MyPagePresenterHandler {
     var myPageSections: Observable<[MyPageSection]> { myPageSectionsRelay.asObservable() }
     var presentLogoutPopup: Observable<Void> { logoutPopupRelay.map { _ in () }.asObservable() }
+    var presentSignInPopup: Observable<Void> { signInPopupRelay.asObservable() }
 }
