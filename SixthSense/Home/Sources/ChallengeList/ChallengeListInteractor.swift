@@ -11,9 +11,10 @@ import RxSwift
 import RxRelay
 import Foundation
 import UIKit
+import Challenge
 
 protocol ChallengeListRouting: ViewableRouting {
-    func attachCheck()
+    func attachCheck(id: Int)
     func detachCheck()
     func attachDetail(id: String)
     func detachDetail()
@@ -166,7 +167,9 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     private func waitingItemSelected(viewModel: ChallengeItemCellViewModel) {
         guard let type = dependency.usecase.compareToday(with: targetDate),
               type == .today else { return }
-        router?.attachCheck()
+        router?.attachCheck(id: viewModel.id)
+    }
+    
     }
     
     private func itemDelete(_ indexPath: IndexPath) {

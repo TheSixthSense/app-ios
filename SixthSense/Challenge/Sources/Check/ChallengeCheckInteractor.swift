@@ -24,6 +24,7 @@ protocol ChallengeCheckPresenterAction: AnyObject {
 protocol ChallengeCheckPresenterHandler: AnyObject {
     var doneButtonActive: Observable<Bool> { get }
     var showDonePopUp: Observable<ChallengeCheckComplete> { get }
+    var errorMessage: Observable<String> { get }
 }
 
 protocol ChallengeCheckPresentable: Presentable {
@@ -46,12 +47,17 @@ final class ChallengeCheckInteractor: PresentableInteractor<ChallengeCheckPresen
     weak var listener: ChallengeCheckListener?
     private let dependency: ChallengeCheckInteractorDependency
     
+    private let id: Int
+    
     private let doneButtonActiveRelay: PublishRelay<Bool> = .init()
     private let showDonePopUpRelay: PublishRelay<ChallengeCheckComplete> = .init()
+    private let errorMessageRelay: PublishRelay<String> = .init()
 
     init(presenter: ChallengeCheckPresentable,
+         id: Int,
          dependency: ChallengeCheckInteractorDependency) {
         self.dependency = dependency
+        self.id = id
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -90,16 +96,25 @@ final class ChallengeCheckInteractor: PresentableInteractor<ChallengeCheckPresen
     }
     
     private func registerChallenge(request: ChallengeCheckRequest) {
-        dependency.usecase.register(request: request)
+        dependency.usecase.register(id: id, request: request)
+            .catch { [weak self] error in
+                self?.toastMessage(error.localizedDescription)
+                return .empty()
+            }
             .withUnretained(self)
             .subscribe(onNext: { owner, response in
                 owner.showDonePopUpRelay.accept(response)
             })
             .disposeOnDeactivate(interactor: self)
     }
+    
+    private func toastMessage(_ message: String) {
+        errorMessageRelay.accept(message)
+    }
 }
 
 extension ChallengeCheckInteractor: ChallengeCheckPresenterHandler {
     var doneButtonActive: Observable<Bool> { doneButtonActiveRelay.asObservable() }
     var showDonePopUp: Observable<ChallengeCheckComplete> { showDonePopUpRelay.asObservable() }
+    var errorMessage: Observable<String> { errorMessageRelay.asObservable() }
 }

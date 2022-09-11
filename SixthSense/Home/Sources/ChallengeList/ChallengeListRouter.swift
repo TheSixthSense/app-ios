@@ -41,10 +41,10 @@ final class ChallengeListRouter: ViewableRouter<ChallengeListInteractable, Chall
         viewControllable.uiviewController.tabBarController?.selectedIndex = 1
     }
     
-    func attachCheck() {
+    func attachCheck(id: Int) {
         if childRouting != nil { return }
         
-        let router = checkBuilder.build(withListener: interactor)
+        let router = checkBuilder.build(withListener: interactor, id: id)
         let viewController = router.viewControllable
         viewController.uiviewController.modalPresentationStyle = .fullScreen
         viewController.uiviewController.hidesBottomBarWhenPushed = true
