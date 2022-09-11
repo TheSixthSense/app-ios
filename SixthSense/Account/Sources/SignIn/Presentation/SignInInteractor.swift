@@ -24,13 +24,17 @@ public protocol SignInListener: AnyObject {
     func signInDidTapClose()
 }
 
+protocol SignInInteractorDependency {
+    var usecase: SignInUseCase { get }
+}
+
 final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInInteractable, SignInPresentableListener {
 
     weak var router: SignInRouting?
     weak var listener: SignInListener?
-    private let dependency: SignInDependency
+    private let dependency: SignInInteractorDependency
 
-    init(presenter: SignInPresentable, dependency: SignInDependency) {
+    init(presenter: SignInPresentable, dependency: SignInInteractorDependency) {
         self.dependency = dependency
         super.init(presenter: presenter)
         presenter.listener = self

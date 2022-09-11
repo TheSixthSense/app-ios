@@ -21,12 +21,8 @@ final class RootComponent: Component<RootDependency>,
     var persistence: LocalPersistence { dependency.persistence }
     var userRepository: UserRepository { dependency.userRepository }
     var challengeRepository: ChallengeRepository { dependency.challengeRepository }
-    var usecase: SignInUseCase
     
     override init(dependency: RootDependency) {
-        self.usecase = SignInUseCaseImpl(
-            userRepository: dependency.userRepository,
-            persistence: dependency.persistence)
         
         super.init(dependency: dependency)
     }
