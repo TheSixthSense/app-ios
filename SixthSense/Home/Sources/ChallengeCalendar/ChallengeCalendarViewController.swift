@@ -192,6 +192,13 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
             })
             .disposed(by: self.disposeBag)
         
+        handler.reload
+            .asDriver(onErrorJustReturn: ())
+            .drive(onNext: { [weak self] in
+                self?.calendar.reloadData()
+            })
+            .disposed(by: self.disposeBag)
+        
         handler.calenarDataSource
             .bind(to: pickerView.rx.items(adapter: pickerAdapter))
             .disposed(by: self.disposeBag)

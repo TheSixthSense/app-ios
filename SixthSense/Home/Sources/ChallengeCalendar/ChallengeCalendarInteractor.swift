@@ -30,6 +30,7 @@ protocol ChallengeCalendarPresenterHandler: AnyObject {
     var calenarDataSource: Observable<[[Int]]> { get }
     var calendar: (startDate: Date, endDate: Date) { get }
     var dayChallengeState: (Date) -> ChallengeCalendarDayState { get }
+    var reload: Observable<Void> { get }
 }
 
 protocol ChallengeCalendarPresentable: Presentable {
@@ -52,6 +53,7 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
     
     private let basisDateRelay: BehaviorRelay<Date> = .init(value: Date())
     private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
+    private let reloadRelay: PublishRelay<Void> = .init()
     
     // FIXME: 개발 후에 Factory로 분리할 계획이에요
     private var calendarConfiguration = CalendarConfiguration(startYear: 2022, endYear: 2026)
@@ -173,4 +175,5 @@ extension ChallengeCalendarInteractor: ChallengeCalendarPresenterHandler {
         return (startDate: calendarConfiguration.startDate, endDate: calendarConfiguration.endDate)
     }
     var dayChallengeState: (Date) -> ChallengeCalendarDayState { factory.dayChallengeState }
+    var reload: Observable<Void> { reloadRelay.asObservable() }
 }
