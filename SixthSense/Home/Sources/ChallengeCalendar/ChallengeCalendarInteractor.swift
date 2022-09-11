@@ -16,6 +16,7 @@ protocol ChallengeCalendarRouting: ViewableRouting {
 }
 
 protocol ChallengeCalendarPresenterAction: AnyObject {
+    var fetch: Observable<Void> { get }
     var selectMonth: Observable<Void> { get }
     var swipeCalendar: Observable<Date> { get }
     var monthBeginEditing: Observable<(row: Int, component: Int)> { get }
@@ -38,6 +39,7 @@ protocol ChallengeCalendarPresentable: Presentable {
 
 protocol ChallengeCalendarInteractorDependency {
     var targetDate: PublishRelay<Date> { get }
+    var usecase: ChallengeCalendarUseCase { get }
 }
 
 protocol ChallengeCalendarListener: AnyObject { }
@@ -82,11 +84,20 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
             })
             .disposeOnDeactivate(interactor: self)
         
+        action.fetch
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.fetch(by: owner.calendarConfiguration.basisDate)
+            })
+            .disposeOnDeactivate(interactor: self)
+        
         action.swipeCalendar
+            .distinctUntilChanged()
             .withUnretained(self)
             .subscribe(onNext: { owner, date in
                 owner.calendarConfiguration.setBasisDate(date: date)
                 owner.basisDateRelay.accept(owner.calendarConfiguration.basisDate)
+                owner.fetch(by: date)
             })
             .disposeOnDeactivate(interactor: self)
         
@@ -143,6 +154,15 @@ struct ChallengeCalendarFactoryImpl: ChallengeCalendarFactory {
         } else {
             return .waiting
         }
+    
+    private func fetch(by date: Date) {
+        dependency.usecase.fetch(by: date)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, config in
+                owner.dayStatesConfiguration = config
+                owner.reloadRelay.accept(())
+            })
+            .disposeOnDeactivate(interactor: self)
     }
 }
 

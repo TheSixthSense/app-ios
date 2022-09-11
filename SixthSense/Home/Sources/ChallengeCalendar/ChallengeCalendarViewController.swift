@@ -39,6 +39,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
     
     let swipeCalendarRelay: PublishRelay<Date> = .init()
     let dateSelectRelay: PublishRelay<Date> = .init()
+    private let fetchRelay: PublishRelay<Void> = .init()
     
     private let disposeBag = DisposeBag()
     private let pickerAdapter = RxPickerViewStringAdapter<[[Int]]>(
@@ -114,6 +115,11 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
         configureViews()
         configureConstraints()
         bind()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        fetchRelay.accept(())
     }
     
     private func configureViews() {
@@ -202,6 +208,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
 }
 
 extension ChallengeCalendarViewController: ChallengeCalendarPresenterAction {
+    var fetch: Observable<Void> { fetchRelay.asObservable() }
     var selectMonth: Observable<Void> { headerView.rx.tap }
     var monthBeginEditing: Observable<(row: Int, component: Int)> {
         pickerView.rx.itemSelected.asObservable()
