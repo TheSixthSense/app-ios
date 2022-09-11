@@ -174,6 +174,10 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         configureUI()
         bind()
     }
@@ -181,6 +185,11 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         configureLayout()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        disposeBag = DisposeBag()
     }
 
     func routeToHome() {
@@ -262,6 +271,7 @@ private extension ChallengeRegisterViewController {
         guard let handler = handler else { return }
 
         disposeBag.insert {
+
             handler.categorySections
                 .asDriver(onErrorJustReturn: [])
                 .drive(categoryTabView.rx.items(dataSource: categoryDataSource))
@@ -366,7 +376,6 @@ private extension ChallengeRegisterViewController {
 
 extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
     var viewWillAppear: Observable<Void> { rx.viewWillAppear.map { _ in () }.asObservable() }
-    var viewWillDisappear: Observable<Void> { rx.viewWillDisappear.map { _ in () }.asObservable() }
     var didChangeCategory: Observable<(Int, CategorySectionItem)> {
         Observable.zip(categoryTabView.rx.itemSelected.map { $0.row }, categoryTabView.rx.modelSelected(CategorySectionItem.self))
             .distinctUntilChanged(\.0)

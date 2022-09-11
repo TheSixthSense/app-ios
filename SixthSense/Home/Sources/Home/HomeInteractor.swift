@@ -10,6 +10,7 @@ import RIBs
 
 public protocol HomeRouting: ViewableRouting {
     func attachTabs()
+    func detachTabs()
 }
 
 protocol HomePresentable: Presentable {
@@ -17,6 +18,7 @@ protocol HomePresentable: Presentable {
 }
 
 public protocol HomeListener: AnyObject {
+    func routeToSignIn()
 }
 
 final class HomeInteractor: PresentableInteractor<HomePresentable>, HomeInteractable, HomePresentableListener {
@@ -36,5 +38,10 @@ final class HomeInteractor: PresentableInteractor<HomePresentable>, HomeInteract
 
     override func willResignActive() {
         super.willResignActive()
+        router?.detachTabs()
+    }
+
+    func routeToSignIn() {
+        listener?.routeToSignIn()
     }
 }

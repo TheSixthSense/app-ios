@@ -87,7 +87,6 @@ final class ChallengeListItemCell: UITableViewCell {
         contentLabel.font = AppFont.body2
     }
 
-    // FIXME: - Datasource
     func bind(item: ChallengeListItemCellViewModel) {
         contentLabel.setText(item.title, font: AppFont.body2)
         emojiLabel.text = item.emoji

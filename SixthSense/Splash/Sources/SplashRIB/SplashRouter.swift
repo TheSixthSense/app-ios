@@ -11,7 +11,7 @@ import UIKit
 import Account
 import Home
 
-protocol SplashInteractable: Interactable, HomeListener {
+protocol SplashInteractable: Interactable {
     var router: SplashRouting? { get set }
     var listener: SplashListener? { get set }
 }
@@ -19,7 +19,6 @@ protocol SplashInteractable: Interactable, HomeListener {
 protocol SplashViewControllable: ViewControllable { }
 
 final class SplashRouter: ViewableRouter<SplashInteractable, SplashViewControllable>, SplashRouting {
-    private var childRouting: ViewableRouting?
     
     override public init(
         interactor: SplashInteractable,

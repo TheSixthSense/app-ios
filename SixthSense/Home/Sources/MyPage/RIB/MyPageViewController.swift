@@ -48,10 +48,10 @@ final class MyPageViewController: UIViewController, MyPagePresentable, MyPageVie
         $0.separatorStyle = .none
     }
 
-    private var logoutAlertActions: PublishRelay<AlertAction.Style> = PublishRelay.init()
-    private var logoutButtonTapped: PublishRelay<Bool> = PublishRelay.init()
+    private var logoutButtonTapped: PublishRelay<Void> = PublishRelay.init()
+    private var routeToSignInRelay: PublishRelay<Void> = PublishRelay.init()
 
-    private var disposeBag = DisposeBag()
+    private let disposeBag = DisposeBag()
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -111,6 +111,12 @@ extension MyPageViewController {
         guard let handler = handler else { return }
         disposeBag.insert {
 
+            handler.presentSignInPopup
+                .withUnretained(self)
+                .bind(onNext: { owner, _ in
+                owner.presentSignIn()
+            })
+
             handler.myPageSections
                 .asDriver(onErrorJustReturn: [])
                 .drive(myPageTableView.rx.items(dataSource: myPageDataSource))
@@ -118,19 +124,31 @@ extension MyPageViewController {
             handler.presentLogoutPopup
                 .withUnretained(self)
                 .bind(onNext: { owner, _ in
-                owner.showAlert(title: "비거너를 로그아웃 할거야?",
-                                message: "남겨둔 챌린지와 인증글은 잘 보관되어 있으니\n잠시 쉬다가 와도 걱정하지 말아요😊",
-                                actions: [.action(title: "앗.. 아냐!", style: .negative),
-                                              .action(title: "응, 로그아웃 할게", style: .positive)])
-                    .filter { $0 == .positive }
-                    .bind(onNext: { _ in owner.logout() })
-                    .disposed(by: owner.disposeBag)
+                owner.presentLogout()
             })
         }
     }
 
     private func logout() {
-        logoutButtonTapped.accept(true)
+        logoutButtonTapped.accept(())
+    }
+
+    private func presentSignIn() {
+        showErrorAlert(title: "로그인이 필요합니다", message: "로그인 하세요", actionTitle: "오키")
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.routeToSignInRelay.accept(())
+        }).disposed(by: disposeBag)
+    }
+
+    private func presentLogout() {
+        showAlert(title: "비거너를 로그아웃 할거야?",
+                  message: "남겨둔 챌린지와 인증글은 잘 보관되어 있으니\n잠시 쉬다가 와도 걱정하지 말아요😊",
+                  actions: [.action(title: "앗.. 아냐!", style: .negative),
+                                .action(title: "응, 로그아웃 할게", style: .positive)])
+            .filter { $0 == .positive }
+            .bind(onNext: { [weak self] _ in self?.logout() })
+            .disposed(by: disposeBag)
     }
 }
 extension MyPageViewController: MyPagePresenterAction {
@@ -138,5 +156,6 @@ extension MyPageViewController: MyPagePresenterAction {
     var didSelectItem: Observable <MyPageItemCellViewModel> {
         myPageTableView.rx.modelSelected(MyPageSectionItem.self).compactMap(\.rawValue)
     }
-    var loggedOut: Observable<Void> { logoutButtonTapped.map { _ in () }.asObservable().debug() }
+    var loggedOut: Observable<Void> { logoutButtonTapped.asObservable() }
+    var routeToSignIn: Observable<Void> { routeToSignInRelay.asObservable() }
 }

@@ -43,7 +43,7 @@ public final class RootInteractor: PresentableInteractor<RootPresentable>, RootI
 
     public override func didBecomeActive() {
         super.didBecomeActive()
-        
+
         // TODO: 스플래시 테스트를 위한 딜레이입니다 추후 제거
         Observable<Void>.just(())
             .delay(.seconds(3), scheduler: MainScheduler.instance)
@@ -63,20 +63,25 @@ public final class RootInteractor: PresentableInteractor<RootPresentable>, RootI
 extension RootInteractor {
     private func attachSignInIfNeeded() {
         router?.detachSplash()
-        
+
         if shouldShowSignInView() {
             router?.attachSignIn()
         } else {
             router?.attachHome()
         }
     }
-    
+
     private func shouldShowSignInView() -> Bool {
         return !dependency.usecase.logined()
     }
-    
+
     public func signInDidTapClose() {
         router?.detachSignIn()
         router?.attachHome()
+    }
+
+    public func routeToSignIn() {
+        router?.detachSplash()
+        router?.attachSignIn()
     }
 }

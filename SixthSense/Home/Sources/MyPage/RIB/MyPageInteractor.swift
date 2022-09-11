@@ -27,14 +27,17 @@ protocol MyPagePresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
     var didSelectItem: Observable <MyPageItemCellViewModel> { get }
     var loggedOut: Observable<Void> { get }
+    var routeToSignIn: Observable<Void> { get }
 }
 
 protocol MyPagePresenterHandler: AnyObject {
     var myPageSections: Observable<[MyPageSection]> { get }
+    var presentSignInPopup: Observable<Void> { get }
     var presentLogoutPopup: Observable<Void> { get }
 }
 
 protocol MyPageListener: AnyObject {
+    func routeToSignIn()
 }
 
 final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageInteractable {
@@ -45,7 +48,8 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     private var useCase: MyPageUseCase
 
     private let myPageSectionsRelay: PublishRelay<[MyPageSection]> = .init()
-    private let logoutPopupRelay: PublishRelay<Bool> = .init()
+    private let signInPopupRelay: PublishRelay<Void> = .init()
+    private let logoutPopupRelay: PublishRelay<Void> = .init()
 
     private lazy var dataObservable = Observable.combineLatest(
         self.fetchUserData(), self.fetchChallengeUserData()
@@ -71,11 +75,17 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         guard let action = presenter.action else { return }
 
         action.viewWillAppear
+            .flatMap(isLoggedIn)
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
             owner.makeSection()
-        })
-            .disposeOnDeactivate(interactor: self)
+        }).disposeOnDeactivate(interactor: self)
+
+        action.routeToSignIn
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.routeToSignIn()
+        }).disposeOnDeactivate(interactor: self)
 
         action.didSelectItem
             .withUnretained(self)
@@ -88,7 +98,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
                 owner.router?.routeToWebView(urlString: item.type.url ?? "", titleString: item.type.title)
                 return
             case .logout:
-                return owner.logoutPopupRelay.accept(true)
+                return owner.logoutPopupRelay.accept(())
             default: return
             }
         }).disposeOnDeactivate(interactor: self)
@@ -97,7 +107,6 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in owner.loggedOut() })
             .disposeOnDeactivate(interactor: self)
-
     }
 
     private func makeSection() {
@@ -131,13 +140,21 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         return useCase.fetchUserChallengeStats().asObservable()
     }
 
-
     private func loggedOut() {
-        // TODO: - 로그아웃 API & AccessToken 제거
         useCase.logout()
-            .subscribe(onNext: { _ in
-            print("로그아웃성공")
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.routeToSignIn()
         }).disposeOnDeactivate(interactor: self)
+    }
+
+    private func isLoggedIn() -> Observable<Bool> {
+        return useCase.isLoggedIn()
+            .do(onNext: { [weak self] in
+            if !$0 {
+                self?.signInPopupRelay.accept(())
+            }
+        })
     }
 
     func popWebView() {
@@ -147,8 +164,13 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     func popModifyView() {
         router?.detachModifyView()
     }
+
+    func routeToSignIn() {
+        listener?.routeToSignIn()
+    }
 }
 extension MyPageInteractor: MyPagePresenterHandler {
     var myPageSections: Observable<[MyPageSection]> { myPageSectionsRelay.asObservable() }
     var presentLogoutPopup: Observable<Void> { logoutPopupRelay.map { _ in () }.asObservable() }
+    var presentSignInPopup: Observable<Void> { signInPopupRelay.asObservable() }
 }

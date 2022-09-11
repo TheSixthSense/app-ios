@@ -7,15 +7,18 @@
 //
 
 import RIBs
+import Storage
 import Repository
 
 protocol MyPageDependency: Dependency {
     var userRepository: UserRepository { get }
+    var persistence: LocalPersistence { get }
 }
 
 final class MyPageComponent: Component<MyPageDependency>, MyPageModifyDependency, MyPageWebViewDependency {
     var userRepository: UserRepository { dependency.userRepository }
-    var myPageUseCase: MyPageUseCase { MyPageUseCaseImpl(userRepository: dependency.userRepository) }
+    var myPageUseCase: MyPageUseCase { MyPageUseCaseImpl(userRepository: dependency.userRepository,
+                                                         persistence: dependency.persistence) }
 }
 
 // MARK: - Builder
