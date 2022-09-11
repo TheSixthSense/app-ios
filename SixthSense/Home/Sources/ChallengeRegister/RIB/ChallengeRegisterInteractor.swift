@@ -56,7 +56,6 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     private var dependency: ChallengeRegisterDependency
 
     private var calendarConfiguration = CalendarConfiguration(startYear: 2022, endYear: 2026)
-    private let factory: ChallengeCalendarFactory = ChallengeCalendarFactoryImpl()
 
     private let basisDateRelay: BehaviorRelay<Date> = .init(value: Date())
     private let categorySectionsRelay: PublishRelay<[CategorySection]> = .init()
@@ -105,6 +104,17 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     }
 
     private func bind() {
+        dependency.targetDate
+            .bind(to: basisDateRelay)
+            .disposeOnDeactivate(interactor: self)
+        
+        dependency.targetDate
+            .withUnretained(self)
+            .subscribe(onNext: { owner, date in
+                owner.calendarConfiguration.setBasisDate(date: date)
+            })
+            .disposeOnDeactivate(interactor: self)
+        
         guard let action = presenter.action else { return }
 
         action.viewWillAppear
@@ -169,7 +179,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         action.calendarDidSelected
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-            owner.basisDateRelay.accept(owner.calendarConfiguration.basisFullDate)
+                owner.dependency.targetDate.accept(owner.calendarConfiguration.basisFullDate)
         })
             .disposeOnDeactivate(interactor: self)
     }
