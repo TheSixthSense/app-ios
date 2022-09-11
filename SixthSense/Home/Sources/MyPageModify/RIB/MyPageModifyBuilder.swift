@@ -7,11 +7,14 @@
 //
 
 import RIBs
+import Repository
 
 protocol MyPageModifyDependency: Dependency {
+    var userRepository: UserRepository { get }
 }
 
 final class MyPageModifyComponent: Component<MyPageModifyDependency>, MyPageModifyInfoDependency {
+    var useCase: MyPageModifyUseCase { MyPageModifyUseCaseImpl(userRepository: dependency.userRepository) }
 }
 
 // MARK: - Builder
@@ -29,7 +32,7 @@ final class MyPageModifyBuilder: Builder<MyPageModifyDependency>, MyPageModifyBu
     func build(withListener listener: MyPageModifyListener, userData: UserInfoPayload) -> MyPageModifyRouting {
         let component = MyPageModifyComponent(dependency: dependency)
         let viewController = MyPageModifyViewController()
-        let interactor = MyPageModifyInteractor(presenter: viewController, userPayload: userData)
+        let interactor = MyPageModifyInteractor(presenter: viewController, userPayload: userData, useCase: component.useCase)
         interactor.listener = listener
 
         let infoBuilder = MyPageModifyInfoBuilder(dependency: component)

@@ -16,12 +16,14 @@ enum UserAPI {
     case validateNickname(String)
     case signUp(SignUpRequest)
     case challengeStats
+    case logout
+    case withdraw
 }
 
 extension UserAPI: BaseAPI, AccessTokenAuthorizable {
     var authorizationType: AuthorizationType? {
         switch self {
-        case .info, .challengeStats:
+        case .info, .challengeStats, .logout, .withdraw:
             return .bearer
         default:
             return .none
@@ -44,6 +46,10 @@ extension UserAPI: BaseAPI, AccessTokenAuthorizable {
             return "/check/nick-name"
         case .challengeStats:
             return "/user/challenge/stats"
+        case .logout:
+            return "/auth/logout"
+        case .withdraw:
+            return "/user/withdraw"
         }
     }
 
@@ -51,8 +57,10 @@ extension UserAPI: BaseAPI, AccessTokenAuthorizable {
         switch self {
         case .info, .validateNickname, .challengeStats:
             return .get
-        case .login, .signUp:
+        case .login, .signUp, .logout:
             return .post
+        case .withdraw:
+            return .delete
         }
     }
 

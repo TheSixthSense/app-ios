@@ -11,10 +11,11 @@ import Repository
 
 protocol MyPageDependency: Dependency {
     var userRepository: UserRepository { get }
-    var myPageUseCase: MyPageUseCase { get }
 }
 
 final class MyPageComponent: Component<MyPageDependency>, MyPageModifyDependency, MyPageWebViewDependency {
+    var userRepository: UserRepository { dependency.userRepository }
+    var myPageUseCase: MyPageUseCase { MyPageUseCaseImpl(userRepository: dependency.userRepository) }
 }
 
 // MARK: - Builder
@@ -32,7 +33,7 @@ final class MyPageBuilder: Builder<MyPageDependency>, MyPageBuildable {
     func build(withListener listener: MyPageListener) -> MyPageRouting {
         let component = MyPageComponent(dependency: dependency)
         let viewController = MyPageViewController()
-        let interactor = MyPageInteractor(presenter: viewController, dependency: dependency)
+        let interactor = MyPageInteractor(presenter: viewController, useCase: component.myPageUseCase)
         interactor.listener = listener
 
         let myPageWebViewBuilder = MyPageWebViewBuilder(dependency: component)
