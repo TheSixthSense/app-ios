@@ -35,6 +35,7 @@ protocol MyPagePresenterHandler: AnyObject {
 }
 
 protocol MyPageListener: AnyObject {
+    func routeToSignIn()
 }
 
 final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageInteractable {
@@ -45,7 +46,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     private var useCase: MyPageUseCase
 
     private let myPageSectionsRelay: PublishRelay<[MyPageSection]> = .init()
-    private let logoutPopupRelay: PublishRelay<Bool> = .init()
+    private let logoutPopupRelay: PublishRelay<Void> = .init()
 
     private lazy var dataObservable = Observable.combineLatest(
         self.fetchUserData(), self.fetchChallengeUserData()
@@ -88,7 +89,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
                 owner.router?.routeToWebView(urlString: item.type.url ?? "", titleString: item.type.title)
                 return
             case .logout:
-                return owner.logoutPopupRelay.accept(true)
+                return owner.logoutPopupRelay.accept(())
             default: return
             }
         }).disposeOnDeactivate(interactor: self)
@@ -97,7 +98,6 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in owner.loggedOut() })
             .disposeOnDeactivate(interactor: self)
-
     }
 
     private func makeSection() {
@@ -131,12 +131,11 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         return useCase.fetchUserChallengeStats().asObservable()
     }
 
-
     private func loggedOut() {
-        // TODO: - 로그아웃 API & AccessToken 제거
         useCase.logout()
-            .subscribe(onNext: { _ in
-            print("로그아웃성공")
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.routeToSingIn()
         }).disposeOnDeactivate(interactor: self)
     }
 
@@ -146,6 +145,10 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
 
     func popModifyView() {
         router?.detachModifyView()
+    }
+
+    func routeToSingIn() {
+        listener?.routeToSignIn()
     }
 }
 extension MyPageInteractor: MyPagePresenterHandler {

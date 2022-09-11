@@ -12,7 +12,7 @@ import RIBs
 protocol HomePresentableListener: AnyObject { }
 
 final class RootTabBarController: UITabBarController, HomeViewControllable, HomePresentable {
-    var listener: HomePresentableListener?
+    weak var listener: HomePresentableListener?
     
     override func viewDidLoad() {
         super.viewDidLoad()

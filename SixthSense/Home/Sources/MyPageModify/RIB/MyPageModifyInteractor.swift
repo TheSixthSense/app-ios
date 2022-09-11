@@ -33,7 +33,7 @@ protocol MyPageModifyPresenterAction: AnyObject {
 
 protocol MyPageModifyListener: AnyObject {
     func popModifyView()
-//    func routeToSingIn()
+    func routeToSingIn()
 }
 
 final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentable>, MyPageModifyInteractable {
@@ -73,7 +73,7 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
         action.viewWillAppear
             .withUnretained(self)
             .bind(onNext: { owner, _ in
-            owner.userInfoPayloadRelay.accept(self.userInfo)
+            owner.userInfoPayloadRelay.accept(owner.userInfo)
         }).disposeOnDeactivate(interactor: self)
 
         action.didTapBackButton
@@ -100,12 +100,12 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
     }
 
     func withDrawUser() {
-//        useCase.withdrawUser()
-//            .withUnretained(self)
-//            .bind(onNext: { owner, _ in
-//            owner.popModifyInfoView()
-//            owner.listener?.routeToSingIn()
-//        }).disposeOnDeactivate(interactor: self)
+        useCase.withdrawUser()
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.popModifyInfoView()
+            owner.listener?.routeToSingIn()
+        }).disposeOnDeactivate(interactor: self)
     }
 }
 

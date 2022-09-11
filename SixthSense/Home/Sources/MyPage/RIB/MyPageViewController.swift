@@ -118,19 +118,23 @@ extension MyPageViewController {
             handler.presentLogoutPopup
                 .withUnretained(self)
                 .bind(onNext: { owner, _ in
-                owner.showAlert(title: "비거너를 로그아웃 할거야?",
-                                message: "남겨둔 챌린지와 인증글은 잘 보관되어 있으니\n잠시 쉬다가 와도 걱정하지 말아요😊",
-                                actions: [.action(title: "앗.. 아냐!", style: .negative),
-                                              .action(title: "응, 로그아웃 할게", style: .positive)])
-                    .filter { $0 == .positive }
-                    .bind(onNext: { _ in owner.logout() })
-                    .disposed(by: owner.disposeBag)
+                owner.presentLogout()
             })
         }
     }
 
     private func logout() {
         logoutButtonTapped.accept(true)
+    }
+
+    private func presentLogout() {
+        showAlert(title: "비거너를 로그아웃 할거야?",
+                  message: "남겨둔 챌린지와 인증글은 잘 보관되어 있으니\n잠시 쉬다가 와도 걱정하지 말아요😊",
+                  actions: [.action(title: "앗.. 아냐!", style: .negative),
+                                .action(title: "응, 로그아웃 할게", style: .positive)])
+            .filter { $0 == .positive }
+            .bind(onNext: { [weak self] _ in self?.logout() })
+            .disposed(by: disposeBag)
     }
 }
 extension MyPageViewController: MyPagePresenterAction {
