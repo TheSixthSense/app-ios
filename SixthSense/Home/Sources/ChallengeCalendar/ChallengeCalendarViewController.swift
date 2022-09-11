@@ -41,7 +41,7 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
     let dateSelectRelay: PublishRelay<Date> = .init()
     private let fetchRelay: PublishRelay<Void> = .init()
     
-    private let disposeBag = DisposeBag()
+    private var disposeBag = DisposeBag()
     private let pickerAdapter = RxPickerViewStringAdapter<[[Int]]>(
         components: [],
         numberOfComponents: { _,_,_  in 2 },
@@ -120,6 +120,11 @@ final class ChallengeCalendarViewController: UIViewController, ChallengeCalendar
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         fetchRelay.accept(())
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        disposeBag = DisposeBag()
     }
     
     private func configureViews() {
