@@ -22,6 +22,7 @@ protocol ChallengeDetailPresenterHandler: AnyObject {
     var imageURL: Observable<URL?> { get }
     var date: Observable<Date> { get }
     var comment: Observable<String?> { get }
+    var errorMessage: Observable<String> { get }
 }
 
 protocol ChallengeDetailPresentable: Presentable {
@@ -44,17 +45,18 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
     weak var router: ChallengeDetailRouting?
     weak var listener: ChallengeDetailListener?
     private let dependency: ChallengeDetailInteractorDependency
-    private let id: String
+    private let payload: ChallengeDetailPayload
     
     private let imageURLRelay: PublishRelay<URL?> = .init()
     private let dateRelay: PublishRelay<Date> = .init()
     private let commentRelay: PublishRelay<String?> = .init()
+    private let errorMessageRelay: PublishRelay<String> = .init()
     
     init(presenter: ChallengeDetailPresentable,
          dependency: ChallengeDetailInteractorDependency,
-         id: String) {
+         payload: ChallengeDetailPayload) {
         self.dependency = dependency
-        self.id = id
+        self.payload = payload
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -84,20 +86,18 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
     }
     
     private func fetch() {
-        dependency.usecase
-            .fetch(id: id)
-            .withUnretained(self)
-            .subscribe(onNext: { owner, data in
-                owner.imageURLRelay.accept(data.imageURL)
-                owner.dateRelay.accept(data.date)
-                owner.commentRelay.accept(data.text)
-            })
-            .disposeOnDeactivate(interactor: self)
+        imageURLRelay.accept(URL(string: payload.imageURL))
+        dateRelay.accept(payload.date)
+        commentRelay.accept(payload.comment)
     }
     
     private func delete() {
         dependency.usecase
-            .delete(id: id)
+            .delete(id: payload.id)
+            .catch { [weak self] error in
+                self?.showErrorMessage(error.localizedDescription)
+                return .empty()
+            }
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
                 owner.listener?.detailDidTapClose()
@@ -109,6 +109,10 @@ final class ChallengeDetailInteractor: PresentableInteractor<ChallengeDetailPres
     override func willResignActive() {
         super.willResignActive()
     }
+    
+    private func showErrorMessage(_ message: String) {
+        errorMessageRelay.accept(message)
+    }
 }
 
 // MARK: - Handler
@@ -116,4 +120,5 @@ extension ChallengeDetailInteractor: ChallengeDetailPresenterHandler {
     var imageURL: Observable<URL?> { imageURLRelay.asObservable() }
     var date: Observable<Date> { dateRelay.asObservable() }
     var comment: Observable<String?> { commentRelay.asObservable() }
+    var errorMessage: Observable<String> { errorMessageRelay.asObservable() }
 }

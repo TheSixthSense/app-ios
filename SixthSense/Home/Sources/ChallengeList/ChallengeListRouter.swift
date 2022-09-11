@@ -61,10 +61,10 @@ final class ChallengeListRouter: ViewableRouter<ChallengeListInteractable, Chall
         self.childRouting = nil
     }
 
-    func attachDetail(id: String) {
+    func attachDetail(payload: ChallengeDetailPayload) {
         if childRouting != nil { return }
         
-        let router = detailBuilder.build(withListener: interactor, id: id)
+        let router = detailBuilder.build(withListener: interactor, payload: payload)
         let viewController = router.viewControllable
         viewController.uiviewController.modalPresentationStyle = .fullScreen
         viewControllable.present(viewController, animated: true)

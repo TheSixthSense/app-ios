@@ -177,6 +177,13 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
         handler.comment
             .bind(to: commentLabel.rx.text)
             .disposed(by: self.disposeBag)
+        
+        handler.errorMessage
+            .asDriver(onErrorJustReturn: .init())
+            .drive(onNext: { [weak self] in
+                self?.showToast($0, toastStyle: .error)
+            })
+            .disposed(by: self.disposeBag)
     }
     
     private func showDeleteConfirmAlert() {

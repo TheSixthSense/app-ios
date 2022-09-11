@@ -26,19 +26,23 @@ struct UserChallengeList: Mappable {
 }
 
 struct UserChallengeItem: Mappable {
-    var id: String
-    var challengeID: String
+    var id: Int
+    var challengeID: Int
     var name: String
     var emoji: String
-    var challengeDate: String
+    var challengeDate: Date
+    var verificationImage: String
+    var verificationMemo: String
     var verificationStatus: String
     
     init() {
-        id = ""
-        challengeID = ""
+        id = -1
+        challengeID = -1
         name = ""
         emoji = ""
-        challengeDate = ""
+        challengeDate = .init()
+        verificationImage = ""
+        verificationMemo = ""
         verificationStatus = ""
     }
     
@@ -48,10 +52,12 @@ struct UserChallengeItem: Mappable {
     
     mutating func mapping(map: Map) {
         id <- map["id"]
-        challengeID <- map["challengeID"]
+        challengeID <- map["challengeId"]
         name <- map["name"]
         emoji <- map["emoji"]
-        challengeDate <- map["challengeDate"]
+        challengeDate <- (map["challengeDate"], ISO8601DateTransform())
+        verificationImage <- map["verificationImage"]
+        verificationMemo <- map["verificationMemo"]
         verificationStatus <- map["verificationStatus"]
     }
 }

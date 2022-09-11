@@ -7,15 +7,18 @@
 //
 
 import RIBs
+import Repository
 
-public protocol ChallengeDetailDependency: Dependency { }
+public protocol ChallengeDetailDependency: Dependency {
+    var userChallengeRepository: UserChallengeRepository { get }
+}
 
 final class ChallengeDetailComponent: Component<ChallengeDetailDependency>,
                                       ChallengeDetailInteractorDependency {
     var usecase: ChallengeDetailUseCase
     
     override init(dependency: ChallengeDetailDependency) {
-        usecase = ChallengeDetailUseCaseImpl()
+        usecase = ChallengeDetailUseCaseImpl(repository: dependency.userChallengeRepository)
         super.init(dependency: dependency)
     }
 }
@@ -23,7 +26,7 @@ final class ChallengeDetailComponent: Component<ChallengeDetailDependency>,
 // MARK: - Builder
 
 public protocol ChallengeDetailBuildable: Buildable {
-    func build(withListener listener: ChallengeDetailListener, id: String) -> ChallengeDetailRouting
+    func build(withListener listener: ChallengeDetailListener, payload: ChallengeDetailPayload) -> ChallengeDetailRouting
 }
 
 public final class ChallengeDetailBuilder: Builder<ChallengeDetailDependency>, ChallengeDetailBuildable {
@@ -32,12 +35,12 @@ public final class ChallengeDetailBuilder: Builder<ChallengeDetailDependency>, C
         super.init(dependency: dependency)
     }
 
-    public func build(withListener listener: ChallengeDetailListener, id: String) -> ChallengeDetailRouting {
+    public func build(withListener listener: ChallengeDetailListener, payload: ChallengeDetailPayload) -> ChallengeDetailRouting {
         let component = ChallengeDetailComponent(dependency: dependency)
         let viewController = ChallengeDetailViewController()
         let interactor = ChallengeDetailInteractor(presenter: viewController,
                                                    dependency: component,
-                                                   id: id)
+                                                   payload: payload)
         interactor.listener = listener
         return ChallengeDetailRouter(interactor: interactor, viewController: viewController)
     }

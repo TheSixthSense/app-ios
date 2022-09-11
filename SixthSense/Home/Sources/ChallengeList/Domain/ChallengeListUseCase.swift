@@ -57,22 +57,28 @@ final class ChallengeListUseCaseImpl: ChallengeListUseCase {
 
 // TODO: 서버 스펙 확정후 엔티티 확정하면서 파일로 분리할 예정
 struct ChallengeItem {
-    let id: String
+    let id: Int
     let emoji: String
     let title: String
     let status: ChallengeAchievedStatus?
+    let imageURL: String
+    let date: Date
+    let comment: String
     
     init(model: UserChallengeItem) {
         self.id = model.id
         self.emoji = model.emoji
         self.title = model.name
         self.status = .init(rawValue: model.verificationStatus)
+        self.imageURL = model.verificationImage
+        self.date = model.challengeDate
+        self.comment = model.verificationMemo
     }
 }
 
 enum ChallengeAchievedStatus: String {
     case success = "SUCCESS"
-    case failed = "FAILED"
+    case failed = "FAIL"
     case waiting = "WAITING"
 }
 

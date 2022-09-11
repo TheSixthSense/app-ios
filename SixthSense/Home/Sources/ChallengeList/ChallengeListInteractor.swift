@@ -16,7 +16,7 @@ import Challenge
 protocol ChallengeListRouting: ViewableRouting {
     func attachCheck(id: Int)
     func detachCheck()
-    func attachDetail(id: String)
+    func attachDetail(payload: ChallengeDetailPayload)
     func detachDetail()
     func routeToRegister()
 }
@@ -161,7 +161,10 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     private func successItemSelected(viewModel: ChallengeItemCellViewModel) {
         guard let type = dependency.usecase.compareToday(with: targetDate),
               type != .afterToday else { return }
-        router?.attachDetail(id: viewModel.id)
+        router?.attachDetail(payload: .init(id: viewModel.id,
+                                            imageURL: viewModel.imageURL,
+                                            date: viewModel.date,
+                                            comment: viewModel.comment))
     }
     
     private func waitingItemSelected(viewModel: ChallengeItemCellViewModel) {
@@ -239,5 +242,8 @@ extension ChallengeItemCellViewModel {
         self.id = item.id
         self.emoji = item.emoji
         self.title = item.title
+        self.imageURL = item.imageURL
+        self.date = item.date
+        self.comment = item.comment
     }
 }
