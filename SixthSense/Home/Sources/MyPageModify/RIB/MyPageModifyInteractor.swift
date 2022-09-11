@@ -33,6 +33,7 @@ protocol MyPageModifyPresenterAction: AnyObject {
 
 protocol MyPageModifyListener: AnyObject {
     func popModifyView()
+//    func routeToSingIn()
 }
 
 final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentable>, MyPageModifyInteractable {
@@ -40,15 +41,19 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
     weak var router: MyPageModifyRouting?
     weak var listener: MyPageModifyListener?
 
-    private var userInfo: UserInfoPayload
+    private let userInfo: UserInfoPayload
+    private let useCase: MyPageModifyUseCase
 
     private let userInfoPayloadRelay: PublishRelay<UserInfoPayload> = .init()
     private let withDrawPopupRelay: PublishRelay<Void> = .init()
 
     private var disposeBag = DisposeBag()
 
-    init(presenter: MyPageModifyPresentable, userPayload: UserInfoPayload) {
+    init(presenter: MyPageModifyPresentable,
+         userPayload: UserInfoPayload,
+         useCase: MyPageModifyUseCase) {
         self.userInfo = userPayload
+        self.useCase = useCase
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -82,10 +87,25 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
             .bind(onNext: { owner, type in
             owner.router?.routeToModifyInfo(type: type)
         }).disposeOnDeactivate(interactor: self)
+
+        action.withDrawConfirmed
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.withDrawUser()
+        }).disposeOnDeactivate(interactor: self)
     }
 
     func popModifyInfoView() {
         router?.detachModifyInfoView()
+    }
+
+    func withDrawUser() {
+//        useCase.withdrawUser()
+//            .withUnretained(self)
+//            .bind(onNext: { owner, _ in
+//            owner.popModifyInfoView()
+//            owner.listener?.routeToSingIn()
+//        }).disposeOnDeactivate(interactor: self)
     }
 }
 
