@@ -9,11 +9,11 @@
 import ObjectMapper
 
 public struct AccessToken: Mappable {
-    public var accesToken: String
+    public var accessToken: String
     public var refreshToken: String
     
     init() {
-        accesToken = ""
+        accessToken = ""
         refreshToken = ""
     }
     
@@ -22,7 +22,7 @@ public struct AccessToken: Mappable {
     }
     
     public mutating func mapping(map: Map) {
-        accesToken <- map["data.accessToken"]
+        accessToken <- map["data.accessToken"]
         refreshToken <- map["data.refreshToken"]
     }
 }
