@@ -79,7 +79,7 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
 
     func signUpComplete() {
         router?.detachSignUp(completion: {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: { [weak self] in
                 self?.listener?.signInDidTapClose()
             })
         })
