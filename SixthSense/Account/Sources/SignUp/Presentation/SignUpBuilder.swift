@@ -13,13 +13,8 @@ public protocol SignUpDependency: Dependency {
     var userRepository: UserRepository { get }
 }
 
-final class SignUpComponent: Component<SignUpDependency>, SignUpInteractorDependency {
-    var useCase: SignUpUseCase
-
-    override init(dependency: SignUpDependency) {
-        self.useCase = SignUpUseCaseImpl(userRepository: dependency.userRepository)
-        super.init(dependency: dependency)
-    }
+final class SignUpComponent: Component<SignUpDependency> {
+    var useCase: SignUpUseCase { SignUpUseCaseImpl(userRepository: dependency.userRepository) }
 }
 
 // MARK: - Builder

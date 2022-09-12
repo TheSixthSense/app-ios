@@ -58,10 +58,6 @@ public protocol SignUpListener: AnyObject {
     func signUpComplete()
 }
 
-protocol SignUpInteractorDependency {
-    var useCase: SignUpUseCase { get }
-}
-
 final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpInteractable, SignUpPresentableListener {
 
     weak var router: SignUpRouting?
@@ -78,14 +74,14 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
     private let nicknameButtonRelay: PublishRelay<Bool> = .init()
 
     private let nicknameCheckValidRelay: PublishRelay<String> = .init()
-    private let signUpCompleteValidReay: PublishRelay<String> = .init()
+    private let signUpCompleteValidRelay: PublishRelay<String> = .init()
 
     private var requests: SignUpRequest = .init()
     private let payload: SignUpPayload
-    private let dependency: SignUpInteractorDependency
+    private let dependency: SignUpComponent
 
     init(presenter: SignUpPresentable,
-         dependency: SignUpInteractorDependency,
+         dependency: SignUpComponent,
          payload: SignUpPayload) {
         self.dependency = dependency
         self.payload = payload
@@ -126,7 +122,7 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
             }
             return true
         })
-            .bind(to: signUpCompleteValidReay)
+            .bind(to: signUpCompleteValidRelay)
             .disposeOnDeactivate(interactor: self)
     }
 
@@ -326,7 +322,7 @@ extension SignUpInteractor: SignUpPresenterHandler {
     }
 
     var signUpCompleteValid: Observable<String> {
-        return signUpCompleteValidReay.asObservable()
+        return signUpCompleteValidRelay.asObservable()
     }
 }
 
