@@ -13,7 +13,7 @@ public protocol SignUpDependency: Dependency {
     var userRepository: UserRepository { get }
 }
 
-final class SignUpComponent: Component<SignUpDependency> {
+final class SignUpComponent: Component<SignUpDependency>, SignUpCompleteDependency {
     var useCase: SignUpUseCase { SignUpUseCaseImpl(userRepository: dependency.userRepository) }
 }
 
@@ -36,6 +36,7 @@ public final class SignUpBuilder: Builder<SignUpDependency>, SignUpBuildable {
                                           dependency: component,
                                           payload: payload)
         interactor.listener = listener
-        return SignUpRouter(interactor: interactor, viewController: viewController)
+        let signUpComplete = SignUpCompleteBuilder(dependency: component)
+        return SignUpRouter(interactor: interactor, viewController: viewController, signUpComplete: signUpComplete)
     }
 }
