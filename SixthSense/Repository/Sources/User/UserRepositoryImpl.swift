@@ -33,6 +33,10 @@ public final class UserRepositoryImpl: UserRepository {
     public func signUp(request: SignUpRequest) -> Single<String> {
         return network.request(UserAPI.signUp(request))
             .mapString()
+            .do(onSuccess: { [weak self] in
+            guard let token = AccessToken(JSONString: $0) else { return }
+            self?.tokenService.saveToken(token)
+        })
             .flatMap { data -> Single<String> in
             return .just("")
         }
