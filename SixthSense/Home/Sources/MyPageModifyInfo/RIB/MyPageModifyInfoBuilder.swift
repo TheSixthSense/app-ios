@@ -7,17 +7,22 @@
 //
 
 import RIBs
+import Repository
 
 protocol MyPageModifyInfoDependency: Dependency {
+    var userRepository: UserRepository { get }
 }
 
 final class MyPageModifyInfoComponent: Component<MyPageModifyInfoDependency> {
+    var useCase: MyPageModifyInfoUseCase { MyPageModifyInfoUseCaseImpl(userRepository: dependency.userRepository) }
 }
 
 // MARK: - Builder
 
 protocol MyPageModifyInfoBuildable: Buildable {
-    func build(withListener listener: MyPageModifyInfoListener, type: ModifyType) -> MyPageModifyInfoRouting
+    func build(withListener listener: MyPageModifyInfoListener,
+               type: ModifyType,
+               userInfoPayload: UserInfoPayload) -> MyPageModifyInfoRouting
 }
 
 final class MyPageModifyInfoBuilder: Builder<MyPageModifyInfoDependency>, MyPageModifyInfoBuildable {
@@ -26,10 +31,12 @@ final class MyPageModifyInfoBuilder: Builder<MyPageModifyInfoDependency>, MyPage
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: MyPageModifyInfoListener, type: ModifyType) -> MyPageModifyInfoRouting {
+    func build(withListener listener: MyPageModifyInfoListener,
+               type: ModifyType,
+               userInfoPayload: UserInfoPayload) -> MyPageModifyInfoRouting {
         let component = MyPageModifyInfoComponent(dependency: dependency)
         let viewController = MyPageModifyInfoViewController(type: type)
-        let interactor = MyPageModifyInfoInteractor(presenter: viewController)
+        let interactor = MyPageModifyInfoInteractor(presenter: viewController, dependency: component, userInfoPayload: userInfoPayload)
         interactor.listener = listener
         return MyPageModifyInfoRouter(interactor: interactor, viewController: viewController)
     }

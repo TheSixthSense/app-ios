@@ -14,6 +14,7 @@ protocol MyPageModifyDependency: Dependency {
 }
 
 final class MyPageModifyComponent: Component<MyPageModifyDependency>, MyPageModifyInfoDependency {
+    var userRepository: UserRepository { dependency.userRepository }
     var useCase: MyPageModifyUseCase { MyPageModifyUseCaseImpl(userRepository: dependency.userRepository) }
 }
 
