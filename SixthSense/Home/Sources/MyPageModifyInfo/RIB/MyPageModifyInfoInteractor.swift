@@ -7,12 +7,14 @@
 //
 
 import RIBs
+import Foundation
+import Account
 import RxRelay
 import RxSwift
+import Repository
+import Then
 
-protocol MyPageModifyInfoRouting: ViewableRouting {
-
-}
+protocol MyPageModifyInfoRouting: ViewableRouting { }
 
 protocol MyPageModifyInfoPresentable: Presentable {
     var handler: MyPageModifyInfoPresenterHandler? { get set }
@@ -20,12 +22,22 @@ protocol MyPageModifyInfoPresentable: Presentable {
 }
 
 protocol MyPageModifyInfoPresenterHandler: AnyObject {
-
+    var nicknameInputValid: Observable<Bool> { get }
+    var genderInputValid: Observable<Int> { get }
+    var birthInputValid: Observable<Bool> { get }
+    var veganStageInputValid: Observable<Int> { get }
+    var nicknameCheckValid: Observable<String> { get }
+    var enableButton: Observable<Bool> { get }
 }
 
 protocol MyPageModifyInfoPresenterAction: AnyObject {
     var didTapBackButton: Observable<Void> { get }
-
+    var nicknameDidInput: Observable<String> { get }
+    var genderDidInput: Observable<GenderInfo> { get }
+    var birthDidInput: Observable<[String]> { get }
+    var veganStageDidInput: Observable<VeganStageInfo> { get }
+    var didTapDoneButton: Observable<ModifyType> { get }
+    var modifyNickname: Observable<Void> { get }
 }
 
 protocol MyPageModifyInfoListener: AnyObject {
@@ -37,9 +49,27 @@ final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPr
     weak var router: MyPageModifyInfoRouting?
     weak var listener: MyPageModifyInfoListener?
 
-    override init(presenter: MyPageModifyInfoPresentable) {
+    private let dependency: MyPageModifyInfoComponent
+    private var userInfoPayload: UserInfoPayload
+    private var userInfoRequest: UserInfoRequest = .init()
+
+    private let enableButtonRelay: PublishRelay<Bool> = .init()
+
+    private let visibleNicknameValidRelay: BehaviorRelay<Bool> = .init(value: true)
+    private let genderInputValidRelay: PublishRelay<Int> = .init()
+    private let visibleBirthInputValidRelay: BehaviorRelay<Bool> = .init(value: true)
+    private let veganStageInputValidRelay: PublishRelay<Int> = .init()
+
+    private let nicknameCheckValidRelay: PublishRelay<String> = .init()
+
+    init(presenter: MyPageModifyInfoPresentable,
+         dependency: MyPageModifyInfoComponent,
+         userInfoPayload: UserInfoPayload) {
+        self.dependency = dependency
+        self.userInfoPayload = userInfoPayload
         super.init(presenter: presenter)
         presenter.handler = self
+        configureRequestModel()
     }
 
     override func didBecomeActive() {
@@ -51,20 +81,159 @@ final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPr
         super.willResignActive()
     }
 
-    private func bind() {
-        bindAction()
+    private func configureRequestModel() {
+        self.userInfoRequest = userInfoRequest.with {
+            $0.nickname = userInfoPayload.nickname
+            $0.gender = userInfoPayload.gender.rawValue
+            $0.birthDay = userInfoPayload.birthDate
+            $0.vegannerStage = userInfoPayload.vegannerStage.rawValue
+        }
     }
 
-    private func bindAction() {
+    private func bind() {
         guard let action = presenter.action else { return }
         action.didTapBackButton
             .withUnretained(self)
             .bind(onNext: { owner, _ in
             owner.listener?.popModifyInfoView()
         }).disposeOnDeactivate(interactor: self)
+
+        action.didTapDoneButton
+            .filter { $0 != .nickname }
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+            owner.modifyUserInfo()
+        }).disposeOnDeactivate(interactor: self)
+
+        action.didTapDoneButton
+            .filter { $0 == .nickname }
+            .withUnretained(self)
+            .subscribe(onNext: { owner, type in
+            owner.isUseableNickname(owner.userInfoRequest.nickname)
+        }).disposeOnDeactivate(interactor: self)
+
+        bindNickname(action: action)
+        bindBirth(action: action)
+        bindGender(action: action)
+        bindVeganStage(action: action)
+    }
+
+    private func bindNickname(action: MyPageModifyInfoPresenterAction) {
+        action.nicknameDidInput
+            .do(onNext: { [weak self] in
+            guard !$0.isEmpty else {
+                self?.enableButtonRelay.accept(false)
+                self?.visibleNicknameValidRelay.accept(true) // 에러메세지 지우기
+                return
+            }
+
+            guard self?.isValidNickname($0) == true else {
+                self?.enableButtonRelay.accept(false)
+                self?.visibleNicknameValidRelay.accept(false)
+                return
+            }
+        })
+            .filter { [weak self] in !$0.isEmpty && (self?.isValidNickname($0) == true) }
+            .withUnretained(self)
+            .subscribe(onNext: { owner, nickname in
+            owner.visibleNicknameValidRelay.accept(true)
+            owner.userInfoRequest.nickname = nickname
+            owner.enableButtonRelay.accept(true)
+        }).disposeOnDeactivate(interactor: self)
+
+        action.modifyNickname
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.modifyUserInfo()
+        }).disposeOnDeactivate(interactor: self)
+    }
+
+    private func bindBirth(action: MyPageModifyInfoPresenterAction) {
+        action.birthDidInput
+            .withUnretained(self)
+            .subscribe(onNext: { owner, strings in
+            let birthText = strings.joined()
+            guard !birthText.isEmpty else {
+                owner.enableButtonRelay.accept(false)
+                owner.visibleBirthInputValidRelay.accept(true)
+                return
+            }
+
+            guard birthText.count == 8 && self.isValidBirth(birthText) else {
+                owner.visibleBirthInputValidRelay.accept(false)
+                owner.enableButtonRelay.accept(false)
+                return
+            }
+            owner.visibleBirthInputValidRelay.accept(true)
+            owner.userInfoRequest.birthDay = birthText
+            owner.enableButtonRelay.accept(true)
+        }).disposeOnDeactivate(interactor: self)
+    }
+
+    private func bindGender(action: MyPageModifyInfoPresenterAction) {
+
+        action.genderDidInput
+            .withUnretained(self)
+            .subscribe(onNext: { owner, gender in
+            owner.userInfoRequest.gender = gender.rawValue
+            owner.enableButtonRelay.accept(true)
+            owner.genderInputValidRelay.accept(gender.intValue)
+        }).disposeOnDeactivate(interactor: self)
+    }
+
+    private func bindVeganStage(action: MyPageModifyInfoPresenterAction) {
+        action.veganStageDidInput
+            .withUnretained(self)
+            .subscribe(onNext: { owner, veganStage in
+            owner.veganStageInputValidRelay.accept(veganStage.intValue)
+            owner.userInfoRequest.vegannerStage = veganStage.rawValue
+            owner.enableButtonRelay.accept(true)
+        }).disposeOnDeactivate(interactor: self)
+    }
+
+    private func isUseableNickname(_ nickname: String) {
+        dependency.useCase
+            .validateUserNickname(request: nickname)
+            .catch { error in
+            guard let apiError = error as? APIError,
+                let statusCode = apiError.errorStatusCode else {
+                return .just(error.localizedDescription)
+            }
+            return .just(statusCode)
+        }
+            .bind(to: nicknameCheckValidRelay)
+            .disposeOnDeactivate(interactor: self)
+    }
+
+    private func modifyUserInfo() {
+        dependency.useCase.modifyUserInfo(userInfo: self.userInfoRequest)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+            owner.listener?.popModifyInfoView()
+        }).disposeOnDeactivate(interactor: self)
+    }
+
+    private func isValidNickname(_ nickname: String) -> Bool {
+        let nicknameRegex = "^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9]+$"
+        let nicknameTest = NSPredicate(format: "SELF MATCHES %@",
+                                       nicknameRegex)
+        return nicknameTest.evaluate(with: nickname)
+    }
+
+    private func isValidBirth(_ birth: String) -> Bool {
+        let birthRegex = "^(19[0-9][0-9]|20\\d{2})(0[0-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$"
+        let birthTest = NSPredicate(format: "SELF MATCHES %@", birthRegex)
+        return birthTest.evaluate(with: birth)
     }
 }
 
 extension MyPageModifyInfoInteractor: MyPageModifyInfoPresenterHandler {
-
+    var nicknameInputValid: Observable<Bool> { visibleNicknameValidRelay.asObservable() }
+    var genderInputValid: Observable<Int> { genderInputValidRelay.asObservable() }
+    var birthInputValid: Observable<Bool> { visibleBirthInputValidRelay.asObservable() }
+    var veganStageInputValid: Observable<Int> { veganStageInputValidRelay.asObservable() }
+    var nicknameCheckValid: Observable<String> { nicknameCheckValidRelay.asObservable() }
+    var enableButton: Observable<Bool> { enableButtonRelay.asObservable() }
 }
+
+extension UserInfoRequest: Then { }
