@@ -13,6 +13,7 @@ public protocol UserRepository: AnyObject {
     func validateNickname(request: String) -> Single<String>
     func signUp(request: SignUpRequest) -> Single<String>
     func info() -> Single<String>
+    func modifyUserInfo(request: UserInfoRequest) -> Single<String>
     func challengeStats() -> Single<String>
     func logout() -> Single<String>
     func withdraw() -> Single<String>

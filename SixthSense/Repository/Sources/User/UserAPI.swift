@@ -15,6 +15,7 @@ enum UserAPI {
     case login(LoginRequest)
     case validateNickname(String)
     case signUp(SignUpRequest)
+    case modifyUserInfo(UserInfoRequest)
     case challengeStats
     case logout
     case withdraw
@@ -23,7 +24,7 @@ enum UserAPI {
 extension UserAPI: BaseAPI, AccessTokenAuthorizable {
     var authorizationType: AuthorizationType? {
         switch self {
-        case .info, .challengeStats, .logout, .withdraw:
+        case .info, .challengeStats, .modifyUserInfo, .logout, .withdraw:
             return .bearer
         default:
             return .none
@@ -36,7 +37,7 @@ extension UserAPI: BaseAPI, AccessTokenAuthorizable {
 
     var path: String {
         switch self {
-        case .info:
+        case .info, .modifyUserInfo:
             return "/user/info"
         case .login:
             return "/auth/login"
@@ -61,6 +62,8 @@ extension UserAPI: BaseAPI, AccessTokenAuthorizable {
             return .post
         case .withdraw:
             return .delete
+        case .modifyUserInfo:
+            return .patch
         }
     }
 
@@ -77,6 +80,11 @@ extension UserAPI: BaseAPI, AccessTokenAuthorizable {
         case .signUp(let signUpRequest):
             return .requestCompositeParameters(
                 bodyParameters: signUpRequest.asBody(body),
+                bodyEncoding: parameterEncoding,
+                urlParameters: parameters)
+        case .modifyUserInfo(let request):
+            return .requestCompositeParameters(
+                bodyParameters: request.asBody(body),
                 bodyEncoding: parameterEncoding,
                 urlParameters: parameters)
         case .validateNickname:
@@ -100,7 +108,7 @@ extension UserAPI: BaseAPI, AccessTokenAuthorizable {
 
     var parameterEncoding: ParameterEncoding {
         switch self {
-        case .login, .signUp:
+        case .login, .signUp, .modifyUserInfo:
             return JSONEncoding.default
         default:
             return URLEncoding.queryString
