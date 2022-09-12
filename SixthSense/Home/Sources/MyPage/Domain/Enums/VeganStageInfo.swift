@@ -27,5 +27,18 @@ public enum VeganStageInfo: String {
             return "잠시 쉬었다가 왔어! 다시 도전해보려고 해"
         }
     }
+
+    var intValue: Int {
+        switch self {
+        case .beginner:
+            return 0
+        case .junior:
+            return 1
+        case .senior:
+            return 2
+        case .retry:
+            return 3
+        }
+    }
 }
 
