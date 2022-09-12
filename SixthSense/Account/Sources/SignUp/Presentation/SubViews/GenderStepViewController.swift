@@ -42,9 +42,9 @@ public final class GenderStepViewController: UIViewController {
 
     // MARK: - Vars
 
-    let selectButtons: [SelectButton]
+    public let selectButtons: [SelectButton]
     let selectButtonState: Observable<SelectButton>
-    var selectedButton: PublishRelay<Gender> // 유저가 선택한 버튼
+    public var selectedButton: PublishRelay<Gender> // 유저가 선택한 버튼
 
     private let disposeBag = DisposeBag()
 
