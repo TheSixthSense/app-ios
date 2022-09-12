@@ -12,12 +12,14 @@ public struct UserInfoPayload {
     var nickname: String
     var gender: GenderInfo
     var birthDay: String
+    var birthDate: String
     var vegannerStage: VeganStageInfo
 
     init() {
         self.nickname = ""
         self.gender = .none
         self.birthDay = ""
+        self.birthDate = ""
         self.vegannerStage = .beginner
     }
 
@@ -25,6 +27,7 @@ public struct UserInfoPayload {
         self.nickname = model.nickname
         self.gender = GenderInfo.init(rawValue: model.gender) ?? .none
         self.birthDay = model.birthDay.mutateBirthString
+        self.birthDate = model.birthDay
         self.vegannerStage = VeganStageInfo.init(rawValue: model.vegannerStage) ?? .beginner
     }
 }
