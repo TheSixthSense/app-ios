@@ -14,6 +14,12 @@ import DesignSystem
 
 final class ChallengeListItemCell: UITableViewCell {
 
+    override var isSelected: Bool {
+        willSet {
+            setSelected(newValue)
+        }
+    }
+
     private let containerView = UIView().then {
         $0.layer.borderColor = AppColor.systemGray300.cgColor
         $0.layer.borderWidth = 1
@@ -38,11 +44,6 @@ final class ChallengeListItemCell: UITableViewCell {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        deselected()
     }
 
     private func configureUI() {
@@ -71,7 +72,12 @@ final class ChallengeListItemCell: UITableViewCell {
         }
     }
 
-    func selected() {
+    func bind(item: ChallengeListItemCellViewModel) {
+        contentLabel.setText(item.title, font: AppFont.body2)
+        emojiLabel.text = item.emoji
+    }
+
+    private func selectedCell() {
         containerView.layer.borderColor = AppColor.main.cgColor
         containerView.backgroundColor = AppColor.green100
         containerView.layer.borderWidth = 1.5
@@ -79,7 +85,7 @@ final class ChallengeListItemCell: UITableViewCell {
         contentLabel.font = AppFont.body2Bold
     }
 
-    func deselected() {
+    private func deselectedCell() {
         containerView.layer.borderColor = AppColor.systemGray300.cgColor
         containerView.backgroundColor = .white
         containerView.layer.borderWidth = 1
@@ -87,8 +93,7 @@ final class ChallengeListItemCell: UITableViewCell {
         contentLabel.font = AppFont.body2
     }
 
-    func bind(item: ChallengeListItemCellViewModel) {
-        contentLabel.setText(item.title, font: AppFont.body2)
-        emojiLabel.text = item.emoji
+    private func setSelected(_ selected: Bool) {
+        selected == true ? selectedCell() : deselectedCell()
     }
 }
