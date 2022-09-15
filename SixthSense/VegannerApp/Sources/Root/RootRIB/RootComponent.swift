@@ -23,6 +23,7 @@ final class RootComponent: Component<RootDependency>,
     var persistence: LocalPersistence { dependency.persistence }
     var userRepository: UserRepository { dependency.userRepository }
     var challengeRepository: ChallengeRepository { dependency.challengeRepository }
+    var tokenService: AccessTokenService { dependency.tokenService }
     var usecase: RootUseCase
     
     override init(dependency: RootDependency) {
