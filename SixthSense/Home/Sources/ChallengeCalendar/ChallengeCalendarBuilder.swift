@@ -10,10 +10,12 @@ import RIBs
 import RxRelay
 import Foundation
 import Repository
+import Storage
 
 protocol ChallengeCalendarDependency: Dependency {
     var targetDate: PublishRelay<Date> { get }
     var userChallengeRepository: UserChallengeRepository { get }
+    var persistence: LocalPersistence { get }
 }
 
 final class ChallengeCalendarComponent: Component<ChallengeCalendarDependency>,
@@ -23,7 +25,8 @@ final class ChallengeCalendarComponent: Component<ChallengeCalendarDependency>,
     
     override init(dependency: ChallengeCalendarDependency) {
         self.usecase = ChallengeCalendarUsCaseImpl(
-            repository: dependency.userChallengeRepository)
+            repository: dependency.userChallengeRepository,
+            persistence: dependency.persistence)
         super.init(dependency: dependency)
     }
 }

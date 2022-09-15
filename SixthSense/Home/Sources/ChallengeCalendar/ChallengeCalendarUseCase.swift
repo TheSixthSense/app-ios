@@ -9,6 +9,7 @@
 import Foundation
 import RxSwift
 import Repository
+import Storage
 
 typealias DayState = ((Date) -> ChallengeCalendarDayState)
 
@@ -18,9 +19,13 @@ protocol ChallengeCalendarUseCase {
 
 final class ChallengeCalendarUsCaseImpl: ChallengeCalendarUseCase {
     private let repository: UserChallengeRepository
+    private let persistence: LocalPersistence
     
-    init(repository: UserChallengeRepository) {
+    init(repository: UserChallengeRepository,
+         persistence: LocalPersistence) {
         self.repository = repository
+        self.persistence = persistence
+    }
     }
     
     func fetch(by date: Date) -> Observable<DayState> {
