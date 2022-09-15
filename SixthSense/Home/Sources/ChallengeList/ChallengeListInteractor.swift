@@ -40,6 +40,7 @@ protocol ChallengeListPresentable: Presentable {
 }
 
 protocol ChallengeListListener: AnyObject {
+    func routeToSignIn()
 }
 
 protocol ChallengeListInteractorDependency {
@@ -175,7 +176,11 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     }
     
     private func addItemSelected() {
-        router?.routeToRegister()
+        if dependency.usecase.logined() {
+            router?.routeToRegister()
+        } else {
+            listener?.routeToSignIn()
+        }
     }
     
     private func itemDelete(_ indexPath: IndexPath) {
