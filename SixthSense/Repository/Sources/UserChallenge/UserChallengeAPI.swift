@@ -15,6 +15,7 @@ enum UserChallengeAPI {
     case dayList(String)
     case verify(ChallengeVerifyRequest)
     case deleteVerify(Int)
+    case deleteChallenge(Int)
 }
 
 extension UserChallengeAPI: BaseAPI, AccessTokenAuthorizable {
@@ -25,7 +26,7 @@ extension UserChallengeAPI: BaseAPI, AccessTokenAuthorizable {
     
     var headers: [String : String]? {
         switch self {
-            case .dayList, .monthList, .deleteVerify:
+            case .dayList, .monthList, .deleteVerify, .deleteChallenge:
                 return ["Content-Type": "application/json"]
             case .verify:
                 return ["Content-Type": "multipart/form-data"]
@@ -40,6 +41,8 @@ extension UserChallengeAPI: BaseAPI, AccessTokenAuthorizable {
                 return "/user/challenge/list"
             case .verify, .deleteVerify:
                 return "/user/challenge/verify"
+            case .deleteChallenge:
+                return "/user/challenge"
         }
     }
 
@@ -49,7 +52,7 @@ extension UserChallengeAPI: BaseAPI, AccessTokenAuthorizable {
                 return .get
             case .verify:
                 return .post
-            case .deleteVerify:
+            case .deleteVerify, .deleteChallenge:
                 return .delete
         }
     }
@@ -61,7 +64,7 @@ extension UserChallengeAPI: BaseAPI, AccessTokenAuthorizable {
     var task: Task {
         guard let parameters = parameters else { return .requestPlain }
         switch self {
-            case .monthList, .dayList, .deleteVerify:
+            case .monthList, .dayList, .deleteVerify, .deleteChallenge:
                 return .requestParameters(parameters: parameters, encoding: parameterEncoding)
             case .verify(let request):
                 return .uploadMultipart(request.asMultipart)
@@ -78,12 +81,14 @@ extension UserChallengeAPI: BaseAPI, AccessTokenAuthorizable {
                 return [:]
             case .deleteVerify(let id):
                 return ["userChallengeId": id]
+            case .deleteChallenge(let id):
+                return ["userChallengeId": id]
         }
     }
 
     var parameterEncoding: ParameterEncoding {
         switch self {
-            case .monthList, .dayList, .deleteVerify:
+            case .monthList, .dayList, .deleteVerify, .deleteChallenge:
                 return URLEncoding.queryString
             case .verify:
                 return JSONEncoding.default

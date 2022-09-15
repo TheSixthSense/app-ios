@@ -48,4 +48,12 @@ public final class UserChallengeRepositoryImpl: UserChallengeRepository {
                 return .just(data)
             }
     }
+    
+    public func deleteChallenge(id: Int) -> Single<String> {
+        return network.request(UserChallengeAPI.deleteChallenge(id))
+            .mapString()
+            .flatMap { data -> Single<String> in
+                return .just(data)
+            }
+    }
 }
