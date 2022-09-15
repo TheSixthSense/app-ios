@@ -21,10 +21,11 @@ class AppComponent: Component<EmptyDependency>, RootDependency {
 
     init() {
         self.persistence = LocalPersistenceImpl(source: UserDefaults.standard)
+        self.tokenService = AccessTokenServiceImpl(persistence: self.persistence)
         self.network = NetworkImpl(intercepter: NetworkInterceptableImpl(),
+                                   tokenService: self.tokenService,
                                    plugins: [RequestLoggingPlugin(logger: SwiftyLogger()),
                                              AccessTokenPlugin(persistence: self.persistence)])
-        self.tokenService = AccessTokenServiceImpl(network: network, persistence: persistence)
         self.userRepository = UserRepositoryImpl(network: network, tokenService: tokenService)
         self.challengeRepository = ChallengeRepositoryImpl(network: network)
         super.init(dependency: EmptyComponent())

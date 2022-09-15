@@ -18,6 +18,7 @@ protocol RootDependency: Dependency {
     var persistence: LocalPersistence { get }
     var userRepository: UserRepository { get }
     var challengeRepository: ChallengeRepository { get }
+    var tokenService: AccessTokenService { get }
 }
 
 // MARK: - Builder

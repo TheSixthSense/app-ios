@@ -17,8 +17,12 @@ import ObjectMapper
 
 public final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
   private let disposeBag: DisposeBag = DisposeBag()
-    
-  public init(intercepter: NetworkInterceptable?, plugins: [PluginType]) {
+  private let tokenService: AccessTokenService
+  
+  public init(intercepter: NetworkInterceptable?,
+              tokenService: AccessTokenService,
+              plugins: [PluginType]) {
+    self.tokenService = tokenService
     let session = MoyaProvider<MultiTarget>.defaultAlamofireSession()
     session.sessionConfiguration.timeoutIntervalForRequest = 10
     super.init(requestClosure: { endpoint, completion in
@@ -48,7 +52,22 @@ public final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
         }
         
         return try self.handleErrorResponse(error: error, target: target)
-      }      
+      }
+      .asObservable()
+      .retry(2)
+      .retry(when: { [weak self] (error: Observable<APIError>) -> Observable<Void> in
+          return error.flatMap { error -> Observable<Void> in
+              if error == .tokenExpired {
+                  return self?.tokenService.refreshToken(with: self) ?? .empty()
+              } else {
+                  return .error(error)
+              }
+          }
+      })
+      .asSingle()
+      .flatMap({ data -> Single<Response> in
+          return .just(data)
+      })
   }
     
     private func handleErrorResponse(error: MoyaError, target: TargetType) throws -> Single<Response> {

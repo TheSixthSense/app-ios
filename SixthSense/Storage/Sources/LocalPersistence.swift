@@ -13,7 +13,6 @@ public enum LocalPersistenceKey: String {
     case appleID
     case accessToken
     case refreshToken
-    case tokenExpired
 }
 
 public protocol Storable {

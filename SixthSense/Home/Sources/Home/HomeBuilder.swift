@@ -16,6 +16,7 @@ public protocol HomeDependency: Dependency {
     var challengeRepository: ChallengeRepository { get }
     var userRepository: UserRepository { get }
     var persistence: LocalPersistence { get }
+    var tokenService: AccessTokenService { get }
 }
 
 // MARK: - Builder

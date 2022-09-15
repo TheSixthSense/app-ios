@@ -9,55 +9,38 @@
 import Foundation
 import RxSwift
 import Storage
+import Moya
 
 public final class AccessTokenServiceImpl: AccessTokenService {
-    private let network: Network
     private let persistence: LocalPersistence
     
-    public init(network: Network, persistence: LocalPersistence) {
-        self.network = network
+    public init(persistence: LocalPersistence) {
         self.persistence = persistence
     }
     
     
-    public func refreshToken() -> Observable<Void> {
-        guard isAccessTokenExpired(),
-              let appleID: String = persistence.value(on: .appleID),
-              let expiredRefreshToken: String = persistence.value(on: .refreshToken) else { return .empty() }
+    public func refreshToken(with network: Network?) -> Observable<Void> {
+        guard let appleID: String = persistence.value(on: .appleID),
+              let expiredRefreshToken: String = persistence.value(on: .refreshToken) else { return .error(AccessTokenServiceError.unkwown) }
         
         let renewalToken = RenewalAuthToken(appleID: appleID, beforeRefreshToken: expiredRefreshToken)
-        return self.network.request(AuthAPI.refresh(renewalToken))
+        
+        return network?.request(AuthAPI.refresh(renewalToken))
             .asObservable()
             .mapString()
             .compactMap { AccessToken(JSONString: $0) }
             .do(onNext: { [weak self] in
                 self?.saveToken($0)
             })
-            .map { _ in () }
+            .map { _ in () } ?? .empty()
     }
     
     public func saveToken(_ token: AccessToken) {
         persistence.save(value: token.refreshToken, on: .refreshToken)
         persistence.save(value: token.accessToken, on: .accessToken)
-        persistence.save(value: make(), on: .tokenExpired)
     }
-    
-    private func make() -> Date {
-        return Date()
-    }
-    
-    // TODO: expired 됐을때 renewal token하도록 로직을 구현해요
-    private func isAccessTokenExpired() -> Bool {
-        let calendar = Calendar.current
-        let nowDate = Date()
-        
-        guard let token: String = persistence.value(on: .accessToken),
-              !token.isEmpty
-//                let accessTokenExpiredDate: Date = persistence.value(forKey: .accessTokenExpiredDate)
-        else { return false }
+}
 
-//        let compareResult = calendar.compare(nowDate, to: accessTokenExpiredDate, toGranularity: .second)
-        return false
-//        return compareResult != .orderedAscending
-    }
+enum AccessTokenServiceError: Error {
+    case unkwown
 }

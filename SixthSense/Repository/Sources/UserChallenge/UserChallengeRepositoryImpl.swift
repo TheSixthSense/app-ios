@@ -20,9 +20,6 @@ public final class UserChallengeRepositoryImpl: UserChallengeRepository {
     public func monthList(by date: String) -> Single<String> {
         return network.request(UserChallengeAPI.monthList(date))
             .mapString()
-            .flatMap { data -> Single<String> in
-                return .just(data)
-            }
     }
     
     public func dayList(by date: String) -> Single<String> {
