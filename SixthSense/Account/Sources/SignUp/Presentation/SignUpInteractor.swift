@@ -18,7 +18,10 @@ enum SignUpButtonType: String {
     case done = "확인"
 }
 
-public protocol SignUpRouting: ViewableRouting { }
+public protocol SignUpRouting: ViewableRouting {
+    func attachSignUpComplete()
+    func detachSignUpComplete()
+}
 
 protocol SignUpPresenterAction: AnyObject {
 
@@ -111,13 +114,18 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
         listener?.returnToSignIn()
     }
 
+    func routeToHome() {
+        router?.detachSignUpComplete()
+        listener?.signUpComplete()
+    }
+
     private func doSignUp() {
         dependency.useCase
             .fetchSignUp(reqeust: self.requests)
             .catchAndReturn("오류가 발생했어요ㅠㅠ 다시 눌러주세요!")
             .filter({ [weak self] errorMessage in
             if errorMessage.isEmpty {
-                self?.listener?.signUpComplete()
+                self?.router?.attachSignUpComplete()
                 return false
             }
             return true

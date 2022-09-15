@@ -7,6 +7,7 @@
 //
 
 import RIBs
+import Foundation
 
 protocol SignInInteractable: Interactable, SignUpListener {
     var router: SignInRouting? { get set }
@@ -39,14 +40,17 @@ final class SignInRouter: ViewableRouter<SignInInteractable, SignInViewControlla
         attachChild(router)
     }
 
-    func detachSignUp(completion: (() -> Void)? = nil) {
+    func detachSignUp() {
         guard let router = childRouting else { return }
         detachChild(router)
         viewController.dismiss(animated: false, completion: nil)
         self.childRouting = nil
+    }
 
-        if let completion = completion {
-            completion()
-        }
+    func routeToHome() {
+        detachSignUp()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: { [weak self] in
+            self?.interactor.listener?.signInDidTapClose()
+        })
     }
 }

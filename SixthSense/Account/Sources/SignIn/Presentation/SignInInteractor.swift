@@ -12,7 +12,8 @@ import AuthenticationServices
 
 public protocol SignInRouting: ViewableRouting {
     func routeToSignUp(payload: SignUpPayload)
-    func detachSignUp(completion: (() -> Void)?)
+    func detachSignUp()
+    func routeToHome()
 }
 
 protocol SignInPresentable: Presentable {
@@ -74,14 +75,10 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
     }
 
     func returnToSignIn() {
-        router?.detachSignUp(completion: nil)
+        router?.detachSignUp()
     }
 
     func signUpComplete() {
-        router?.detachSignUp(completion: {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: { [weak self] in
-                self?.listener?.signInDidTapClose()
-            })
-        })
+        router?.routeToHome()
     }
 }
