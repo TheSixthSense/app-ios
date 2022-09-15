@@ -40,7 +40,7 @@ final class ChallengeListUseCaseImpl: ChallengeListUseCase {
     }
     
     func delete(id: Int) -> Observable<Void> {
-        return repository.deleteVerify(id: id)
+        return repository.deleteChallenge(id: id)
             .asObservable()
             .flatMap { _ -> Observable<Void> in
                 return .just(())
