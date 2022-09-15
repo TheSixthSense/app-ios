@@ -54,12 +54,16 @@ public final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
         return try self.handleErrorResponse(error: error, target: target)
       }
       .asObservable()
+      .retry(2)
       .retry(when: { [weak self] (error: Observable<APIError>) -> Observable<Void> in
-          error.flatMap { error -> Observable<Void> in
-              return self?.tokenService.refreshToken(with: self) ?? .empty()
+          return error.flatMap { error -> Observable<Void> in
+              if error == .tokenExpired {
+                  return self?.tokenService.refreshToken(with: self) ?? .empty()
+              } else {
+                  return .error(error)
+              }
           }
       })
-      .retry(2)
       .asSingle()
       .flatMap({ data -> Single<Response> in
           return .just(data)

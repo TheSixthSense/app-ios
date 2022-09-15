@@ -40,3 +40,9 @@ extension APIError: LocalizedError {
         }
     }
 }
+
+extension APIError: Equatable {
+    public static func == (lhs: APIError, rhs: APIError) -> Bool {
+        return lhs.localizedDescription == rhs.localizedDescription
+    }
+}
