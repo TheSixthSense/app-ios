@@ -64,7 +64,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     private var targetDate: Date = .init()
     
     private let sectionsRelay: PublishRelay<[ChallengeSection]> = .init()
-    private let hasItemRelay: PublishRelay<Bool> = .init()
+    private let hasItemRelay: BehaviorRelay<Bool> = .init(value: false)
     private let showToastRelay: PublishRelay<String> = .init()
     
     init(presenter: ChallengeListPresentable, dependency: ChallengeListInteractorDependency) {
