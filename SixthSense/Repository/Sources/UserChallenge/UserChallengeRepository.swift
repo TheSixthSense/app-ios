@@ -14,5 +14,6 @@ public protocol UserChallengeRepository: AnyObject {
     func dayList(by date: String) -> Single<String>
     func verify(request: ChallengeVerifyRequest) -> Single<String>
     func deleteVerify(id: Int) -> Single<String>
+    func deleteChallenge(id: Int) -> Single<String>
 }
 

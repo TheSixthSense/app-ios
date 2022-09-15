@@ -28,6 +28,7 @@ final class ChallengeListUseCaseImpl: ChallengeListUseCase {
     }
     
     func list(by date: Date) -> Observable<[ChallengeItem]> {
+        guard logined() else { return .empty() }
         return repository.dayList(by: date.toString(dateFormat: "yyyy-MM-dd"))
             .asObservable()
             .compactMap { UserChallengeList(JSONString: $0) }
@@ -39,7 +40,7 @@ final class ChallengeListUseCaseImpl: ChallengeListUseCase {
     }
     
     func delete(id: Int) -> Observable<Void> {
-        return repository.deleteVerify(id: id)
+        return repository.deleteChallenge(id: id)
             .asObservable()
             .flatMap { _ -> Observable<Void> in
                 return .just(())

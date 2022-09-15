@@ -18,7 +18,9 @@ protocol ChallengePresentable: Presentable {
     var listener: ChallengePresentableListener? { get set }
 }
 
-protocol ChallengeListener: AnyObject { }
+protocol ChallengeListener: AnyObject {
+    func routeToSignIn()
+}
 
 final class ChallengeInteractor: PresentableInteractor<ChallengePresentable>, ChallengeInteractable, ChallengePresentableListener {
 
@@ -38,5 +40,9 @@ final class ChallengeInteractor: PresentableInteractor<ChallengePresentable>, Ch
 
     override func willResignActive() {
         super.willResignActive()
+    }
+    
+    func routeToSignIn() {
+        listener?.routeToSignIn()
     }
 }

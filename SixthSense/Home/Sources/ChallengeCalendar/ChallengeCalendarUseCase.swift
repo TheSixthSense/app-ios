@@ -9,6 +9,7 @@
 import Foundation
 import RxSwift
 import Repository
+import Storage
 
 typealias DayState = ((Date) -> ChallengeCalendarDayState)
 
@@ -18,12 +19,21 @@ protocol ChallengeCalendarUseCase {
 
 final class ChallengeCalendarUsCaseImpl: ChallengeCalendarUseCase {
     private let repository: UserChallengeRepository
+    private let persistence: LocalPersistence
     
-    init(repository: UserChallengeRepository) {
+    init(repository: UserChallengeRepository,
+         persistence: LocalPersistence) {
         self.repository = repository
+        self.persistence = persistence
+    }
+    
+    private func logined() -> Bool {
+        guard let token: String = persistence.value(on: .accessToken) else { return false }
+        return !token.isEmpty
     }
     
     func fetch(by date: Date) -> Observable<DayState> {
+        guard logined() else { return .empty() }
         return repository.monthList(by: date.toString(dateFormat: "yyyy-MM-dd"))
             .asObservable()
             .compactMap { UserChallengeCalendarList(JSONString: $0) }
