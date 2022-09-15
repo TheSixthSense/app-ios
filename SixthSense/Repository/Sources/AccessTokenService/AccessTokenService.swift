@@ -10,6 +10,6 @@ import Foundation
 import RxSwift
 
 public protocol AccessTokenService {
-    func refreshToken() -> Observable<Void>
+    func refreshToken(with network: Network?) -> Observable<Void>
     func saveToken(_ token: AccessToken)
 }
