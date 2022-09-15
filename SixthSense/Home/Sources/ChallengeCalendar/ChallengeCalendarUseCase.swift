@@ -26,9 +26,14 @@ final class ChallengeCalendarUsCaseImpl: ChallengeCalendarUseCase {
         self.repository = repository
         self.persistence = persistence
     }
+    
+    private func logined() -> Bool {
+        guard let token: String = persistence.value(on: .accessToken) else { return false }
+        return !token.isEmpty
     }
     
     func fetch(by date: Date) -> Observable<DayState> {
+        guard logined() else { return .empty() }
         return repository.monthList(by: date.toString(dateFormat: "yyyy-MM-dd"))
             .asObservable()
             .compactMap { UserChallengeCalendarList(JSONString: $0) }
