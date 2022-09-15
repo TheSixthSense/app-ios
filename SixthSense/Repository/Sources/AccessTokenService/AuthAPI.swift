@@ -14,7 +14,7 @@ enum AuthAPI {
     case refresh(RenewalAuthToken)
 }
 
-extension AuthAPI: BaseAPI {
+extension AuthAPI: BaseAPI, AccessTokenAuthorizable {
     var path: String {
         switch self {
             case .refresh:
@@ -37,6 +37,10 @@ extension AuthAPI: BaseAPI {
             case .refresh(let request):
                 return .requestCompositeParameters(bodyParameters: request.asBody(body), bodyEncoding: parameterEncoding, urlParameters: parameters)
         }
+    }
+    
+    var authorizationType: AuthorizationType? {
+        return .none
     }
     
     var parameters: [String: Any]? {
