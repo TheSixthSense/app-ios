@@ -110,3 +110,7 @@ SixthSense/graph.png
 SixthSense/Account/Derived
 SixthSense/Home/Derived
 SixthSense/Challenge/Derived
+*/Derived
+SixthSense/Repository/Derived/InfoPlists/Repository-Info.plist
+*/Derived/*
+InfoPlists

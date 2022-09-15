@@ -180,16 +180,17 @@ extension Project {
       Target(
         name: name,
         platform: .iOS,
-        product: .staticLibrary,
+        product: .framework,
         bundleId: "\(organizationName).\(name)",
         deploymentTarget: .iOS(targetVersion: "14.0",
                                devices: [.iphone]),
-        infoPlist: .file(path: .relativeToRoot("Supporting Files/Info.plist")),
+        infoPlist: .default,
         sources: ["Sources/**"],
         resources: resources,
         dependencies: dependencies,
         settings: settings
       )
+
     ]
     
     let schemes: [Scheme] = [
