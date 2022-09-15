@@ -8,14 +8,14 @@
 
 import Foundation
 
-enum Gender: Int {
+public enum Gender: Int {
     case male = 0
     case female
     case etc
     case none
 }
 
-extension Gender {
+public extension Gender {
 
     var stringValue: String {
         switch self {

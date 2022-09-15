@@ -11,7 +11,7 @@ import RxRelay
 import RxSwift
 
 protocol MyPageModifyRouting: ViewableRouting {
-    func routeToModifyInfo(type: ModifyType)
+    func routeToModifyInfo(type: ModifyType, userInfoPayload: UserInfoPayload)
     func detachModifyInfoView()
 }
 
@@ -85,7 +85,7 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
         action.didTapEditButton
             .withUnretained(self)
             .bind(onNext: { owner, type in
-            owner.router?.routeToModifyInfo(type: type)
+            owner.router?.routeToModifyInfo(type: type, userInfoPayload: owner.userInfo)
         }).disposeOnDeactivate(interactor: self)
 
         action.withDrawConfirmed

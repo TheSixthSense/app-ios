@@ -24,7 +24,7 @@ public final class BirthStepViewController: UIViewController {
         stackView.distribution = .fill
     }
 
-    var yearTextField = AppTextField().then { textfield in
+    public var yearTextField = AppTextField().then { textfield in
         textfield.placeholderString = "1990"
         textfield.maxLength = 4
         textfield.keyboardType = .decimalPad
@@ -35,7 +35,7 @@ public final class BirthStepViewController: UIViewController {
         label.setText("년", font: AppFont.body1)
     }
 
-    var monthTextField = AppTextField().then { textfield in
+    public var monthTextField = AppTextField().then { textfield in
         textfield.placeholderString = "01"
         textfield.maxLength = 2
         textfield.keyboardType = .decimalPad
@@ -45,7 +45,7 @@ public final class BirthStepViewController: UIViewController {
         label.setText("월", font: AppFont.body1)
     }
 
-    var dayTextField = AppTextField().then { textfield in
+    public var dayTextField = AppTextField().then { textfield in
         textfield.placeholderString = "01"
         textfield.maxLength = 2
         textfield.keyboardType = .decimalPad
@@ -56,7 +56,7 @@ public final class BirthStepViewController: UIViewController {
     }
 
     // MARK: - Vars
-    let birthTextFields: [AppTextField]
+    public let birthTextFields: [AppTextField]
 
     // MARK: - LifeCycle
 

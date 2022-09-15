@@ -33,6 +33,10 @@ public final class UserRepositoryImpl: UserRepository {
     public func signUp(request: SignUpRequest) -> Single<String> {
         return network.request(UserAPI.signUp(request))
             .mapString()
+            .do(onSuccess: { [weak self] in
+            guard let token = AccessToken(JSONString: $0) else { return }
+            self?.tokenService.saveToken(token)
+        })
             .flatMap { data -> Single<String> in
             return .just("")
         }
@@ -48,6 +52,14 @@ public final class UserRepositoryImpl: UserRepository {
 
     public func info() -> Single<String> {
         return network.request(UserAPI.info).mapString()
+    }
+
+    public func modifyUserInfo(request: UserInfoRequest) -> Single<String> {
+        return network.request(UserAPI.modifyUserInfo(request))
+            .mapString()
+            .flatMap { data -> Single<String> in
+            return .just("")
+        }
     }
 
     public func challengeStats() -> Single<String> {

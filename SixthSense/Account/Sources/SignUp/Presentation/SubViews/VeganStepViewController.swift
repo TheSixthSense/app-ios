@@ -47,9 +47,9 @@ public final class VeganStepViewController: UIViewController {
 
     // MARK: - Vars
 
-    let imageButtons: [ImageButton]
+    public let imageButtons: [ImageButton]
     let imageButtonState: Observable<ImageButton>
-    var userVeganStage: PublishRelay<VeganStage> // 유저가 선택한 버튼
+    public var userVeganStage: PublishRelay<VeganStage> // 유저가 선택한 버튼
 
     private let disposeBag = DisposeBag()
 

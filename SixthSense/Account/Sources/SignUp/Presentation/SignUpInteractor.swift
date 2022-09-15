@@ -18,7 +18,10 @@ enum SignUpButtonType: String {
     case done = "확인"
 }
 
-public protocol SignUpRouting: ViewableRouting { }
+public protocol SignUpRouting: ViewableRouting {
+    func attachSignUpComplete()
+    func detachSignUpComplete()
+}
 
 protocol SignUpPresenterAction: AnyObject {
 
@@ -58,10 +61,6 @@ public protocol SignUpListener: AnyObject {
     func signUpComplete()
 }
 
-protocol SignUpInteractorDependency {
-    var useCase: SignUpUseCase { get }
-}
-
 final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpInteractable, SignUpPresentableListener {
 
     weak var router: SignUpRouting?
@@ -78,14 +77,14 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
     private let nicknameButtonRelay: PublishRelay<Bool> = .init()
 
     private let nicknameCheckValidRelay: PublishRelay<String> = .init()
-    private let signUpCompleteValidReay: PublishRelay<String> = .init()
+    private let signUpCompleteValidRelay: PublishRelay<String> = .init()
 
     private var requests: SignUpRequest = .init()
     private let payload: SignUpPayload
-    private let dependency: SignUpInteractorDependency
+    private let dependency: SignUpComponent
 
     init(presenter: SignUpPresentable,
-         dependency: SignUpInteractorDependency,
+         dependency: SignUpComponent,
          payload: SignUpPayload) {
         self.dependency = dependency
         self.payload = payload
@@ -115,18 +114,23 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
         listener?.returnToSignIn()
     }
 
+    func routeToHome() {
+        router?.detachSignUpComplete()
+        listener?.signUpComplete()
+    }
+
     private func doSignUp() {
         dependency.useCase
             .fetchSignUp(reqeust: self.requests)
             .catchAndReturn("오류가 발생했어요ㅠㅠ 다시 눌러주세요!")
             .filter({ [weak self] errorMessage in
             if errorMessage.isEmpty {
-                self?.listener?.signUpComplete()
+                self?.router?.attachSignUpComplete()
                 return false
             }
             return true
         })
-            .bind(to: signUpCompleteValidReay)
+            .bind(to: signUpCompleteValidRelay)
             .disposeOnDeactivate(interactor: self)
     }
 
@@ -326,7 +330,7 @@ extension SignUpInteractor: SignUpPresenterHandler {
     }
 
     var signUpCompleteValid: Observable<String> {
-        return signUpCompleteValidReay.asObservable()
+        return signUpCompleteValidRelay.asObservable()
     }
 }
 

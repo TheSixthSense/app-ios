@@ -22,7 +22,7 @@ public final class NicknameStepViewController: UIViewController {
         label.setText("비거너!\n너의 닉네임을 알려줘", font: AppFont.title2)
     }
 
-    var nicknameTextField = AppTextField().then { textfield in
+    public var nicknameTextField = AppTextField().then { textfield in
         textfield.placeholderString = "2~10자 사이로 입력해 주세요"
         textfield.errorString = "국문 또는 영문만 가능해!"
         textfield.maxLength = 10

@@ -13,13 +13,8 @@ public protocol SignUpDependency: Dependency {
     var userRepository: UserRepository { get }
 }
 
-final class SignUpComponent: Component<SignUpDependency>, SignUpInteractorDependency {
-    var useCase: SignUpUseCase
-
-    override init(dependency: SignUpDependency) {
-        self.useCase = SignUpUseCaseImpl(userRepository: dependency.userRepository)
-        super.init(dependency: dependency)
-    }
+final class SignUpComponent: Component<SignUpDependency>, SignUpCompleteDependency {
+    var useCase: SignUpUseCase { SignUpUseCaseImpl(userRepository: dependency.userRepository) }
 }
 
 // MARK: - Builder
@@ -41,6 +36,7 @@ public final class SignUpBuilder: Builder<SignUpDependency>, SignUpBuildable {
                                           dependency: component,
                                           payload: payload)
         interactor.listener = listener
-        return SignUpRouter(interactor: interactor, viewController: viewController)
+        let signUpComplete = SignUpCompleteBuilder(dependency: component)
+        return SignUpRouter(interactor: interactor, viewController: viewController, signUpComplete: signUpComplete)
     }
 }

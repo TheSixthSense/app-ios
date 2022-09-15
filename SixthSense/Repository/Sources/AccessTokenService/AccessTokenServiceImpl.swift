@@ -38,7 +38,7 @@ public final class AccessTokenServiceImpl: AccessTokenService {
     
     public func saveToken(_ token: AccessToken) {
         persistence.save(value: token.refreshToken, on: .refreshToken)
-        persistence.save(value: token.accesToken, on: .accessToken)
+        persistence.save(value: token.accessToken, on: .accessToken)
         persistence.save(value: make(), on: .tokenExpired)
     }
     

@@ -8,14 +8,14 @@
 
 import Foundation
 
-enum VeganStage: Int {
+public enum VeganStage: Int {
     case beginner = 0
     case junior
     case senior
     case retry
 }
 
-extension VeganStage {
+public extension VeganStage {
 
     var stringValue: String {
         switch self {

@@ -30,10 +30,12 @@ final class MyPageModifyRouter: ViewableRouter<MyPageModifyInteractable, MyPageM
         interactor.router = self
     }
 
-    func routeToModifyInfo(type: ModifyType) {
+    func routeToModifyInfo(type: ModifyType, userInfoPayload: UserInfoPayload) {
         if childRouting != nil { return }
 
-        let router = modifyInfoBuilder.build(withListener: interactor, type: type)
+        let router = modifyInfoBuilder.build(withListener: interactor,
+                                             type: type,
+                                             userInfoPayload: userInfoPayload)
         viewControllable.pushViewController(router.viewControllable, animated: true)
         self.childRouting = router
         attachChild(router)
