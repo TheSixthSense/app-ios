@@ -85,12 +85,12 @@ extension UserChallengeAPI: BaseAPI, AccessTokenAuthorizable {
                 return ["userChallengeId": id]
         }
     }
-
+    
     var parameterEncoding: ParameterEncoding {
         switch self {
-            case .monthList, .dayList, .deleteVerify, .deleteChallenge:
+            case .monthList, .dayList, .deleteVerify:
                 return URLEncoding.queryString
-            case .verify:
+            case .verify, .deleteChallenge:
                 return JSONEncoding.default
         }
     }
