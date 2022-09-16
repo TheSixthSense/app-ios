@@ -14,7 +14,7 @@ import RxSwift
 protocol MyPageRouting: ViewableRouting {
     func routeToWebView(urlString: String, titleString: String)
     func detachWebView()
-    func routeToModifyView(userData: UserInfoPayload)
+    func routeToModifyView()
     func detachModifyView()
 }
 
@@ -45,7 +45,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     weak var router: MyPageRouting?
     weak var listener: MyPageListener?
 
-    private var useCase: MyPageUseCase
+    private var component: MyPageComponent
 
     private let myPageSectionsRelay: PublishRelay<[MyPageSection]> = .init()
     private let signInPopupRelay: PublishRelay<Void> = .init()
@@ -54,10 +54,9 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     private lazy var dataObservable = Observable.combineLatest(
         self.fetchUserData(), self.fetchChallengeUserData()
     )
-    private var userInfoPayload = UserInfoPayload()
 
-    init(presenter: MyPagePresentable, useCase: MyPageUseCase) {
-        self.useCase = useCase
+    init(presenter: MyPagePresentable, component: MyPageComponent) {
+        self.component = component
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -92,7 +91,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
             .subscribe(onNext: { owner, item in
             switch item.type {
             case .modifyProfile:
-                owner.router?.routeToModifyView(userData: owner.userInfoPayload)
+                owner.router?.routeToModifyView()
                 return
             case .privacyPolicy, .termsOfService:
                 owner.router?.routeToWebView(urlString: item.type.url ?? "", titleString: item.type.title)
@@ -115,7 +114,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
             .subscribe(onNext: { owner, data in
 
             let (userData, challengeStatData) = data
-            self.userInfoPayload = UserInfoPayload(model: userData)
+            owner.component.userInfoPayload = UserInfoPayload(model: userData)
 
             owner.myPageSectionsRelay.accept([
                     .init(identity: .header, items: [
@@ -133,15 +132,15 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     }
 
     private func fetchUserData() -> Observable<UserInfoModel> {
-        return useCase.fetchUserData().asObservable()
+        return component.myPageUseCase.fetchUserData().asObservable()
     }
 
     private func fetchChallengeUserData() -> Observable<UserChallengeStatModel> {
-        return useCase.fetchUserChallengeStats().asObservable()
+        return component.myPageUseCase.fetchUserChallengeStats().asObservable()
     }
 
     private func loggedOut() {
-        useCase.logout()
+        component.myPageUseCase.logout()
             .withUnretained(self)
             .bind(onNext: { owner, _ in
             owner.routeToSignIn()
@@ -149,7 +148,7 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     }
 
     private func isLoggedIn() -> Observable<Bool> {
-        return useCase.isLoggedIn()
+        return component.myPageUseCase.isLoggedIn()
             .do(onNext: { [weak self] in
             if !$0 {
                 self?.signInPopupRelay.accept(())
