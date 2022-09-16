@@ -22,6 +22,7 @@ final class ChallengeComponent: Component<ChallengeDependency>,
                                 ChallengeCalendarDependency,
                                 ChallengeListDependency{
     var targetDate: PublishRelay<Date> { dependency.targetDate }
+    var fetchCalendar: PublishRelay<Void> = .init()
     var userChallengeRepository: UserChallengeRepository {
         dependency.userChallengeRepository
     }

@@ -46,6 +46,7 @@ protocol ChallengeListListener: AnyObject {
 protocol ChallengeListInteractorDependency {
     var targetDate: PublishRelay<Date> { get }
     var usecase: ChallengeListUseCase { get }
+    var fetchCalendar: PublishRelay<Void> { get }
 }
 
 final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresentable>,
@@ -199,6 +200,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             .subscribe(onNext: { owner, _ in
                 owner.fetch(by: owner.targetDate)
                 owner.showToastRelay.accept("챌린지 삭제가 완료되었어요")
+                owner.dependency.fetchCalendar.accept(())
             })
             .disposeOnDeactivate(interactor: self)
     }
