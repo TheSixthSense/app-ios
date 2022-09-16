@@ -11,17 +11,24 @@ import Repository
 
 protocol MyPageModifyDependency: Dependency {
     var userRepository: UserRepository { get }
+    var userInfoPayload: UserInfoPayload { get }
 }
 
 final class MyPageModifyComponent: Component<MyPageModifyDependency>, MyPageModifyInfoDependency {
     var userRepository: UserRepository { dependency.userRepository }
     var useCase: MyPageModifyUseCase { MyPageModifyUseCaseImpl(userRepository: dependency.userRepository) }
+    var userInfoPayload: UserInfoPayload
+
+    override init(dependency: MyPageModifyDependency) {
+        self.userInfoPayload = dependency.userInfoPayload
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
 
 protocol MyPageModifyBuildable: Buildable {
-    func build(withListener listener: MyPageModifyListener, userData: UserInfoPayload) -> MyPageModifyRouting
+    func build(withListener listener: MyPageModifyListener) -> MyPageModifyRouting
 }
 
 final class MyPageModifyBuilder: Builder<MyPageModifyDependency>, MyPageModifyBuildable {
@@ -30,10 +37,10 @@ final class MyPageModifyBuilder: Builder<MyPageModifyDependency>, MyPageModifyBu
         super.init(dependency: dependency)
     }
 
-    func build(withListener listener: MyPageModifyListener, userData: UserInfoPayload) -> MyPageModifyRouting {
+    func build(withListener listener: MyPageModifyListener) -> MyPageModifyRouting {
         let component = MyPageModifyComponent(dependency: dependency)
         let viewController = MyPageModifyViewController()
-        let interactor = MyPageModifyInteractor(presenter: viewController, userPayload: userData, useCase: component.useCase)
+        let interactor = MyPageModifyInteractor(presenter: viewController, component: component)
         interactor.listener = listener
 
         let infoBuilder = MyPageModifyInfoBuilder(dependency: component)
