@@ -48,18 +48,15 @@ final class ChallengeListUseCaseImpl: ChallengeListUseCase {
     }
     
     func compareToday(with date: Date) -> DateType? {
-        let calendar = Calendar.current
-        let interval = calendar.dateComponents([.year, .month, .day], from: Date(), to: date)
-        
-        guard let intervalDay = interval.day else { return nil }
-        
-        switch intervalDay {
-            case Int.min..<0:
-                return .beforeToday
-            case 0:
+        switch Date().compare(to: date) {
+            case .same:
                 return .today
-            default:
+            case .future:
                 return .afterToday
+            case .past:
+                return .beforeToday
+            default:
+                return nil
         }
     }
     
