@@ -15,6 +15,7 @@ import Account
 import RxAppState
 import DesignSystem
 import RxKeyboard
+import UICore
 
 final class MyPageModifyInfoViewController: UIViewController, MyPageModifyInfoPresentable, MyPageModifyInfoViewControllable {
 
@@ -147,6 +148,7 @@ extension MyPageModifyInfoViewController {
         handleBirthSubView(with: handler)
         handleVeganStageSubView(with: handler)
         handleDoneButton(with: handler)
+        handleErrorToast(with: handler)
     }
 
     private func handleNicknameSubView(with handler: MyPageModifyInfoPresenterHandler) {
@@ -242,6 +244,14 @@ extension MyPageModifyInfoViewController {
             .skip(1)
             .drive(onNext: { height in
             completion(height)
+        }).disposed(by: disposeBag)
+    }
+
+    private func handleErrorToast(with handler: MyPageModifyInfoPresenterHandler) {
+        handler.showErrorToast
+            .withUnretained(self)
+            .bind(onNext: { owner, message in
+            owner.showToast(message, toastStyle: .error)
         }).disposed(by: disposeBag)
     }
 }

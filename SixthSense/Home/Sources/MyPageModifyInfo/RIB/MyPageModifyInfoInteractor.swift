@@ -28,6 +28,7 @@ protocol MyPageModifyInfoPresenterHandler: AnyObject {
     var veganStageInputValid: Observable<Int> { get }
     var nicknameCheckValid: Observable<String> { get }
     var enableButton: Observable<Bool> { get }
+    var showErrorToast: Observable<String> { get }
 }
 
 protocol MyPageModifyInfoPresenterAction: AnyObject {
@@ -59,6 +60,8 @@ final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPr
     private let visibleBirthInputValidRelay: BehaviorRelay<Bool> = .init(value: true)
     private let veganStageInputValidRelay: PublishRelay<Int> = .init()
     private let nicknameCheckValidRelay: PublishRelay<String> = .init()
+
+    private let errorToastRelay: PublishRelay<String> = .init()
 
     init(presenter: MyPageModifyInfoPresentable,
          component: MyPageModifyInfoComponent) {
@@ -202,10 +205,15 @@ final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPr
     }
 
     private func modifyUserInfo() {
-        dependency.useCase.modifyUserInfo(userInfo: self.userInfoRequest)
+        component.useCase.modifyUserInfo(userInfo: userInfoRequest)
+            .catch({ [weak self] _ in
+            self?.errorToastRelay.accept("오류가 발생했어요ㅠㅠ 다시 눌러주세요!")
+            return .just(nil)
+        })
+            .compactMap { $0 }
             .withUnretained(self)
-            .subscribe(onNext: { owner, _ in
-            owner.listener?.popModifyInfoView()
+            .subscribe(onNext: { owner, model in
+            owner.listener?.popModifyInfoView(userInfo: model)
         }).disposeOnDeactivate(interactor: self)
     }
 
@@ -230,6 +238,7 @@ extension MyPageModifyInfoInteractor: MyPageModifyInfoPresenterHandler {
     var veganStageInputValid: Observable<Int> { veganStageInputValidRelay.asObservable() }
     var nicknameCheckValid: Observable<String> { nicknameCheckValidRelay.asObservable() }
     var enableButton: Observable<Bool> { enableButtonRelay.asObservable() }
+    var showErrorToast: Observable<String> { errorToastRelay.asObservable() }
 }
 
 extension UserInfoRequest: Then { }

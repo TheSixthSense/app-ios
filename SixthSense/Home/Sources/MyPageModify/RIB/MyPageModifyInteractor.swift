@@ -41,7 +41,6 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
     weak var router: MyPageModifyRouting?
     weak var listener: MyPageModifyListener?
 
-//    private let userInfo: UserInfoPayload
     private let component: MyPageModifyComponent
 
     private let userInfoPayloadRelay: PublishRelay<UserInfoPayload> = .init()
