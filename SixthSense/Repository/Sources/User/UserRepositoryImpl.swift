@@ -55,11 +55,7 @@ public final class UserRepositoryImpl: UserRepository {
     }
 
     public func modifyUserInfo(request: UserInfoRequest) -> Single<String> {
-        return network.request(UserAPI.modifyUserInfo(request))
-            .mapString()
-            .flatMap { data -> Single<String> in
-            return .just("")
-        }
+        return network.request(UserAPI.modifyUserInfo(request)).mapString()
     }
 
     public func challengeStats() -> Single<String> {
