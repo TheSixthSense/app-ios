@@ -101,3 +101,29 @@ enum DateType {
     case today
     case afterToday
 }
+
+extension Date {
+    enum DateState {
+        case future
+        case past
+        case same
+    }
+    
+    func compare(to date: Date) -> DateState? {
+        guard let date = date.timeRemovedDate() else { return nil }
+        switch self.timeRemovedDate()?.compare(date) {
+            case .orderedAscending:
+                return .future
+            case .orderedDescending:
+                return .past
+            case .orderedSame:
+                return .same
+            default:
+                return nil
+        }
+    }
+    
+    func timeRemovedDate() -> Date? {
+        return self.toString(dateFormat: "yyyy-MM-dd").toDate(dateFormat: "yyyy-MM-dd")
+    }
+}
