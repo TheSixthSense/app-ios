@@ -114,7 +114,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         basisDateCalculateRelay
             .withUnretained(self)
             .bind(onNext: { owner, date in
-            if date.compare(to: Date()) == .past {
+            if Date().compare(to: date) == .past {
                 owner.errorRelay.accept("앗.. 이미 지난 날짜예요! 한번 더 확인해주세요")
                 owner.buttonStateRelay.accept(false)
             }
@@ -232,7 +232,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     }
 
     private func changeButtonState(to enabled: Bool) {
-        guard calendarConfiguration.basisFullDate.compare(to: Date()) == .past else {
+        guard Date().compare(to: calendarConfiguration.basisFullDate) == .past else {
             buttonStateRelay.accept(enabled)
             return
         }
