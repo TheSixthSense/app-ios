@@ -42,7 +42,7 @@ protocol MyPageModifyInfoPresenterAction: AnyObject {
 }
 
 protocol MyPageModifyInfoListener: AnyObject {
-    func popModifyInfoView(userInfo: UserInfoPayload)
+    func popModifyInfoView(userInfo: UserInfoPayload?)
 }
 
 final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPresentable>, MyPageModifyInfoInteractable {
@@ -94,7 +94,7 @@ final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPr
         action.didTapBackButton
             .withUnretained(self)
             .bind(onNext: { owner, _ in
-            owner.listener?.popModifyInfoView(userInfo: owner.component.userInfoPayload)
+            owner.listener?.popModifyInfoView(userInfo: nil)
         }).disposeOnDeactivate(interactor: self)
 
         action.didTapDoneButton
