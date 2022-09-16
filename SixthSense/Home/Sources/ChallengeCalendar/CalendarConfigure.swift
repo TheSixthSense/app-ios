@@ -33,7 +33,7 @@ struct CalendarConfiguration {
     }
 
     var pickerFullDataSource: [[Int]] {
-        [ Array(startYear...endYear), Array(1...12), Array(1...31)]
+        [Array(startYear...endYear), Array(1...12), Array(1...31)]
     }
     
     var basisYear: String = Date().toString(dateFormat: "yyyy")
