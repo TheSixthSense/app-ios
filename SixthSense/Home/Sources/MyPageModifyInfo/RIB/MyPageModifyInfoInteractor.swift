@@ -41,7 +41,7 @@ protocol MyPageModifyInfoPresenterAction: AnyObject {
 }
 
 protocol MyPageModifyInfoListener: AnyObject {
-    func popModifyInfoView()
+    func popModifyInfoView(userInfo: UserInfoPayload)
 }
 
 final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPresentable>, MyPageModifyInfoInteractable {
@@ -49,8 +49,7 @@ final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPr
     weak var router: MyPageModifyInfoRouting?
     weak var listener: MyPageModifyInfoListener?
 
-    private let dependency: MyPageModifyInfoComponent
-    private var userInfoPayload: UserInfoPayload
+    private let component: MyPageModifyInfoComponent
     private var userInfoRequest: UserInfoRequest = .init()
 
     private let enableButtonRelay: PublishRelay<Bool> = .init()
@@ -59,14 +58,11 @@ final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPr
     private let genderInputValidRelay: PublishRelay<Int> = .init()
     private let visibleBirthInputValidRelay: BehaviorRelay<Bool> = .init(value: true)
     private let veganStageInputValidRelay: PublishRelay<Int> = .init()
-
     private let nicknameCheckValidRelay: PublishRelay<String> = .init()
 
     init(presenter: MyPageModifyInfoPresentable,
-         dependency: MyPageModifyInfoComponent,
-         userInfoPayload: UserInfoPayload) {
-        self.dependency = dependency
-        self.userInfoPayload = userInfoPayload
+         component: MyPageModifyInfoComponent) {
+        self.component = component
         super.init(presenter: presenter)
         presenter.handler = self
         configureRequestModel()
@@ -83,10 +79,10 @@ final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPr
 
     private func configureRequestModel() {
         self.userInfoRequest = userInfoRequest.with {
-            $0.nickname = userInfoPayload.nickname
-            $0.gender = userInfoPayload.gender.rawValue
-            $0.birthDay = userInfoPayload.birthDate
-            $0.vegannerStage = userInfoPayload.vegannerStage.rawValue
+            $0.nickname = component.userInfoPayload.nickname
+            $0.gender = component.userInfoPayload.gender.rawValue
+            $0.birthDay = component.userInfoPayload.birthDate
+            $0.vegannerStage = component.userInfoPayload.vegannerStage.rawValue
         }
     }
 
@@ -95,7 +91,7 @@ final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPr
         action.didTapBackButton
             .withUnretained(self)
             .bind(onNext: { owner, _ in
-            owner.listener?.popModifyInfoView()
+            owner.listener?.popModifyInfoView(userInfo: owner.component.userInfoPayload)
         }).disposeOnDeactivate(interactor: self)
 
         action.didTapDoneButton
@@ -192,7 +188,7 @@ final class MyPageModifyInfoInteractor: PresentableInteractor<MyPageModifyInfoPr
     }
 
     private func isUseableNickname(_ nickname: String) {
-        dependency.useCase
+        component.useCase
             .validateUserNickname(request: nickname)
             .catch { error in
             guard let apiError = error as? APIError,
