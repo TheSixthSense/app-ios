@@ -22,6 +22,7 @@ protocol MyPageModifyPresentable: Presentable {
 
 protocol MyPageModifyPresenterHandler: AnyObject {
     var userInfoPayload: Observable<UserInfoPayload> { get }
+    var showToast: Observable<String> { get }
 }
 
 protocol MyPageModifyPresenterAction: AnyObject {
@@ -45,6 +46,7 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
 
     private let userInfoPayloadRelay: PublishRelay<UserInfoPayload> = .init()
     private let withDrawPopupRelay: PublishRelay<Void> = .init()
+    private let toastRelay: PublishRelay<String> = .init()
 
     private var disposeBag = DisposeBag()
 
@@ -92,8 +94,11 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
         }).disposeOnDeactivate(interactor: self)
     }
 
-    func popModifyInfoView(userInfo: UserInfoPayload) {
-        component.userInfoPayload = userInfo
+    func popModifyInfoView(userInfo: UserInfoPayload?) {
+        if let userInfo = userInfo {
+            component.userInfoPayload = userInfo
+            toastRelay.accept("정보 수정이 완료되었어요!")
+        }
         router?.detachModifyInfoView()
     }
 
@@ -101,7 +106,7 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
         component.useCase.withdrawUser()
             .withUnretained(self)
             .bind(onNext: { owner, _ in
-            owner.popModifyInfoView(userInfo: owner.component.userInfoPayload)
+            owner.popModifyInfoView(userInfo: nil)
             owner.listener?.routeToSignIn()
         }).disposeOnDeactivate(interactor: self)
     }
@@ -109,5 +114,6 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
 
 extension MyPageModifyInteractor: MyPageModifyPresenterHandler {
     var userInfoPayload: Observable<UserInfoPayload> { userInfoPayloadRelay.asObservable() }
+    var showToast: Observable<String> { toastRelay.asObservable() }
 }
 

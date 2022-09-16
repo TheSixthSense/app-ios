@@ -14,6 +14,7 @@ import RxCocoa
 import UIKit
 import RxAppState
 import DesignSystem
+import UICore
 
 final class MyPageModifyViewController: UIViewController, MyPageModifyPresentable, MyPageModifyViewControllable {
 
@@ -181,6 +182,11 @@ extension MyPageModifyViewController {
                 .map(\.vegannerStage.localized)
                 .bind(to: veganStageSubView.userDataLabel.rx.text)
 
+            handler.showToast
+                .withUnretained(self)
+                .bind(onNext: { owner, message in
+                owner.showToast(message)
+            })
         }
     }
 
