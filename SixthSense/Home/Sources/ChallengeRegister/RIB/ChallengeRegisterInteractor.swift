@@ -39,7 +39,6 @@ protocol ChallengeRegisterPresenterHandler: AnyObject {
     var categorySections: Observable<[CategorySection]> { get }
     var challengeListSections: Observable<[ChallengeListSection]> { get }
     var updateCategoryIndex: Observable<Int> { get }
-    var selectedCellIndex: Observable<IndexPath> { get }
     var showErrorMessage: Observable<String> { get }
     var buttonState: Observable<Bool> { get }
 }
@@ -60,16 +59,16 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     private let categorySectionsRelay: PublishRelay<[CategorySection]> = .init()
     private let challengeListSectionsRelay: PublishRelay<[ChallengeListSection]> = .init()
     private let calendarDataSourceRelay: PublishRelay<[[Int]]> = .init()
-    private let updateCategoryIndexRelay: PublishRelay<Int> = .init()
-    private let selectedCellIndexRelay: PublishRelay<IndexPath> = .init()
+    private let updateCategoryIndexRelay: PublishRelay<Int> = .init() // CollectionView Cell Index
     private let buttonStateRelay: PublishRelay<Bool> = .init()
 
-    private let categoryIndex: BehaviorRelay<Int> = .init(value: 1)
+    private let categoryIndex: BehaviorRelay<Int> = .init(value: 1) // 카테고리 ID
     private lazy var dataObservable = Observable.combineLatest(
         self.fetchChallengeCategories(), self.fetchChallengeLists(), self.categoryIndex
     )
 
     private let errorRelay: PublishRelay<String> = .init()
+    private let basisDateCalculateRelay: BehaviorRelay<Date> = .init(value: Date())
 
     private var request: ChallengeJoinRequest = ChallengeJoinRequest.init()
     private var selectedChallengeId: Int = -1
@@ -112,6 +111,15 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             owner.calendarConfiguration.setBasisDate(date: date)
         }).disposeOnDeactivate(interactor: self)
 
+        basisDateCalculateRelay
+            .withUnretained(self)
+            .bind(onNext: { owner, date in
+            if Date().compare(to: date) == .past {
+                owner.errorRelay.accept("앗.. 이미 지난 날짜예요! 한번 더 확인해주세요")
+                owner.buttonStateRelay.accept(false)
+            }
+        }).disposeOnDeactivate(interactor: self)
+
         guard let action = presenter.action else { return }
 
         action.viewWillAppear
@@ -123,18 +131,14 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         action.didChangeCategory
             .withUnretained(self)
             .subscribe(onNext: { owner, item in
-            owner.selectedChallengeId = -1
-            owner.updateCategoryIndexRelay.accept(item.0)
-            owner.categoryIndex.accept(item.1.categoryId)
-            owner.buttonStateRelay.accept(false)
+            owner.didChangedCategory(index: item.0, categoryId: item.1.categoryId)
         }).disposeOnDeactivate(interactor: self)
 
         action.didSelectChallenge
             .withUnretained(self)
             .subscribe(onNext: { owner, item in
             owner.selectedChallengeId = item.1.id
-            owner.selectedCellIndexRelay.accept(item.0)
-            owner.buttonStateRelay.accept(true)
+            owner.changeButtonState(to: true)
         }).disposeOnDeactivate(interactor: self)
 
         action.didTapDoneButton
@@ -168,7 +172,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         action.calendarDidSelected
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-            owner.dependency.targetDate.accept(owner.calendarConfiguration.basisFullDate)
+            owner.didSelectedCalendar(date: owner.calendarConfiguration.basisFullDate)
         }).disposeOnDeactivate(interactor: self)
     }
 
@@ -191,9 +195,9 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
                           items: challenges.filter { $0.categoryId == index }.compactMap(ChallengeListSectionItem.init))
             ]
 
+            owner.buttonStateRelay.accept(false)
             owner.challengeListSectionsRelay.accept(sections)
             owner.categorySectionsRelay.accept(categorySections)
-
         }).disposeOnDeactivate(interactor: self)
     }
 
@@ -226,6 +230,26 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             owner.router?.routeToRecommend(id: String(request.challengeId))
         }).disposeOnDeactivate(interactor: self)
     }
+
+    private func changeButtonState(to enabled: Bool) {
+        guard Date().compare(to: calendarConfiguration.basisFullDate) == .past else {
+            buttonStateRelay.accept(enabled)
+            return
+        }
+        buttonStateRelay.accept(false)
+    }
+
+    private func didSelectedCalendar(date: Date) {
+        basisDateCalculateRelay.accept(date)
+        dependency.targetDate.accept(date)
+    }
+
+    private func didChangedCategory(index: Int, categoryId: Int) {
+        selectedChallengeId = -1
+        updateCategoryIndexRelay.accept(index)
+        categoryIndex.accept(categoryId)
+        changeButtonState(to: false)
+    }
 }
 
 extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
@@ -234,7 +258,6 @@ extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
     var challengeListSections: Observable<[ChallengeListSection]> { challengeListSectionsRelay.asObservable() }
     var calenarDataSource: Observable<[[Int]]> { calendarDataSourceRelay.asObservable() }
     var updateCategoryIndex: Observable<Int> { updateCategoryIndexRelay.asObservable() }
-    var selectedCellIndex: Observable<IndexPath> { selectedCellIndexRelay.asObservable() }
     var showErrorMessage: Observable<String> { errorRelay.asObservable() }
     var buttonState: Observable<Bool> { buttonStateRelay.asObservable() }
 }

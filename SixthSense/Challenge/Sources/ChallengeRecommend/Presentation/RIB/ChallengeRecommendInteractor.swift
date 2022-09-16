@@ -75,7 +75,6 @@ final class ChallengeRecommendInteractor: PresentableInteractor<ChallengeRecomme
             .catch({ error in
             return .empty()
         })
-            .debug()
             .compactMap({ $0.compactMap { ChallengeRecommendViewModel(model: $0) }.sorted(by: <) })
             .withUnretained(self)
             .subscribe(onNext: { owner, data in

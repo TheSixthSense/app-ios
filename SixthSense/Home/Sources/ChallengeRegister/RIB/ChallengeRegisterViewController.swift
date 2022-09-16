@@ -27,19 +27,19 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     private enum Constants {
         enum Height {
-            static var calenderView = 44.0
-            static var calenderButton = 20.0
-            static var category = 48.0
-            static var indicator = 3.0
-            static var doneButton = 68.0
-            static var tableRow = 58.0
+            static let calenderView = 44.0
+            static let calenderButton = 20.0
+            static let category = 48.0
+            static let indicator = 3.0
+            static let doneButton = 68.0
+            static let tableRow = 58.0
         }
 
         enum Inset {
-            static var base = 20.0
-            static var calenderButtonLeft = 12.0
-            static var tableViewBottom = -10.0
-            static var doneButtonBottom = -32.0
+            static let base = 20.0
+            static let calenderButtonLeft = 12.0
+            static let tableViewBottom = -10.0
+            static let doneButtonBottom = -102.0
         }
 
         enum Picker {
@@ -51,20 +51,25 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
                 default: return .init()
                 }
             }
+
+            static let dateToFullString: (Date) -> String = {
+                let dateFormatter = DateFormatter().then {
+                    $0.dateFormat = "yyyy년 MM월 dd일 EEEE"
+                    $0.locale = .init(identifier: "ko_KR")
+                    $0.timeZone = TimeZone(identifier: "KST")
+                }
+                return dateFormatter.string(from: $0)
+            }
         }
     }
 
-    private let categoryDataSource = CategorySections { _, collectionView, indexPath, item in
+    private lazy var categoryDataSource = CategorySections { _, collectionView, indexPath, item in
         switch item {
         case .item(let item):
             guard let cell = collectionView.dequeue(CategoryTabItemCell.self, for: indexPath) as? CategoryTabItemCell else { return UICollectionViewCell() }
             cell.setCategory(with: item.title)
-            // default selection
-            if indexPath.row == 0 {
-                cell.isSelected = true
-                collectionView.selectItem(at: indexPath,
-                                          animated: false,
-                                          scrollPosition: .right)
+            if(indexPath.row == self.selectedCategoryIndex) {
+                collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .init())
             }
             return cell
         }
@@ -126,6 +131,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         $0.showsHorizontalScrollIndicator = false
         $0.showsVerticalScrollIndicator = false
         $0.contentInsetAdjustmentBehavior = .never
+        $0.isMultipleTouchEnabled = false
     }
 
     private var categoryCollectionLayout = UICollectionViewFlowLayout().then {
@@ -153,11 +159,14 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         $0.backgroundColor = .clear
         $0.separatorStyle = .none
     }
-    private var doneButton = AppButton(title: "챌린지 선택 완료").then {
+
+    private var doneButton = AppButton(title: "실천하러 가볼까?").then {
         $0.hasFocused = false
         $0.layer.cornerRadius = 10
+        $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
+    private var selectedCategoryIndex: Int = 0
     private var disposeBag = DisposeBag()
 
     // MARK: - LifeCycle
@@ -174,22 +183,21 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureUI()
+        bind()
+        configureLayout()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        configureUI()
-        bind()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        configureLayout()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        disposeBag = DisposeBag()
     }
 
     func routeToHome() {
@@ -246,12 +254,10 @@ private extension ChallengeRegisterViewController {
             $0.left.right.equalToSuperview().inset(Constants.Inset.base)
         }
 
-        guard let tabBar = tabBarController?.tabBar else { return }
-
         doneButton.snp.makeConstraints {
             $0.left.right.equalToSuperview().inset(Constants.Inset.base)
             $0.height.equalTo(Constants.Height.doneButton)
-            $0.bottom.equalTo(tabBar.snp.top).offset(Constants.Inset.doneButtonBottom)
+            $0.bottom.equalToSuperview().offset(Constants.Inset.doneButtonBottom)
         }
     }
 
@@ -274,14 +280,14 @@ private extension ChallengeRegisterViewController {
 
             handler.categorySections
                 .asDriver(onErrorJustReturn: [])
-                .drive(categoryTabView.rx.items(dataSource: categoryDataSource))
+            .drive(categoryTabView.rx.items(dataSource: categoryDataSource))
 
             handler.challengeListSections
                 .asDriver(onErrorJustReturn: [])
                 .drive(contentTableView.rx.items(dataSource: challnegeDataSource))
 
             handler.basisDate
-                .map(dateToFullString)
+                .map(Constants.Picker.dateToFullString)
                 .withUnretained(self)
                 .subscribe(onNext: { owner, dateString in
                 owner.calenderLabel.text = dateString
@@ -295,13 +301,7 @@ private extension ChallengeRegisterViewController {
                 .withUnretained(self)
                 .bind(onNext: { owner, row in
                 owner.updateIndicator(row)
-            })
-
-            handler.selectedCellIndex
-                .withUnretained(self)
-                .bind(onNext: { owner, indexPath in
-                let cell = owner.contentTableView.cellForRow(at: indexPath) as? ChallengeListItemCell
-                cell?.selected()
+                owner.selectedCategoryIndex = row
             })
 
             handler.showErrorMessage
@@ -318,11 +318,24 @@ private extension ChallengeRegisterViewController {
     private func bindLists() {
         disposeBag.insert {
 
+            categoryTabView.rx.itemSelected
+                .withUnretained(self)
+                .bind(onNext: { owner, index in
+                owner.categoryTabView.selectItem(at: index, animated: false, scrollPosition: .right)
+            })
+
+            contentTableView.rx.itemSelected
+                .withUnretained(self)
+                .bind(onNext: { owner, index in
+                let cell = owner.contentTableView.cellForRow(at: index) as? ChallengeListItemCell
+                cell?.isSelected = true
+            })
+
             contentTableView.rx.itemDeselected
                 .withUnretained(self)
                 .bind(onNext: { owner, index in
                 let cell = owner.contentTableView.cellForRow(at: index) as? ChallengeListItemCell
-                cell?.deselected()
+                cell?.isSelected = false
             })
         }
     }
@@ -340,7 +353,10 @@ private extension ChallengeRegisterViewController {
     }
 
     private func updateIndicator(_ rowIndex: Int) {
-        indicatorView.snp.updateConstraints {
+        indicatorView.snp.remakeConstraints {
+            $0.height.equalTo(Constants.Height.indicator)
+            $0.width.equalTo(view.frame.width / 3)
+            $0.bottom.equalTo(categoryTabView.snp.bottom)
             $0.left.equalTo(CGFloat(rowIndex) * (indicatorView.frame.width))
         }
         UIView.animate(withDuration: 0.25) { [weak self] in
@@ -364,14 +380,6 @@ private extension ChallengeRegisterViewController {
         self.navigationItem.titleView = titleLabel
     }
 
-    private func dateToFullString(_ date: Date) -> String {
-        let dateFormatter = DateFormatter().then {
-            $0.dateFormat = "yyyy년 MM월 dd일 EEEE"
-            $0.locale = .init(identifier: "ko_KR")
-            $0.timeZone = TimeZone(identifier: "KST")
-        }
-        return dateFormatter.string(from: date)
-    }
 }
 
 extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {

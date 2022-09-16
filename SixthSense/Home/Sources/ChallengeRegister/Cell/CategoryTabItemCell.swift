@@ -23,7 +23,7 @@ final class CategoryTabItemCell: UICollectionViewCell {
 
     override var isSelected: Bool {
         willSet {
-            titleLabel.textColor = newValue ? .black : .systemGray500
+            setSelected(newValue)
         }
     }
 
@@ -35,10 +35,6 @@ final class CategoryTabItemCell: UICollectionViewCell {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func prepareForReuse() {
-        isSelected = false
     }
 
     private func configureLayout() {
@@ -56,5 +52,9 @@ final class CategoryTabItemCell: UICollectionViewCell {
         titleLabel.attributedText = NSAttributedString(
             string: title,
             attributes: [.font: AppFont.body1])
+    }
+
+    func setSelected(_ selected: Bool) {
+        titleLabel.textColor = selected == true ? .black : .systemGray500
     }
 }
