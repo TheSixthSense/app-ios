@@ -21,7 +21,8 @@ enum ChallengeCalendarDayState: Int {
         
         if let today = Date().toString(dateFormat: "yyyy-MM-dd").toDate(dateFormat: "yyyy-MM-dd"),
            let date = date.toDate(dateFormat: "yyyy-MM-dd"),
-           let interval = calendar.dateComponents([.year, .month, .day], from: today, to: date).day, interval >= 0 {
+           let interval = calendar.dateComponents([.year, .month, .day], from: today, to: date).day, interval >= 0,
+           percentage == 0 {
             self.init(rawValue: 5)
         }
         
