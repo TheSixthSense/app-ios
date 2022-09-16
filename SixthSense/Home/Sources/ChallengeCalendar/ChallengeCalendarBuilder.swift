@@ -14,6 +14,7 @@ import Storage
 
 protocol ChallengeCalendarDependency: Dependency {
     var targetDate: PublishRelay<Date> { get }
+    var fetchCalendar: PublishRelay<Void> { get }
     var userChallengeRepository: UserChallengeRepository { get }
     var persistence: LocalPersistence { get }
 }
@@ -22,6 +23,7 @@ final class ChallengeCalendarComponent: Component<ChallengeCalendarDependency>,
                                         ChallengeCalendarInteractorDependency{
     var usecase: ChallengeCalendarUseCase
     var targetDate: PublishRelay<Date> { dependency.targetDate }
+    var fetchCalendar: PublishRelay<Void> { dependency.fetchCalendar }
     
     override init(dependency: ChallengeCalendarDependency) {
         self.usecase = ChallengeCalendarUsCaseImpl(

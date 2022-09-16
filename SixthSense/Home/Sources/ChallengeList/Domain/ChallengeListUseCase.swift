@@ -48,18 +48,15 @@ final class ChallengeListUseCaseImpl: ChallengeListUseCase {
     }
     
     func compareToday(with date: Date) -> DateType? {
-        let calendar = Calendar.current
-        let interval = calendar.dateComponents([.year, .month, .day], from: Date(), to: date)
-        
-        guard let intervalDay = interval.day else { return nil }
-        
-        switch intervalDay {
-            case Int.min..<0:
-                return .beforeToday
-            case 0:
+        switch Date().compare(to: date) {
+            case .same:
                 return .today
-            default:
+            case .future:
                 return .afterToday
+            case .past:
+                return .beforeToday
+            default:
+                return nil
         }
     }
     
@@ -100,4 +97,30 @@ enum DateType {
     case beforeToday
     case today
     case afterToday
+}
+
+extension Date {
+    enum DateState {
+        case future
+        case past
+        case same
+    }
+    
+    func compare(to date: Date) -> DateState? {
+        guard let date = date.timeRemovedDate() else { return nil }
+        switch self.timeRemovedDate()?.compare(date) {
+            case .orderedAscending:
+                return .future
+            case .orderedDescending:
+                return .past
+            case .orderedSame:
+                return .same
+            default:
+                return nil
+        }
+    }
+    
+    func timeRemovedDate() -> Date? {
+        return self.toString(dateFormat: "yyyy-MM-dd").toDate(dateFormat: "yyyy-MM-dd")
+    }
 }

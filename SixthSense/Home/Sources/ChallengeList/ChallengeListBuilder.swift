@@ -15,6 +15,7 @@ import Storage
 
 protocol ChallengeListDependency: Dependency {
     var targetDate: PublishRelay<Date> { get }
+    var fetchCalendar: PublishRelay<Void> { get }
     var userChallengeRepository: UserChallengeRepository { get }
     var persistence: LocalPersistence { get }
 }
@@ -23,6 +24,7 @@ final class ChallengeListComponent: Component<ChallengeListDependency>,
                                     ChallengeListInteractorDependency,
                                     ChallengeCheckDependency,
                                     ChallengeDetailDependency {
+    var fetchCalendar: PublishRelay<Void> { dependency.fetchCalendar }
     var userChallengeRepository: UserChallengeRepository { dependency.userChallengeRepository }
     
     var usecase: ChallengeListUseCase {

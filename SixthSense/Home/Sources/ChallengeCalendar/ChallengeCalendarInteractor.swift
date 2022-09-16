@@ -41,6 +41,7 @@ protocol ChallengeCalendarPresentable: Presentable {
 protocol ChallengeCalendarInteractorDependency {
     var targetDate: PublishRelay<Date> { get }
     var usecase: ChallengeCalendarUseCase { get }
+    var fetchCalendar: PublishRelay<Void> { get }
 }
 
 protocol ChallengeCalendarListener: AnyObject { }
@@ -75,6 +76,13 @@ final class ChallengeCalendarInteractor: PresentableInteractor<ChallengeCalendar
     }
 
     private func bind() {
+        dependency.fetchCalendar
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.fetch(by: owner.calendarConfiguration.basisDate)
+            })
+            .disposeOnDeactivate(interactor: self)
+        
         guard let action = presenter.action else { return }
         
         action.selectMonth
