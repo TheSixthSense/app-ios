@@ -13,8 +13,7 @@ protocol MyPageModifyInteractable: Interactable, MyPageModifyInfoListener {
     var listener: MyPageModifyListener? { get set }
 }
 
-protocol MyPageModifyViewControllable: ViewControllable {
-}
+protocol MyPageModifyViewControllable: ViewControllable { }
 
 final class MyPageModifyRouter: ViewableRouter<MyPageModifyInteractable, MyPageModifyViewControllable>, MyPageModifyRouting {
 
@@ -30,12 +29,11 @@ final class MyPageModifyRouter: ViewableRouter<MyPageModifyInteractable, MyPageM
         interactor.router = self
     }
 
-    func routeToModifyInfo(type: ModifyType, userInfoPayload: UserInfoPayload) {
+    func routeToModifyInfo(type: ModifyType) {
         if childRouting != nil { return }
 
         let router = modifyInfoBuilder.build(withListener: interactor,
-                                             type: type,
-                                             userInfoPayload: userInfoPayload)
+                                             type: type)
         viewControllable.pushViewController(router.viewControllable, animated: true)
         self.childRouting = router
         attachChild(router)

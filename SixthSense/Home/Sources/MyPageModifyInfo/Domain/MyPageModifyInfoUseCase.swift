@@ -12,7 +12,7 @@ import RxSwift
 
 public protocol MyPageModifyInfoUseCase {
     func validateUserNickname(request: String) -> Observable<String>
-    func modifyUserInfo(userInfo: UserInfoRequest) -> Observable<String>
+    func modifyUserInfo(userInfo: UserInfoRequest) -> Observable<UserInfoPayload?>
 }
 
 final class MyPageModifyInfoUseCaseImpl: MyPageModifyInfoUseCase {
@@ -27,7 +27,10 @@ final class MyPageModifyInfoUseCaseImpl: MyPageModifyInfoUseCase {
         return userRepository.validateNickname(request: request).asObservable()
     }
 
-    func modifyUserInfo(userInfo request: UserInfoRequest) -> Observable<String> {
-        return userRepository.modifyUserInfo(request: request).asObservable()
+    func modifyUserInfo(userInfo request: UserInfoRequest) -> Observable<UserInfoPayload?> {
+        return userRepository.modifyUserInfo(request: request)
+            .compactMap({ UserInfoModel(JSONString: $0) })
+            .compactMap({ UserInfoPayload(model: $0) })
+            .asObservable()
     }
 }

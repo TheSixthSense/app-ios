@@ -11,7 +11,7 @@ import RxRelay
 import RxSwift
 
 protocol MyPageModifyRouting: ViewableRouting {
-    func routeToModifyInfo(type: ModifyType, userInfoPayload: UserInfoPayload)
+    func routeToModifyInfo(type: ModifyType)
     func detachModifyInfoView()
 }
 
@@ -22,6 +22,7 @@ protocol MyPageModifyPresentable: Presentable {
 
 protocol MyPageModifyPresenterHandler: AnyObject {
     var userInfoPayload: Observable<UserInfoPayload> { get }
+    var showToast: Observable<String> { get }
 }
 
 protocol MyPageModifyPresenterAction: AnyObject {
@@ -41,19 +42,17 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
     weak var router: MyPageModifyRouting?
     weak var listener: MyPageModifyListener?
 
-    private let userInfo: UserInfoPayload
-    private let useCase: MyPageModifyUseCase
+    private let component: MyPageModifyComponent
 
     private let userInfoPayloadRelay: PublishRelay<UserInfoPayload> = .init()
     private let withDrawPopupRelay: PublishRelay<Void> = .init()
+    private let toastRelay: PublishRelay<String> = .init()
 
     private var disposeBag = DisposeBag()
 
     init(presenter: MyPageModifyPresentable,
-         userPayload: UserInfoPayload,
-         useCase: MyPageModifyUseCase) {
-        self.userInfo = userPayload
-        self.useCase = useCase
+         component: MyPageModifyComponent) {
+        self.component = component
         super.init(presenter: presenter)
         presenter.handler = self
     }
@@ -73,7 +72,7 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
         action.viewWillAppear
             .withUnretained(self)
             .bind(onNext: { owner, _ in
-            owner.userInfoPayloadRelay.accept(owner.userInfo)
+            owner.userInfoPayloadRelay.accept(owner.component.userInfoPayload)
         }).disposeOnDeactivate(interactor: self)
 
         action.didTapBackButton
@@ -85,7 +84,7 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
         action.didTapEditButton
             .withUnretained(self)
             .bind(onNext: { owner, type in
-            owner.router?.routeToModifyInfo(type: type, userInfoPayload: owner.userInfo)
+            owner.router?.routeToModifyInfo(type: type)
         }).disposeOnDeactivate(interactor: self)
 
         action.withDrawConfirmed
@@ -95,15 +94,19 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
         }).disposeOnDeactivate(interactor: self)
     }
 
-    func popModifyInfoView() {
+    func popModifyInfoView(userInfo: UserInfoPayload?) {
+        if let userInfo = userInfo {
+            component.userInfoPayload = userInfo
+            toastRelay.accept("정보 수정이 완료되었어요!")
+        }
         router?.detachModifyInfoView()
     }
 
     func withdrawUser() {
-        useCase.withdrawUser()
+        component.useCase.withdrawUser()
             .withUnretained(self)
             .bind(onNext: { owner, _ in
-            owner.popModifyInfoView()
+            owner.popModifyInfoView(userInfo: nil)
             owner.listener?.routeToSignIn()
         }).disposeOnDeactivate(interactor: self)
     }
@@ -111,5 +114,6 @@ final class MyPageModifyInteractor: PresentableInteractor<MyPageModifyPresentabl
 
 extension MyPageModifyInteractor: MyPageModifyPresenterHandler {
     var userInfoPayload: Observable<UserInfoPayload> { userInfoPayloadRelay.asObservable() }
+    var showToast: Observable<String> { toastRelay.asObservable() }
 }
 
