@@ -23,6 +23,7 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
     
     private let fetchRelay: PublishRelay<Void> = .init()
     private let itemDeleteRelay: PublishRelay<IndexPath> = .init()
+    private let signInDidTapRelay: PublishRelay<Void> = .init()
     
     private enum Constants { }
     
@@ -122,6 +123,13 @@ final class ChallengeListViewController: UIViewController, ChallengeListPresenta
             })
             .disposed(by: self.disposeBag)
         
+        handler.showSignInAlert
+            .asDriver(onErrorJustReturn: ())
+            .drive(onNext: { [weak self] _ in
+                self?.showSignInAlert()
+            })
+            .disposed(by: self.disposeBag)
+        
         handler.showToast
             .asDriver(onErrorJustReturn: .init())
             .drive(onNext: { [weak self] in
@@ -196,6 +204,19 @@ extension ChallengeListViewController: UITableViewDelegate {
         })
         .disposed(by: self.disposeBag)
     }
+    
+    private func showSignInAlert() {
+        showAlert(title: "📢 비거너 이용 안내사항 📢",
+                        message: "로그인 후 챌린지를 등록해 볼 수 있어요..!\n오른쪽 버튼을 눌러 로그인을 해주세요",
+                        actions: [.action(title: "앗.. 더 둘러볼게", style: .negative),
+                                  .action(title: "로그인 하러가기", style: .positive)])
+        .filter { $0 == .positive }
+        .withUnretained(self)
+        .subscribe(onNext: { owner, _ in
+            owner.signInDidTapRelay.accept(())
+        })
+        .disposed(by: self.disposeBag)
+    }
 }
 
 
@@ -205,4 +226,5 @@ extension ChallengeListViewController: ChallengeListPresenterAction {
         .flatMap { index -> Observable<IndexPath> in .just(index)} }
     var itemDidDeleted: Observable<IndexPath> { itemDeleteRelay.asObservable() }
     var registerDidTap: Observable<Void> { emptyView.rx.tap }
+    var signInDidTap: Observable<Void> { signInDidTapRelay.asObservable() }
 }
