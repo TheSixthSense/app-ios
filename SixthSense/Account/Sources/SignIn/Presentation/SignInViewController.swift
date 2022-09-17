@@ -39,7 +39,16 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
         $0.sizeToFit()
     }
     
-    private lazy var signInButton = ASAuthorizationAppleIDButton(type: .continue, style: .white).then {
+    private var signInButton = UIButton().then {
+        $0.layer.cornerRadius = 10
+        $0.setTitle("Apple로 계속하기", for: .normal)
+        $0.setImage(.init(systemName: "applelogo"), for: .normal)
+        $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: -10)
+        $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
+        $0.setTitleColor(.black, for: .normal)
+        $0.backgroundColor = .white
+        $0.tintColor = .black
+        $0.titleLabel?.font = UIFont(font: AppFont.Pretendard.bold, size: 17)
         $0.addTarget(self, action: #selector(signInWithApple), for: .touchUpInside)
     }
     
