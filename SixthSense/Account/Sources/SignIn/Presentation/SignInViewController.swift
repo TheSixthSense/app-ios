@@ -39,6 +39,40 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
         $0.sizeToFit()
     }
     
+    private let termLabel = UILabel().then {
+        $0.numberOfLines = 2
+        let privacy = "개인정보 처리방침"
+        let service = "서비스 이용 약관"
+        let generalText = String(
+          format: "버튼을 누르면, %@ 및 %@에\n동의한 것으로 간주되며 회원가입이 진행되어요 (속닥)", privacy, service)
+        let generalAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: AppColor.darkText,
+            .font: AppFont.body2
+        ]
+        let linkAttributes: [NSAttributedString.Key: Any] = [
+          .underlineStyle: NSUnderlineStyle.single.rawValue,
+          .foregroundColor: AppColor.darkText,
+          .font: AppFont.body2Bold,
+        ]
+        let mutableString = NSMutableAttributedString()
+        mutableString.append(
+          NSAttributedString(string: generalText,attributes: generalAttributes)
+        )
+        
+        mutableString.setAttributes(
+          linkAttributes,
+          range: (generalText as NSString).range(of: privacy)
+        )
+        mutableString.setAttributes(
+          linkAttributes,
+          range: (generalText as NSString).range(of: service)
+        )
+
+        $0.attributedText = mutableString
+        $0.textAlignment = .center
+        $0.isUserInteractionEnabled = true
+    }
+    
     private var signInButton = UIButton().then {
         $0.layer.cornerRadius = 10
         $0.setTitle("Apple로 계속하기", for: .normal)
@@ -62,11 +96,12 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
     override func viewDidLoad() {
         view.backgroundColor = .sub100
         configureUI()
+        bind()
     }
         
     func configureUI() {
         view.backgroundColor = .main
-        view.addSubviews(logoImage, catchphraseLabel, signInButton, skipButton)
+        view.addSubviews(logoImage, catchphraseLabel, termLabel, signInButton, skipButton)
         configureConstraints()
     }
     
@@ -82,6 +117,11 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
             $0.centerX.equalToSuperview()
         }
         
+        termLabel.snp.makeConstraints {
+            $0.left.right.equalToSuperview().inset(16)
+            $0.bottom.equalTo(signInButton.snp.top).offset(-24)
+        }
+        
         signInButton.snp.makeConstraints {
             $0.left.equalToSuperview().offset(16)
             $0.right.equalToSuperview().offset(-16)
@@ -95,6 +135,10 @@ final class SignInViewController: UIViewController, SignInPresentable, SignInVie
             $0.height.equalTo(50)
         }
     }
+    
+    private func bind() {
+        termLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(termButtonDidTap(_:))))
+    }
 }
 
 // MARK: - Bind Method
@@ -107,6 +151,20 @@ extension SignInViewController {
     @objc
     private func skipButtonDidTap() {
         self.listener?.skip()
+    }
+    
+    @objc func termButtonDidTap(_ sender: UITapGestureRecognizer) {
+        let point = sender.location(in: termLabel)
+        guard let privacyURL = URL(string: "https://veganner.notion.site/94df84c44fab4a02a8a23975f14b5fbc"),
+              let serviceURL = URL(string: "https://veganner.notion.site/veganner/4f821d6ce0f34f24a23ca2180dec1c54") else {
+            return }
+        
+        if let privacy = termLabel.boundingRectForCharacterRange(subText: "개인정보 처리방침"), privacy.contains(point) {
+            UIApplication.shared.open(privacyURL)
+        }
+        if let service = termLabel.boundingRectForCharacterRange(subText: "서비스 이용 약관"), service.contains(point) {
+            UIApplication.shared.open(serviceURL)
+        }
     }
     
     func showAlert(title: String?, message: String) {
