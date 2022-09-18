@@ -225,7 +225,7 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
 
     private func configureNavigationBar() {
         navigationItem.titleView = UILabel().then {
-            $0.text = "챌린지 등록"
+            $0.text = "챌린지 인증"
             $0.font = AppFont.body1Bold
             $0.textColor = AppColor.systemBlack
             $0.numberOfLines = 1
