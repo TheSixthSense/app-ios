@@ -72,7 +72,7 @@ public final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
     
     private func handleErrorResponse(error: MoyaError, target: TargetType) throws -> Single<Response> {
         guard case let .statusCode(status) = error else {
-            return .error(APIError.message("알 수 없는 에러 발생"))
+            return .error(APIError.message("문제가 발생했어요! 잠시 후 다시 눌러주세요"))
         }
         
         if status.statusCode == 401 {
@@ -81,7 +81,7 @@ public final class NetworkImpl: MoyaProvider<MultiTarget>, Network {
 
         guard let json = try JSONSerialization.jsonObject(with: status.data, options: []) as? [String: Any],
             let badRequestResponse = Mapper<ErrorResponse>().map(JSON: json) else {
-            return .error(APIError.message("알 수 없는 에러 발생"))
+            return .error(APIError.message("문제가 발생했어요! 잠시 후 다시 눌러주세요"))
         }
 
         let errorMessage = APIError.error(badRequestResponse, status.statusCode.description)
