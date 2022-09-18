@@ -17,6 +17,7 @@ protocol ChallengeListDependency: Dependency {
     var targetDate: PublishRelay<Date> { get }
     var fetchCalendar: PublishRelay<Void> { get }
     var userChallengeRepository: UserChallengeRepository { get }
+    var userRepository: UserRepository { get }
     var persistence: LocalPersistence { get }
 }
 
@@ -29,9 +30,9 @@ final class ChallengeListComponent: Component<ChallengeListDependency>,
     
     var usecase: ChallengeListUseCase {
         ChallengeListUseCaseImpl(
-            repository: dependency.userChallengeRepository,
-            persistence: dependency.persistence
-        )
+            userRepository: dependency.userRepository,
+            challengeRepository: dependency.userChallengeRepository,
+            persistence: dependency.persistence)
     }
     var targetDate: PublishRelay<Date> { dependency.targetDate }
 }

@@ -67,7 +67,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     private var targetDate: Date = .init()
     
     private let sectionsRelay: PublishRelay<[ChallengeSection]> = .init()
-    private let hasItemRelay: BehaviorRelay<Bool> = .init(value: false)
+    private let hasItemRelay: PublishRelay<Bool> = .init()
     private let showToastRelay: PublishRelay<String> = .init()
     private let showSignInAlertRelay: PublishRelay<Void> = .init()
     
@@ -141,11 +141,17 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
                 guard let dateType = owner.dependency.usecase.compareToday(with: date) else { return }
                 if [DateType.today, .afterToday].contains(dateType) {
                     sections.append(.init(identity: .add, items: [.add]))
-                    owner.hasItemRelay.accept(!items.isEmpty)
                 }
                 owner.sectionsRelay.accept(sections)
                 owner.sectionsItem = sections
 
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        dependency.usecase.hasChallengeItem()
+            .withUnretained(self)
+            .subscribe(onNext: { owner, hasItem in
+                owner.hasItemRelay.accept(hasItem)
             })
             .disposeOnDeactivate(interactor: self)
     }
