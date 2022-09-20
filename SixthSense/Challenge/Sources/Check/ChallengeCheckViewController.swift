@@ -225,7 +225,7 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
 
     private func configureNavigationBar() {
         navigationItem.titleView = UILabel().then {
-            $0.text = "챌린지 등록"
+            $0.text = "챌린지 인증"
             $0.font = AppFont.body1Bold
             $0.textColor = AppColor.systemBlack
             $0.numberOfLines = 1
@@ -311,8 +311,8 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
     }
     
     private func showPermissionRequestAlert() {
-        showAlert(title: "사진을 입력하려면 사진 접근 권한을 허용해야 합니다.",
-                  message: .init(),
+        showAlert(title: "📢 비거너 이용 안내사항 📢",
+                  message: "사진을 등록하기 위해, 접근권한을 허용해 주세요!",
                         actions: [.action(title: "유지", style: .negative),
                                   .action(title: "설정 이동", style: .positive)])
         .filter { $0 == .positive }

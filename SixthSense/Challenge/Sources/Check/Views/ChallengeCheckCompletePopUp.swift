@@ -19,7 +19,7 @@ import Kingfisher
 final class ChallengeCheckCompletePopUp: UIViewController {
     private let celebrate = AnimationView().then {
         $0.contentMode = .scaleToFill
-        $0.animation = Animation.celebrate
+        $0.animation = Animation.named("celebrate", bundle: DesignSystemResources.bundle)
         $0.loopMode = .loop
         $0.play()
     }

@@ -187,8 +187,8 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
     }
     
     private func showDeleteConfirmAlert() {
-        showAlert(title: "인증글을 삭제하시겠습니까?",
-                        message: "",
+        showAlert(title: "챌린지 인증을 삭제할거야?",
+                        message: "인증을 삭제하면, 챌린지는 대기상태로 돌아가요🫢",
                         actions: [.action(title: "아니요", style: .negative),
                                   .action(title: "예", style: .positive)])
         .filter { $0 == .positive }

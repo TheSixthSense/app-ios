@@ -26,12 +26,14 @@ protocol ChallengeListPresenterAction: AnyObject {
     var itemSelected: Observable<IndexPath> { get }
     var itemDidDeleted: Observable<IndexPath> { get }
     var registerDidTap: Observable<Void> { get }
+    var signInDidTap: Observable<Void> { get }
 }
 
 protocol ChallengeListPresenterHandler: AnyObject {
     var sections: Observable<[ChallengeSection]> { get }
     var hasItem: Observable<Bool> { get }
     var showToast: Observable<String> { get }
+    var showSignInAlert: Observable<Void> { get }
 }
 
 protocol ChallengeListPresentable: Presentable {
@@ -65,8 +67,9 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     private var targetDate: Date = .init()
     
     private let sectionsRelay: PublishRelay<[ChallengeSection]> = .init()
-    private let hasItemRelay: BehaviorRelay<Bool> = .init(value: false)
+    private let hasItemRelay: PublishRelay<Bool> = .init()
     private let showToastRelay: PublishRelay<String> = .init()
+    private let showSignInAlertRelay: PublishRelay<Void> = .init()
     
     init(presenter: ChallengeListPresentable, dependency: ChallengeListInteractorDependency) {
         self.dependency = dependency
@@ -113,6 +116,13 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
             })
             .disposeOnDeactivate(interactor: self)
         
+        action.signInDidTap
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.listener?.routeToSignIn()
+            })
+            .disposeOnDeactivate(interactor: self)
+        
         dependency.targetDate
             .withUnretained(self)
             .subscribe(onNext: { owner, date in
@@ -131,11 +141,17 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
                 guard let dateType = owner.dependency.usecase.compareToday(with: date) else { return }
                 if [DateType.today, .afterToday].contains(dateType) {
                     sections.append(.init(identity: .add, items: [.add]))
-                    owner.hasItemRelay.accept(!items.isEmpty)
                 }
                 owner.sectionsRelay.accept(sections)
                 owner.sectionsItem = sections
 
+            })
+            .disposeOnDeactivate(interactor: self)
+        
+        dependency.usecase.hasChallengeItem()
+            .withUnretained(self)
+            .subscribe(onNext: { owner, hasItem in
+                owner.hasItemRelay.accept(hasItem)
             })
             .disposeOnDeactivate(interactor: self)
     }
@@ -180,7 +196,7 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
         if dependency.usecase.logined() {
             router?.routeToRegister()
         } else {
-            listener?.routeToSignIn()
+            showSignInAlertRelay.accept(())
         }
     }
     
@@ -225,6 +241,7 @@ extension ChallengeListInteractor: ChallengeListPresenterHandler {
     var sections: Observable<[ChallengeSection]> { sectionsRelay.asObservable() }
     var hasItem: Observable<Bool> { hasItemRelay.asObservable() }
     var showToast: Observable<String> { showToastRelay.asObservable() }
+    var showSignInAlert: Observable<Void> { showSignInAlertRelay.asObservable() }
 }
 
 extension ChallengeSectionItem: RawRepresentable {

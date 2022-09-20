@@ -14,6 +14,7 @@ import Storage
 
 protocol ChallengeDependency: Dependency {
     var userChallengeRepository: UserChallengeRepository { get }
+    var userRepository: UserRepository { get }
     var targetDate: PublishRelay<Date> { get }
     var persistence: LocalPersistence { get }
 }
@@ -26,6 +27,7 @@ final class ChallengeComponent: Component<ChallengeDependency>,
     var userChallengeRepository: UserChallengeRepository {
         dependency.userChallengeRepository
     }
+    var userRepository: UserRepository { dependency.userRepository }
     var persistence: LocalPersistence { dependency.persistence }
 }
 

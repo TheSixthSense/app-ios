@@ -26,13 +26,13 @@ final class ChallengeEmptyView: UIView {
         $0.sizeToFit()
     }
     private let title = UILabel().then {
-        $0.text = "비건 한번 도전해 볼까?"
+        $0.text = "비건 한번 실천해볼까?"
         $0.textColor = .systemBlack
         $0.font = AppFont.body2Bold
         $0.numberOfLines = 1
         $0.sizeToFit()
     }
-    let button = AppButton(title: "도전 하기").then {
+    let button = AppButton(title: "챌린지 등록하기").then {
         $0.layer.cornerRadius = 10
         $0.hasFocused = true
     }
@@ -57,24 +57,27 @@ final class ChallengeEmptyView: UIView {
         }
         
         container.snp.makeConstraints {
-            $0.center.equalToSuperview()
+            $0.centerX.equalToSuperview()
+            $0.top.bottom.equalToSuperview().inset(24)
         }
         
         image.snp.makeConstraints {
             $0.top.equalToSuperview()
+            $0.height.equalTo(image.snp.width).multipliedBy(1.2619)
+            $0.bottom.equalTo(caption.snp.top).offset(-17)
             $0.centerX.equalToSuperview()
-            $0.width.equalTo(42)
-            $0.height.equalTo(53)
         }
         
         caption.snp.makeConstraints {
             $0.top.equalTo(image.snp.bottom).offset(16)
             $0.centerX.equalToSuperview()
+            $0.height.equalTo(16)
         }
         
         title.snp.makeConstraints {
             $0.top.equalTo(caption.snp.bottom).offset(2)
             $0.centerX.equalToSuperview()
+            $0.height.equalTo(22)
         }
         
         button.snp.makeConstraints {

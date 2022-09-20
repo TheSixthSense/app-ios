@@ -15,21 +15,27 @@ protocol ChallengeListUseCase {
     func list(by date: Date) -> Observable<[ChallengeItem]>
     func delete(id: Int) -> Observable<Void>
     func compareToday(with date: Date) -> DateType?
+    func hasChallengeItem() -> Observable<Bool>
     func logined() -> Bool
 }
 
 final class ChallengeListUseCaseImpl: ChallengeListUseCase {
-    private let repository: UserChallengeRepository
+    private let userRepository: UserRepository
+    private let challengeRepository: UserChallengeRepository
+
     private let persistence: LocalPersistence
     
-    init(repository: UserChallengeRepository, persistence: LocalPersistence) {
-        self.repository = repository
+    init(userRepository: UserRepository,
+         challengeRepository: UserChallengeRepository,
+         persistence: LocalPersistence) {
+        self.userRepository = userRepository
+        self.challengeRepository = challengeRepository
         self.persistence = persistence
     }
     
     func list(by date: Date) -> Observable<[ChallengeItem]> {
         guard logined() else { return .empty() }
-        return repository.dayList(by: date.toString(dateFormat: "yyyy-MM-dd"))
+        return challengeRepository.dayList(by: date.toString(dateFormat: "yyyy-MM-dd"))
             .asObservable()
             .compactMap { UserChallengeList(JSONString: $0) }
             .flatMap { response -> Observable<[ChallengeItem]> in
@@ -40,11 +46,19 @@ final class ChallengeListUseCaseImpl: ChallengeListUseCase {
     }
     
     func delete(id: Int) -> Observable<Void> {
-        return repository.deleteChallenge(id: id)
+        return challengeRepository.deleteChallenge(id: id)
             .asObservable()
             .flatMap { _ -> Observable<Void> in
                 return .just(())
             }
+    }
+    
+    func hasChallengeItem() -> Observable<Bool> {
+        return userRepository.challengeStats()
+            .compactMap { UserChallengeStatModel(JSONString: $0) }
+            .asObservable()
+            .map(\.totalCount)
+            .map { $0 != 0 }
     }
     
     func compareToday(with date: Date) -> DateType? {
