@@ -60,6 +60,7 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
     private let imageView = UIImageView().then {
         $0.backgroundColor = .systemGray300
         $0.layer.cornerRadius = 30
+        $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
     }
     private let dateLabel = UILabel().then {
