@@ -55,6 +55,7 @@ final class UserInfoview: UIView {
 
         titleLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
+            $0.width.equalTo(49)
             $0.left.equalToSuperview().inset(20)
         }
 
