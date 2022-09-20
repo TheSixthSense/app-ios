@@ -63,6 +63,11 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
     }
+    private let dateView = UIView()
+    private let checkIcon = UIImageView().then {
+        $0.contentMode = .scaleAspectFit
+        $0.image = DesignSystemAsset.check.image
+    }
     private let dateLabel = UILabel().then {
         $0.font = AppFont.body1
         $0.textColor = .black.withAlphaComponent(0.4)
@@ -105,11 +110,12 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
         contentsView.addSubviews(scrollView)
         scrollView.addSubviews(stackView)
         headerView.addSubviews(titleLabel, closeButton)
-        stackView.addArrangedSubviews(imageView, dateLabel, commentLabel, footerView)
+        stackView.addArrangedSubviews(imageView, dateView, commentLabel, footerView)
+        dateView.addSubviews(checkIcon, dateLabel)
         footerView.addSubviews(deleteButton)
         stackView.do {
             $0.setCustomSpacing(10, after: imageView)
-            $0.setCustomSpacing(24, after: dateLabel)
+            $0.setCustomSpacing(24, after: dateView)
             $0.setCustomSpacing(40, after: commentLabel)
         }
     }
@@ -147,6 +153,16 @@ final class ChallengeDetailViewController: UIViewController, ChallengeDetailPres
         
         imageView.snp.makeConstraints {
             $0.height.equalTo(imageView.snp.width)
+        }
+        
+        checkIcon.snp.makeConstraints {
+            $0.left.top.bottom.equalToSuperview()
+            $0.size.equalTo(24)
+        }
+        
+        dateLabel.snp.makeConstraints {
+            $0.left.equalTo(checkIcon.snp.right).offset(8)
+            $0.centerY.right.equalToSuperview()
         }
         
         deleteButton.snp.makeConstraints {
