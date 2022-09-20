@@ -20,6 +20,7 @@ final class MyPageComponent: Component<MyPageDependency>, MyPageModifyDependency
     var myPageUseCase: MyPageUseCase { MyPageUseCaseImpl(userRepository: dependency.userRepository,
                                                          persistence: dependency.persistence) }
     var userInfoPayload: UserInfoPayload
+    var persistence: LocalPersistence { dependency.persistence }
 
     override init(dependency: MyPageDependency) {
         self.userInfoPayload = UserInfoPayload.init()

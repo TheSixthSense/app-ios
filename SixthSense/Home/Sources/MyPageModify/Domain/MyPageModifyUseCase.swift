@@ -9,6 +9,7 @@
 import Foundation
 import RxSwift
 import Repository
+import Storage
 
 public protocol MyPageModifyUseCase {
     func withdrawUser() -> Observable<Void>
@@ -16,9 +17,12 @@ public protocol MyPageModifyUseCase {
 final class MyPageModifyUseCaseImpl: MyPageModifyUseCase {
 
     private let userRepository: UserRepository
+    private let persistence: LocalPersistence
 
-    init(userRepository: UserRepository) {
+    init(userRepository: UserRepository,
+         persistence: LocalPersistence) {
         self.userRepository = userRepository
+        self.persistence = persistence
     }
 
     func withdrawUser() -> Observable<Void> {
