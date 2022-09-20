@@ -23,6 +23,9 @@ final class CalendarDayCell: JTACDayCell {
             static let todayViewStyle: (UIView) -> Void = {
                 $0.backgroundColor = UIColor(red: 244/256, green: 251/256, blue: 245/256, alpha: 1)
             }
+            static let selectedViewStyle: (UIView) -> Void = {
+                $0.backgroundColor = UIColor(red: 244/256, green: 251/256, blue: 245/256, alpha: 1)
+            }
         }
         
         enum Label {
@@ -37,6 +40,12 @@ final class CalendarDayCell: JTACDayCell {
             }
         }
     }
+    
+    override var isSelected: Bool {
+        willSet { updateSelectedUIState(newValue) }
+    }
+    
+    private var state: DateState?
     
     private let container = UIView().then {
         $0.layer.cornerRadius = 24.5
@@ -74,19 +83,21 @@ final class CalendarDayCell: JTACDayCell {
     }
 
     func configure(state: DateState) {
-        configureItem(by: state)
-        configureTodayItem(isToday: state.isToday)
+        self.state = state
+        configureItem()
+        updateTodayUIState()
     }
     
-    func configureItem(by state: DateState) {
+    func configureItem() {
+        guard let state = self.state else { return }
         titleLabel.text = state.title
         titleLabel.textColor = state.belongsToMonth ? .systemBlack : .systemGray300
         imageView.isHidden = !state.belongsToMonth
         imageView.image = state.challengeIcon
     }
     
-    func configureTodayItem(isToday: Bool) {
-        guard isToday else { return }
+    func updateTodayUIState() {
+        guard let isToday = self.state?.isToday, isToday else { return }
         titleLabel.do(Constants.Label.todayTextStyle)
         container.do(Constants.View.todayViewStyle)
     }
@@ -118,6 +129,12 @@ final class CalendarDayCell: JTACDayCell {
             $0.width.equalTo(19)
             $0.height.equalTo(24)
         }
+    }
+    
+    private func updateSelectedUIState(_ selected: Bool) {
+        let style = selected ? Constants.View.selectedViewStyle : Constants.View.viewStyle
+        container.do(style)
+        self.updateTodayUIState()
     }
 }
 
