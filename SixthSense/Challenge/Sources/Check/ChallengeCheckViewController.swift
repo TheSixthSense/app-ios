@@ -313,8 +313,8 @@ final class ChallengeCheckViewController: UIViewController, ChallengeCheckPresen
     private func showPermissionRequestAlert() {
         showAlert(title: "📢 비거너 이용 안내사항 📢",
                   message: "사진을 등록하기 위해, 접근권한을 허용해 주세요!",
-                        actions: [.action(title: "유지", style: .negative),
-                                  .action(title: "설정 이동", style: .positive)])
+                        actions: [.action(title: "앗.. 다음에 할게", style: .negative),
+                                  .action(title: "설정으로 이동할게", style: .positive)])
         .filter { $0 == .positive }
         .withUnretained(self)
         .subscribe(onNext: { owner, _ in
