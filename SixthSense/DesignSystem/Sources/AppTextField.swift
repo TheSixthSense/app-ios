@@ -68,7 +68,7 @@ private extension AppTextField {
     private func configure() {
         textColor = .systemBlack
         layer.borderWidth = 1.0
-        layer.cornerRadius = 5.0
+        layer.cornerRadius = 10.0
         leftView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: 10.0, height: 0.0))
         leftViewMode = .always
 
