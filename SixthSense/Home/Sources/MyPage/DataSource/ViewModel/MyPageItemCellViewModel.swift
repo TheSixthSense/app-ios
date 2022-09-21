@@ -32,9 +32,9 @@ extension MyPageCellType {
         case .modifyProfile:
             return "회원 정보 수정"
         case .privacyPolicy:
-            return "개인정보 처리 방침"
+            return "개인정보 처리방침"
         case .termsOfService:
-            return "서비스 이용 약관"
+            return "서비스 이용약관"
         case .version:
             return "버전 정보"
         case .credits:
