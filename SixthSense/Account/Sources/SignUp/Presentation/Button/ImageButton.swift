@@ -81,22 +81,34 @@ public final class ImageButton: UIView {
     private func configureUI() {
         addSubviews([imageView, textLabel])
         layer.borderWidth = 1
-        layer.cornerRadius = 5
+        layer.cornerRadius = 10
         layer.borderColor = AppColor.systemGray300.cgColor
         imageView.image = defaultImage
     }
 
     func setButtonTitle(with string: String) {
         backgroundColor = .white
-        titleColor = .systemGray500
         borderColor = .systemGray300
+        layer.borderWidth = 1
+
+        textLabel.attributedText = NSAttributedString(
+            string: string,
+            attributes: [.font: AppFont.body1,
+                             .foregroundColor: AppColor.systemGray500])
+
         imageView.image = defaultImage
     }
 
     func setButtonTitleFocused(with string: String) {
         backgroundColor = .green100
-        titleColor = .green700
         borderColor = .main
+        layer.borderWidth = 1.5
+
+        textLabel.attributedText = NSAttributedString(
+            string: string,
+            attributes: [.font: AppFont.body1Bold,
+                             .foregroundColor: AppColor.green700])
+
         imageView.image = focusedImage
     }
 }

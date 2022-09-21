@@ -40,7 +40,7 @@ public final class SelectButton: UIButton, ButtonProtocol {
     public convenience init(title: String, type: SelectButtonType = .singleLine) {
         self.init(frame: .zero)
         layer.borderWidth = 1
-        layer.cornerRadius = 5
+        layer.cornerRadius = 10
         layer.borderColor = AppColor.systemGray300.cgColor
         setButtonTitle(with: title)
         setButtonType(with: type)
@@ -60,6 +60,7 @@ public final class SelectButton: UIButton, ButtonProtocol {
         backgroundColor = .white
         titleColor = .systemGray500
         borderColor = .systemGray300
+        layer.borderWidth = 1
 
         setAttributedTitle(NSAttributedString(
             string: string,
@@ -71,6 +72,12 @@ public final class SelectButton: UIButton, ButtonProtocol {
         backgroundColor = .green100
         titleColor = .green700
         borderColor = .main
+        layer.borderWidth = 1.5
+        
+        setAttributedTitle(NSAttributedString(
+            string: string,
+            attributes: [.font: AppFont.body1Bold]
+        ), for: .normal)
     }
 }
 

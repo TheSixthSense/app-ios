@@ -19,27 +19,18 @@ enum SignUpSteps {
 
 extension SignUpSteps {
 
-    var navigationTitle: String {
+    var buttonTitle: String {
         switch self {
         case .exit:
             return ""
         case .nickname:
-            return "step 1"
+            return "또 궁금한 건?"
         case .gender:
-            return "step 2"
+            return "이거야!"
         case .birthday:
-            return "step 3"
+            return "마지막 질문은?"
         case .veganStage:
-            return "step 4"
-        }
-    }
-
-    var buttonTitle: String {
-        switch self {
-        case .veganStage:
-            return "확인"
-        default:
-            return "다음"
+            return "마지막 질문까지 완료!"
         }
     }
 

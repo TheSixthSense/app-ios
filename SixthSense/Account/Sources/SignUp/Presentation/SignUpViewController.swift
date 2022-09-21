@@ -36,33 +36,33 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
         view.clipsToBounds = false
     }
 
-    private lazy var backButton = UIButton().then { button in
-        button.setImage(AppIcon.back, for: .normal)
+    private let backButton = UIButton().then {
+        $0.setImage(AppIcon.back, for: .normal)
     }
 
-    private lazy var navigationTitle = AppLabel().then { label in
-        label.setText("step 1", font: AppFont.body1)
+    private let navigationTitle = AppLabel().then {
+        $0.setText("회원가입", font: AppFont.body1Bold)
     }
 
-    private lazy var stepNavigationBar = UIView().then { view in
-        view.backgroundColor = .white
-        view.addSubviews([backButton, navigationTitle])
+    private lazy var stepNavigationBar = UIView().then {
+        $0.backgroundColor = .white
+        $0.addSubviews([backButton, navigationTitle])
     }
 
-    private lazy var stepProgressBar = UIProgressView().then { view in
-        view.layer.sublayers![1].cornerRadius = 5
-        view.subviews[1].clipsToBounds = true
-        view.progress = progressPositions[0]
-        view.progressTintColor = .main
-        view.layer.backgroundColor = AppColor.systemGray100.cgColor
+    private lazy var stepProgressBar = UIProgressView().then {
+        $0.layer.sublayers![1].cornerRadius = 5
+        $0.subviews[1].clipsToBounds = true
+        $0.progress = progressPositions[0]
+        $0.progressTintColor = .main
+        $0.layer.backgroundColor = AppColor.systemGray100.cgColor
     }
 
-    private lazy var stepProgressLabel = AppLabel().then { label in
-        label.setText("\(Int(progressPositions[0] * 100))%", font: AppFont.caption)
-        label.textColor = .main
+    private lazy var stepProgressLabel = AppLabel().then {
+        $0.setText("\(Int(progressPositions[0] * 100))%", font: AppFont.caption)
+        $0.textColor = .main
     }
 
-    private var bottomButton = AppButton(title: "다음")
+    private var bottomButton = AppButton(title: SignUpSteps.nickname.buttonTitle)
 
     // MARK: - Vars
     private let progressPositions: [Float] = [0.25, 0.5, 0.75, 1]
@@ -267,9 +267,6 @@ private extension SignUpViewController {
 
     private func handleBottomButton(with handler: SignUpPresenterHandler) {
         disposeBag.insert {
-            handler.textDoneButton
-                .map(\.rawValue)
-                .bind(to: bottomButton.rx.titleText)
 
             handler.enableButton
                 .bind(to: bottomButton.rx.hasFocused)
@@ -338,7 +335,7 @@ private extension SignUpViewController {
     /// SignUpPageViewController의 화면 전환에 관련된 UI 수행을 한다.
     private func stepChanged(_ step: SignUpSteps) {
         currentStep = step
-        navigationTitle.text = step.navigationTitle
+        bottomButton.titleText = step.buttonTitle
         stepIconImageView.image = step.stepIcon
         updateProgressBar(when: step)
     }

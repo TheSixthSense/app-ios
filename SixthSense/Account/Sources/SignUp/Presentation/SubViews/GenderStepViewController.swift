@@ -17,14 +17,15 @@ public final class GenderStepViewController: UIViewController {
 
     // MARK: - UI
 
-    private var stepLabel = AppLabel().then { label in
-        label.setText("비거너!\n너의 성별을 알려줘", font: AppFont.title2)
+    private var stepLabel = AppLabel().then {
+        $0.setText("비거너!\n너의 성별을 알려줘", font: AppFont.title2)
     }
 
-    private var buttonStackView = UIStackView().then { stack in
-        stack.axis = .vertical
-        stack.distribution = .equalSpacing
-        stack.spacing = 12
+    private var buttonStackView = UIStackView().then {
+        $0.axis = .vertical
+        $0.distribution = .equalSpacing
+        $0.spacing = 12
+        $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
     let maleButton = SelectButton(title: "남성").then {

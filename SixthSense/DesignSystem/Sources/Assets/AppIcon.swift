@@ -11,7 +11,7 @@ import UIKit
 public enum AppIcon {
 
     public static var back: UIImage {
-        return UIImage(.back)!.color(.systemGray300)
+        return UIImage(.back)!.color(.systemGray500)
     }
 
     public static var close: UIImage {

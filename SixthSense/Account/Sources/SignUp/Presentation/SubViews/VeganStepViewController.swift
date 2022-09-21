@@ -18,14 +18,15 @@ public final class VeganStepViewController: UIViewController {
 
     // MARK: - UI
 
-    private var stepLabel = AppLabel().then { label in
-        label.setText("비건을 실천해 본 적 있어?", font: AppFont.title2)
+    private var stepLabel = AppLabel().then {
+        $0.setText("비건을 실천해 본 적 있어?", font: AppFont.title2)
     }
 
-    private var buttonStackView = UIStackView().then { stack in
-        stack.axis = .vertical
-        stack.distribution = .equalSpacing
-        stack.spacing = 12
+    private var buttonStackView = UIStackView().then {
+        $0.axis = .vertical
+        $0.distribution = .equalSpacing
+        $0.spacing = 12
+        $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
     private let beginnerButton = ImageButton(

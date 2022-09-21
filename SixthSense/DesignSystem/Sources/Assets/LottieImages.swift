@@ -10,4 +10,5 @@ import Lottie
 
 public extension Animation {
     static let celebrate: Animation? = Animation.named("celebrate", bundle: DesignSystemResources.bundle)
+    static let check: Animation? = Animation.named("check", bundle: DesignSystemResources.bundle)
 }
