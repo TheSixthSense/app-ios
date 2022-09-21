@@ -8,15 +8,20 @@
 
 import RIBs
 import Repository
+import Storage
 
 protocol MyPageModifyDependency: Dependency {
     var userRepository: UserRepository { get }
     var userInfoPayload: UserInfoPayload { get }
+    var persistence: LocalPersistence { get }
 }
 
 final class MyPageModifyComponent: Component<MyPageModifyDependency>, MyPageModifyInfoDependency {
     var userRepository: UserRepository { dependency.userRepository }
-    var useCase: MyPageModifyUseCase { MyPageModifyUseCaseImpl(userRepository: dependency.userRepository) }
+    var useCase: MyPageModifyUseCase { MyPageModifyUseCaseImpl(
+        userRepository: dependency.userRepository,
+        persistence: dependency.persistence
+    ) }
     var userInfoPayload: UserInfoPayload
 
     override init(dependency: MyPageModifyDependency) {

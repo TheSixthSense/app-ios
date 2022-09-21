@@ -26,6 +26,10 @@ final class MyPageWebViewViewController: UIViewController, MyPageWebViewPresenta
         $0.scrollView.showsVerticalScrollIndicator = true
         $0.scrollView.showsHorizontalScrollIndicator = false
     }
+    private let loadingIndicator = UIActivityIndicatorView().then {
+        $0.hidesWhenStopped = true
+        $0.startAnimating()
+    }
 
     private let backButton = UIBarButtonItem().then {
         $0.image = AppIcon.back
@@ -76,12 +80,16 @@ extension MyPageWebViewViewController {
     private func configureUI() {
         view.backgroundColor = .white
         webView.backgroundColor = .white
-        view.addSubview(webView)
+        view.addSubviews(webView, loadingIndicator)
         configureNavigationBar()
     }
 
     private func configureLayout() {
         webView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        loadingIndicator.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
     }
@@ -98,5 +106,10 @@ extension MyPageWebViewViewController {
             .bind(onNext: { owner, _ in
             owner.listener?.pop()
         }).disposed(by: disposeBag)
+        
+        webView.rx.didFinishLoad
+            .map { _ in false }
+            .bind(to: loadingIndicator.rx.isAnimating)
+            .disposed(by: self.disposeBag)
     }
 }

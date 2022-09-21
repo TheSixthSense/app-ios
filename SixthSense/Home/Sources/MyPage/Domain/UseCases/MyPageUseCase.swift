@@ -47,7 +47,10 @@ final class MyPageUseCaseImpl: MyPageUseCase {
 
     func logout() -> Observable<Void> {
         return userRepository.logout()
-            .do(onSuccess: { [weak self] _ in self?.persistence.delete(on: .accessToken) })
+            .do(onSuccess: { [weak self] _ in
+                self?.persistence.delete(on: .accessToken)
+                self?.persistence.delete(on: .refreshToken)
+            })
             .flatMap({ _ in .just(()) })
             .asObservable()
     }

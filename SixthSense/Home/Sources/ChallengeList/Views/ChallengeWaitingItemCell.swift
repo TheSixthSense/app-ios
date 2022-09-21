@@ -17,6 +17,6 @@ final class ChallengeWaitingItemCell: ChallengeItemCell {
         container.backgroundColor = UIColor(red: 226/256, green: 227/256, blue: 223/256, alpha: 0.5)
         badge.backgroundColor = .systemGray100
         badgeTitle.textColor = .systemGray700
-        badgeTitle.text = ""
+        badgeTitle.text = "대기"
     }
 }

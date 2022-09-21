@@ -135,6 +135,12 @@ final class ChallengeListInteractor: PresentableInteractor<ChallengeListPresenta
     private func fetch(by date: Date) {
         dependency.usecase.list(by: date)
             .map { $0.compactMap(ChallengeSectionItem.init) }
+            .catch { [weak self] error in
+                // FIXME: 배포 후 가능한 빨리 수정해야해요
+                guard error.localizedDescription == "리프레시 토큰이 유효하지 않습니다." else { return .empty() }
+                self?.listener?.routeToSignIn()
+                return .empty()
+            }
             .withUnretained(self)
             .subscribe(onNext: { owner, items in
                 var sections: [ChallengeSection] = [ .init(identity: .item, items: Constants.itemWithSpacing(items) ) ]

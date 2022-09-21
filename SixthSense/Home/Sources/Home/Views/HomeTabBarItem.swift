@@ -18,7 +18,7 @@ class HomeTabBarItem: UITabBarItem {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureImage(image: UIImage) {
+    private func configureImage(image: UIImage) {
         self.image = image
         imageInsets.top = 7
         imageInsets.bottom = -5
