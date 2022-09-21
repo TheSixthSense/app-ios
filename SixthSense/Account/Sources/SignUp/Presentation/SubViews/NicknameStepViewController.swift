@@ -18,14 +18,15 @@ public final class NicknameStepViewController: UIViewController {
 
     // MARK: - UI
 
-    private var stepLabel = AppLabel().then { label in
-        label.setText("비거너!\n너의 닉네임을 알려줘", font: AppFont.title2)
+    private var stepLabel = AppLabel().then {
+        $0.setText("비거너!\n너의 닉네임을 알려줘", font: AppFont.title2)
     }
 
-    public var nicknameTextField = AppTextField().then { textfield in
-        textfield.placeholderString = "2~10자 사이로 입력해 주세요"
-        textfield.errorString = "국문 또는 영문만 가능해!"
-        textfield.maxLength = 10
+    public var nicknameTextField = AppTextField().then {
+        $0.placeholderString = "2~10자 사이로 입력해 주세요"
+        $0.errorString = "국문 또는 영문만 가능해!"
+        $0.maxLength = 10
+        $0.layer.cornerRadius = 10
     }
 
     // MARK: - Vars

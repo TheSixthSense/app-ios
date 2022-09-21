@@ -9,50 +9,54 @@
 import UIKit
 import Then
 import DesignSystem
+import RxSwift
+import SnapKit
+import RxGesture
 
 public final class BirthStepViewController: UIViewController {
 
     // MARK: - UI
 
-    private var stepLabel = AppLabel().then { label in
-        label.setText("비거너!\n너의 생일을 알려줘", font: AppFont.title2)
+    private var stepLabel = AppLabel().then {
+        $0.setText("비거너!\n너의 생일을 알려줘", font: AppFont.title2)
     }
 
-    private var birthStackView = UIStackView().then { stackView in
-        stackView.spacing = 8
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
+    private var birthStackView = UIStackView().then {
+        $0.spacing = 8
+        $0.axis = .horizontal
+        $0.distribution = .fill
+        $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
-    public var yearTextField = AppTextField().then { textfield in
-        textfield.placeholderString = "1990"
-        textfield.maxLength = 4
-        textfield.keyboardType = .decimalPad
-        textfield.errorString = "날짜가 맞는지 다시 확인해줄래?"
+    public var yearTextField = AppTextField().then {
+        $0.placeholderString = "1990"
+        $0.maxLength = 4
+        $0.keyboardType = .decimalPad
+        $0.errorString = "날짜가 맞는지 다시 확인해줄래?"
     }
 
-    private var yearLabel = AppLabel().then { label in
-        label.setText("년", font: AppFont.body1)
+    private var yearLabel = AppLabel().then {
+        $0.setText("년", font: AppFont.body1)
     }
 
-    public var monthTextField = AppTextField().then { textfield in
-        textfield.placeholderString = "01"
-        textfield.maxLength = 2
-        textfield.keyboardType = .decimalPad
+    public var monthTextField = AppTextField().then {
+        $0.placeholderString = "01"
+        $0.maxLength = 2
+        $0.keyboardType = .decimalPad
     }
 
-    private var monthLabel = AppLabel().then { label in
-        label.setText("월", font: AppFont.body1)
+    private var monthLabel = AppLabel().then {
+        $0.setText("월", font: AppFont.body1)
     }
 
-    public var dayTextField = AppTextField().then { textfield in
-        textfield.placeholderString = "01"
-        textfield.maxLength = 2
-        textfield.keyboardType = .decimalPad
+    public var dayTextField = AppTextField().then {
+        $0.placeholderString = "01"
+        $0.maxLength = 2
+        $0.keyboardType = .decimalPad
     }
 
-    private var dayLabel = AppLabel().then { label in
-        label.setText("일", font: AppFont.body1)
+    private var dayLabel = AppLabel().then {
+        $0.setText("일", font: AppFont.body1)
     }
 
     // MARK: - Vars
