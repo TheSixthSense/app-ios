@@ -12,6 +12,7 @@ import Then
 import SnapKit
 import UIKit
 import DesignSystem
+import Lottie
 
 protocol SignUpCompletePresentableListener: AnyObject {
     func routeToHome()
@@ -21,10 +22,11 @@ final class SignUpCompleteViewController: UIViewController, SignUpCompletePresen
 
     weak var listener: SignUpCompletePresentableListener?
 
-    private let lottieImageView = UIImageView().then {
-        $0.image = AppImage.signUpIcon4.image // TEST
-        $0.contentMode = .scaleAspectFit
-        $0.clipsToBounds = true
+    private let lottieImageView = AnimationView().then {
+        $0.animation = Animation.check
+        $0.contentMode = .scaleToFill
+        $0.loopMode = .loop
+        $0.play()
     }
 
     private let titleLabel = AppLabel().then {
