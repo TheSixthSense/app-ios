@@ -267,9 +267,9 @@ private extension SignUpInteractor {
         })
             .disposeOnDeactivate(interactor: self)
     }
-
+    
     private func isValidNickname(_ nickname: String) -> Bool {
-        let nicknameRegex = "^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9]+$"
+        let nicknameRegex = "^[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|a-z|A-Z|0-9]+$"
         let nicknameTest = NSPredicate(format: "SELF MATCHES %@",
                                        nicknameRegex)
         return nicknameTest.evaluate(with: nickname)
