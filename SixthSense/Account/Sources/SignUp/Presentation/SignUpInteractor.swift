@@ -13,11 +13,6 @@ import RxRelay
 import Then
 import Repository
 
-enum SignUpButtonType: String {
-    case next = "다음"
-    case done = "확인"
-}
-
 public protocol SignUpRouting: ViewableRouting {
     func attachSignUpComplete()
     func detachSignUpComplete()
@@ -39,7 +34,6 @@ protocol SignUpPresenterAction: AnyObject {
 }
 
 protocol SignUpPresenterHandler: AnyObject {
-    var textDoneButton: Observable<SignUpButtonType> { get }
     var enableButton: Observable<Bool> { get }
     var didTapButton: Observable<Bool> { get }
     var visibleNicknameValid: Observable<Bool> { get }
@@ -72,7 +66,6 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
     private let veganStageInputValidRelay: PublishRelay<Int> = .init()
 
     private let enableButtonRelay: PublishRelay<Bool> = .init()
-    private let textDoneButtonRelay: PublishRelay<SignUpButtonType> = .init()
     private let buttonDidTapRelay: PublishRelay<Bool> = .init()
     private let nicknameButtonRelay: PublishRelay<Bool> = .init()
 
@@ -160,10 +153,6 @@ final class SignUpInteractor: PresentableInteractor<SignUpPresentable>, SignUpIn
 
 private extension SignUpInteractor {
 
-    private func fetchDoneButtonText(buttonType: SignUpButtonType) {
-        self.textDoneButtonRelay.accept(buttonType)
-    }
-
     private func fetchEnableButton(_ enable: Bool) {
         self.enableButtonRelay.accept(enable)
     }
@@ -175,14 +164,12 @@ private extension SignUpInteractor {
             action.genderViewDidAppear,
             action.birthDateViewDidAppear
         ]).subscribe(onNext: { [weak self] in
-            self?.fetchDoneButtonText(buttonType: .next)
             self?.fetchEnableButton(false)
         })
             .disposeOnDeactivate(interactor: self)
 
         action.veganStageViewDidAppear
             .subscribe(onNext: { [weak self] in
-            self?.fetchDoneButtonText(buttonType: .done)
             self?.fetchEnableButton(false)
         })
             .disposeOnDeactivate(interactor: self)
@@ -296,10 +283,6 @@ private extension SignUpInteractor {
 }
 
 extension SignUpInteractor: SignUpPresenterHandler {
-
-    var textDoneButton: Observable<SignUpButtonType> {
-        return textDoneButtonRelay.asObservable()
-    }
 
     var enableButton: Observable<Bool> {
         return enableButtonRelay.asObservable()

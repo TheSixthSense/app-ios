@@ -40,8 +40,8 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
         button.setImage(AppIcon.back, for: .normal)
     }
 
-    private lazy var navigationTitle = AppLabel().then { label in
-        label.setText("step 1", font: AppFont.body1)
+    private let navigationTitle = AppLabel().then {
+        $0.setText("회원가입", font: AppFont.body1Bold)
     }
 
     private lazy var stepNavigationBar = UIView().then { view in
@@ -62,7 +62,7 @@ final class SignUpViewController: UIViewController, SignUpPresentable, SignUpVie
         label.textColor = .main
     }
 
-    private var bottomButton = AppButton(title: "다음")
+    private var bottomButton = AppButton(title: SignUpSteps.nickname.buttonTitle)
 
     // MARK: - Vars
     private let progressPositions: [Float] = [0.25, 0.5, 0.75, 1]
@@ -338,7 +338,7 @@ private extension SignUpViewController {
     /// SignUpPageViewController의 화면 전환에 관련된 UI 수행을 한다.
     private func stepChanged(_ step: SignUpSteps) {
         currentStep = step
-        navigationTitle.text = step.navigationTitle
+        bottomButton.titleText = step.buttonTitle
         stepIconImageView.image = step.stepIcon
         updateProgressBar(when: step)
     }
