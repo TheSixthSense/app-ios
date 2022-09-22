@@ -16,6 +16,7 @@ import SnapKit
 import Then
 import UIKit
 import UICore
+import netfox
 
 final class ChallengeRegisterViewController: UIViewController, ChallengeRegisterPresentable, ChallengeRegisterViewControllable {
 
@@ -26,6 +27,8 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
     weak var action: ChallengeRegisterPresenterAction?
 
     private enum Constants {
+        static var selectedCategoryIndex = 0
+
         enum Height {
             static let calenderView = 44.0
             static let calenderButton = 20.0
@@ -63,12 +66,13 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         }
     }
 
-    private lazy var categoryDataSource = CategorySections { _, collectionView, indexPath, item in
+    private let categoryDataSource = CategorySections { _, collectionView, indexPath, item in
         switch item {
+
         case .item(let item):
             guard let cell = collectionView.dequeue(CategoryTabItemCell.self, for: indexPath) as? CategoryTabItemCell else { return UICollectionViewCell() }
             cell.setCategory(with: item.title)
-            if(indexPath.row == self.selectedCategoryIndex) {
+            if(indexPath.row == Constants.selectedCategoryIndex) {
                 collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .init())
             }
             return cell
@@ -166,7 +170,6 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
-    private var selectedCategoryIndex: Int = 0
     private var disposeBag = DisposeBag()
 
     // MARK: - LifeCycle
@@ -259,6 +262,7 @@ private extension ChallengeRegisterViewController {
             $0.height.equalTo(Constants.Height.doneButton)
             $0.bottom.equalToSuperview().offset(Constants.Inset.doneButtonBottom)
         }
+
     }
 
     private func bind() {
@@ -280,7 +284,7 @@ private extension ChallengeRegisterViewController {
 
             handler.categorySections
                 .asDriver(onErrorJustReturn: [])
-            .drive(categoryTabView.rx.items(dataSource: categoryDataSource))
+                .drive(categoryTabView.rx.items(dataSource: categoryDataSource))
 
             handler.challengeListSections
                 .asDriver(onErrorJustReturn: [])
@@ -301,7 +305,7 @@ private extension ChallengeRegisterViewController {
                 .withUnretained(self)
                 .bind(onNext: { owner, row in
                 owner.updateIndicator(row)
-                owner.selectedCategoryIndex = row
+                Constants.selectedCategoryIndex = row
             })
 
             handler.showErrorMessage
@@ -379,7 +383,6 @@ private extension ChallengeRegisterViewController {
         }
         self.navigationItem.titleView = titleLabel
     }
-
 }
 
 extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
