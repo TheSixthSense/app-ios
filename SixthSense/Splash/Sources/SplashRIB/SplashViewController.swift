@@ -13,6 +13,7 @@ import SnapKit
 import Then
 import DesignSystem
 import AssetsLibrary
+import Lottie
 
 protocol SplashPresentableListener: AnyObject {}
 
@@ -20,9 +21,11 @@ final class SplashViewController: UIViewController, SplashPresentable, SplashVie
     
     weak var listener: SplashPresentableListener?
     
-    private let logoImage = UIImageView().then {
-        $0.contentMode = .scaleToFill
-        $0.image = UIImage(asset: SplashAsset.splashLogo)
+    private let logoImage = AnimationView().then {
+        $0.animation = Animation.named("logo", bundle: DesignSystemResources.bundle)
+        $0.contentMode = .center
+        $0.loopMode = .loop
+        $0.play()
     }
     
     private let titleImage = UIImageView().then {
@@ -35,7 +38,7 @@ final class SplashViewController: UIViewController, SplashPresentable, SplashVie
     }
     
     private func configureUI() {
-        view.backgroundColor = .sub100
+        view.backgroundColor = .white
         view.addSubviews([logoImage, titleImage])
         configureConstraints()
     }
@@ -51,7 +54,7 @@ final class SplashViewController: UIViewController, SplashPresentable, SplashVie
         titleImage.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.width.equalTo(93)
-            $0.top.equalTo(logoImage.snp.bottom).offset(12)
+            $0.top.equalTo(logoImage.snp.bottom).offset(-10)
         }
     }
 }

@@ -9,6 +9,7 @@
 import Foundation
 
 public final class PrintLogger: Loggable {
+  public init() { }
   public func configure(with configuration: Configuration?) {  }
   
   public func verbose(_ message: Any) {

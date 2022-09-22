@@ -21,7 +21,7 @@ final class CalendarDayCell: JTACDayCell {
                 $0.backgroundColor = .clear
             }
             static let todayViewStyle: (UIView) -> Void = {
-                $0.backgroundColor = UIColor(red: 244/256, green: 251/256, blue: 245/256, alpha: 1)
+                $0.backgroundColor = UIColor(red: 217/256, green: 240/256, blue: 223/256, alpha: 1)
             }
             static let selectedViewStyle: (UIView) -> Void = {
                 $0.backgroundColor = UIColor(red: 244/256, green: 251/256, blue: 245/256, alpha: 1)
