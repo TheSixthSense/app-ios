@@ -138,7 +138,7 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         $0.isMultipleTouchEnabled = false
     }
 
-    private var categoryCollectionLayout = UICollectionViewFlowLayout().then {
+    private let categoryCollectionLayout = UICollectionViewFlowLayout().then {
         $0.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width / 3.0,
                                       height: Constants.Height.category)
         $0.itemSize = CGSize(width: UIScreen.main.bounds.width / 3.0,
@@ -148,12 +148,12 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         $0.minimumLineSpacing = 0
     }
 
-    private var indicatorView = UIView().then {
+    private let indicatorView = UIView().then {
         $0.backgroundColor = .black
     }
 
     // Content
-    private var contentTableView = UITableView().then {
+    private let contentTableView = UITableView().then {
         $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = Constants.Height.tableRow
         $0.isScrollEnabled = true
@@ -164,10 +164,42 @@ final class ChallengeRegisterViewController: UIViewController, ChallengeRegister
         $0.separatorStyle = .none
     }
 
-    private var doneButton = AppButton(title: "실천하러 가볼까?").then {
+    private let doneButton = AppButton(title: "실천하러 가볼까?").then {
         $0.hasFocused = false
         $0.layer.cornerRadius = 10
         $0.translatesAutoresizingMaskIntoConstraints = false
+    }
+
+    private let emptyView = UIView().then {
+        $0.backgroundColor = .white
+        $0.isHidden = true
+    }
+
+    private let emptyIcon = UIImageView().then {
+        $0.contentMode = .scaleAspectFit
+        $0.image = HomeAsset.challengeDayDone.image
+        $0.clipsToBounds = true
+    }
+
+    private let emptyTitleLabel = UILabel().then {
+        $0.attributedText = NSAttributedString(string: "여기는 챌린지 등록 공간이야 😉", attributes: [.kern: -0.41, .font: AppFont.subtitleBold, .foregroundColor: AppColor.systemBlack])
+        $0.numberOfLines = 1
+    }
+
+    private let emptySubtitleLabel = UILabel().then {
+        let paragraphStyle = NSMutableParagraphStyle().then {
+            $0.lineHeightMultiple = 1.08
+            $0.alignment = .center
+        }
+
+        $0.attributedText = NSAttributedString(string: "로그인하면 비건 챌린지를 바로 \n시작해 볼 수 있어!", attributes: [.kern: -0.41, .paragraphStyle: paragraphStyle, .font: AppFont.body1, .foregroundColor: AppColor.systemBlack])
+        $0.numberOfLines = 0
+    }
+
+    private let loginButton = UIButton().then {
+        $0.backgroundColor = .main
+        $0.setAttributedTitle(NSAttributedString(string: "로그인 하러가기", attributes: [.font: AppFont.body1Bold, .foregroundColor: UIColor.white]), for: .normal)
+        $0.layer.cornerRadius = 10
     }
 
     private var disposeBag = DisposeBag()
@@ -215,7 +247,8 @@ private extension ChallengeRegisterViewController {
         setNavigationBar()
         makePicker()
         registerCells()
-        view.addSubviews(calenderView, categoryTabView, indicatorView, contentTableView, doneButton)
+        view.addSubviews(calenderView, categoryTabView, indicatorView, contentTableView, doneButton, emptyView)
+        emptyView.addSubviews(emptyIcon, emptyTitleLabel, emptySubtitleLabel, loginButton)
         calenderView.addSubviews(calenderSelectButton, calenderLabel)
     }
 
@@ -261,6 +294,31 @@ private extension ChallengeRegisterViewController {
             $0.left.right.equalToSuperview().inset(Constants.Inset.base)
             $0.height.equalTo(Constants.Height.doneButton)
             $0.bottom.equalToSuperview().offset(Constants.Inset.doneButtonBottom)
+        }
+
+        emptyView.snp.makeConstraints { $0.edges.equalToSuperview() }
+
+        emptyTitleLabel.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview().offset(116)
+        }
+        
+        emptyIcon.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(emptyTitleLabel.snp.bottom).offset(54)
+            $0.width.equalTo(94)
+            $0.height.equalTo(119)
+        }
+        
+        emptySubtitleLabel.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(emptyIcon.snp.bottom).offset(35)
+        }
+
+        loginButton.snp.makeConstraints {
+            $0.top.equalTo(emptySubtitleLabel.snp.bottom).offset(62)
+            $0.left.right.equalToSuperview().inset(Constants.Inset.base)
+            $0.height.equalTo(68)
         }
 
     }
@@ -312,6 +370,12 @@ private extension ChallengeRegisterViewController {
                 .withUnretained(self)
                 .bind(onNext: { owner, message in
                 owner.showToast(message, toastStyle: .error)
+            })
+
+            handler.presentEmptyView
+                .withUnretained(self)
+                .bind(onNext: { owner, _ in
+                owner.emptyView.isHidden = false
             })
 
             handler.buttonState
@@ -403,4 +467,5 @@ extension ChallengeRegisterViewController: ChallengeRegisterPresenterAction {
     var didTapCalendarView: Observable<Void> { calenderLabel.rx.controlEvent(.editingDidBegin).map { () }.asObservable() }
     var calendarBeginEditing: Observable<(row: Int, component: Int)> { pickerView.rx.itemSelected.asObservable() }
     var calendarDidSelected: Observable<Void> { pickerDoneButton.rx.tap.asObservable() }
+    var didTapLoginButton: Observable<Void> { loginButton.rx.tap.asObservable() }
 }
