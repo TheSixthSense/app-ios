@@ -154,14 +154,6 @@ private extension ChallengeRecommendViewController {
 
             didScroll()
 
-            skipButton.rx.tap
-                .throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance)
-                .map { return 2 }
-                .bind(to: pageControl.rx.currentPage,
-                      recommendCollectionView.rx.didHorizontalScroll,
-                      doneButton.rx.isLastPage,
-                      skipButton.rx.isLastPage)
-
             handler.sections
                 .asDriver(onErrorJustReturn: [])
                 .drive(recommendCollectionView.rx.items(dataSource: dataSource))
@@ -196,6 +188,12 @@ extension ChallengeRecommendViewController: ChallengeRecommendPresenterAction {
     var doneButtonDidTap: Observable<Void> {
         doneButton.rx.tap
             .throttle(.seconds(2), scheduler: MainScheduler.instance)
+            .asObservable()
+    }
+
+    var skipButtonDidTap: Observable<Void> {
+        skipButton.rx.tap
+            .throttle(.seconds(2), latest: false, scheduler: MainScheduler.instance)
             .asObservable()
     }
 }
