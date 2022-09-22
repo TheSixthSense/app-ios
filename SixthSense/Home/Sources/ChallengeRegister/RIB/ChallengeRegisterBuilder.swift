@@ -11,9 +11,11 @@ import Challenge
 import Foundation
 import RxRelay
 import Repository
+import Storage
 
 public protocol ChallengeRegisterDependency: Dependency {
     var challengeRepository: ChallengeRepository { get }
+    var persistence: LocalPersistence { get }
     var targetDate: PublishRelay<Date> { get }
 }
 
@@ -21,7 +23,8 @@ public final class ChallengeRegisterComponent: Component<ChallengeRegisterDepend
                                                  ChallengeRecommendDependency {
     public var challengeRepository: ChallengeRepository { dependency.challengeRepository }
     public var targetDate: PublishRelay<Date> { dependency.targetDate }
-    var useCase: ChallengeRegisterUseCase { ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository) }
+    
+    var useCase: ChallengeRegisterUseCase { ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository, persistence: dependency.persistence) }
 }
 
 // MARK: - Builder
