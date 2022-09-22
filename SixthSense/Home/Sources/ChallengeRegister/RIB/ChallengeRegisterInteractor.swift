@@ -31,6 +31,7 @@ protocol ChallengeRegisterPresenterAction: AnyObject {
     var didTapCalendarView: Observable<Void> { get }
     var calendarBeginEditing: Observable<(row: Int, component: Int)> { get }
     var calendarDidSelected: Observable<Void> { get }
+    var didTapLoginButton: Observable<Void> { get }
 }
 
 protocol ChallengeRegisterPresenterHandler: AnyObject {
@@ -41,9 +42,11 @@ protocol ChallengeRegisterPresenterHandler: AnyObject {
     var updateCategoryIndex: Observable<Int> { get }
     var showErrorMessage: Observable<String> { get }
     var buttonState: Observable<Bool> { get }
+    var presentEmptyView: Observable<Void> { get }
 }
 
 public protocol ChallengeRegisterListener: AnyObject {
+    func routeToSignIn()
 }
 
 final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegisterPresentable>,
@@ -69,6 +72,7 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
 
     private let errorRelay: PublishRelay<String> = .init()
     private let basisDateCalculateRelay: BehaviorRelay<Date> = .init(value: Date())
+    private let emptyViewRelay: PublishRelay<Void> = .init()
 
     private var request: ChallengeJoinRequest = ChallengeJoinRequest.init()
     private var selectedChallengeId: Int = -1
@@ -174,9 +178,20 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
             .subscribe(onNext: { owner, _ in
             owner.didSelectedCalendar(date: owner.calendarConfiguration.basisFullDate)
         }).disposeOnDeactivate(interactor: self)
+
+        action.didTapLoginButton
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.listener?.routeToSignIn()
+        })
     }
 
     private func makeListSections() {
+        if !isLoggedIn() {
+            emptyViewRelay.accept(())
+            return
+        }
+
         dataObservable
             .distinctUntilChanged(at: \.2)
             .withUnretained(self)
@@ -204,27 +219,24 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
     private func fetchChallengeCategories() -> Observable<[CategoryCellViewModel]> {
         return dependency.useCase
             .fetchChallengeCategories()
-            .catch({ [weak self] error in
-            self?.errorRelay.accept(error.localizedDescription)
-            return .empty()
-        })
+            .catch { _ in return .empty() }
             .compactMap({ $0.compactMap { CategoryCellViewModel(model: $0) }.sorted(by: <) })
     }
 
     private func fetchChallengeLists() -> Observable<[ChallengeListItemCellViewModel]> {
         return dependency.useCase
             .fetchChallengeRegisterLists()
-            .catch({ [weak self] error in
-            self?.errorRelay.accept(error.localizedDescription)
-            return .empty()
-        })
+            .catch { _ in return .empty() }
             .compactMap({ $0.compactMap { ChallengeListItemCellViewModel(model: $0) }.sorted(by: <) })
     }
 
-    // TODO: - 에러 팝업
     private func joinChallenge(request: ChallengeJoinRequest) {
         dependency.useCase
             .joinChallenge(request: request)
+            .catch { [weak self] error in
+            self?.errorRelay.accept(error.localizedDescription)
+            return .empty()
+        }
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
             owner.router?.routeToRecommend(id: String(request.challengeId))
@@ -250,9 +262,14 @@ final class ChallengeRegisterInteractor: PresentableInteractor<ChallengeRegister
         categoryIndex.accept(categoryId)
         changeButtonState(to: false)
     }
+
+    private func isLoggedIn() -> Bool {
+        return dependency.useCase.isLoggedIn()
+    }
 }
 
 extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
+
     var basisDate: Observable<Date> { basisDateRelay.asObservable() }
     var categorySections: Observable<[CategorySection]> { categorySectionsRelay.asObservable() }
     var challengeListSections: Observable<[ChallengeListSection]> { challengeListSectionsRelay.asObservable() }
@@ -260,6 +277,7 @@ extension ChallengeRegisterInteractor: ChallengeRegisterPresenterHandler {
     var updateCategoryIndex: Observable<Int> { updateCategoryIndexRelay.asObservable() }
     var showErrorMessage: Observable<String> { errorRelay.asObservable() }
     var buttonState: Observable<Bool> { buttonStateRelay.asObservable() }
+    var presentEmptyView: Observable<Void> { emptyViewRelay.asObservable() }
 }
 
 extension ChallengeJoinRequest: Then { }
