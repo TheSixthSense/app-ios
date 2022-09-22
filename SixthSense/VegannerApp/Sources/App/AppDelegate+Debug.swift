@@ -12,20 +12,11 @@ import SwiftyBeaver
 import Utils
 import Foundation
 
-let log: Loggable = {
-#if DEBUG
-  return SwiftyLogger()
-#else
-  return PrintLogger()
-#endif
-}()
-
-
 extension AppDelegate {
   func configureDebug() {
-    let configuration: Configuration = MainConfiguration()
-    log.configure(with: configuration)
     #if DEBUG
+    let configuration: Configuration = MainConfiguration()
+    SwiftyLogger().configure(with: configuration)
     NFX.sharedInstance().start()
     #endif
   }
