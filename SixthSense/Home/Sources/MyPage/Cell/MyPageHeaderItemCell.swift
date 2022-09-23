@@ -10,31 +10,33 @@ import Then
 import SnapKit
 import UIKit
 import DesignSystem
+import RxSwift
+import RxRelay
 
 final class MyPageHeaderItemCell: UITableViewCell {
 
-    private var profileImageView = UIImageView().then {
+    private let profileImageView = UIImageView().then {
         $0.image = HomeAsset.profileImage.image
         $0.layer.cornerRadius = 45
         $0.clipsToBounds = true
     }
 
-    private var nicknameLabel = UILabel().then {
+    private let nicknameLabel = UILabel().then {
         $0.numberOfLines = 1
     }
 
-    private var dateChallengeLabel = UILabel().then {
+    private let dateChallengeLabel = UILabel().then {
         $0.numberOfLines = 1
     }
 
-    private var challengeStatView = UIView().then {
+    private let challengeStatView = UIView().then {
         $0.backgroundColor = .green100
         $0.layer.cornerRadius = 10
         $0.layer.borderColor = AppColor.green300.cgColor
         $0.layer.borderWidth = 1
     }
 
-    private var challengeCountView = UIStackView().then {
+    private let challengeCountView = UIStackView().then {
         $0.axis = .vertical
         $0.alignment = .center
         $0.distribution = .fillEqually
@@ -44,16 +46,16 @@ final class MyPageHeaderItemCell: UITableViewCell {
         $0.layoutMargins.bottom = 17
     }
 
-    private var challengeCountStaticLabel = UILabel().then {
+    private let challengeCountStaticLabel = UILabel().then {
         $0.numberOfLines = 1
         $0.attributedText = NSAttributedString(string: "도전", attributes: [.font: AppFont.body2, .foregroundColor: AppColor.systemGray500])
     }
 
-    private var challengeCountLabel = UILabel().then {
+    private let challengeCountLabel = UILabel().then {
         $0.numberOfLines = 1
     }
 
-    private var challengeVerifiedView = UIStackView().then {
+    private let challengeVerifiedView = UIStackView().then {
         $0.axis = .vertical
         $0.alignment = .center
         $0.distribution = .fillEqually
@@ -63,16 +65,16 @@ final class MyPageHeaderItemCell: UITableViewCell {
         $0.layoutMargins.bottom = 17
     }
 
-    private var challengeVerifiedStaticLabel = UILabel().then {
+    private let challengeVerifiedStaticLabel = UILabel().then {
         $0.numberOfLines = 1
         $0.attributedText = NSAttributedString(string: "인증완료", attributes: [.font: AppFont.body2, .foregroundColor: AppColor.systemGray500])
     }
 
-    private var challengeVerifiedLabel = UILabel().then {
+    private let challengeVerifiedLabel = UILabel().then {
         $0.numberOfLines = 1
     }
 
-    private var challengeWaitingView = UIStackView().then {
+    private let challengeWaitingView = UIStackView().then {
         $0.axis = .vertical
         $0.alignment = .center
         $0.distribution = .fillEqually
@@ -82,22 +84,45 @@ final class MyPageHeaderItemCell: UITableViewCell {
         $0.layoutMargins.bottom = 17
     }
 
-    private var challengeWaitingStaticLabel = UILabel().then {
+    private let challengeWaitingStaticLabel = UILabel().then {
         $0.numberOfLines = 1
         $0.attributedText = NSAttributedString(string: "대기", attributes: [.font: AppFont.body2, .foregroundColor: AppColor.systemGray500])
     }
 
-    private var challengeWaitingLabel = UILabel().then {
+    private let challengeWaitingLabel = UILabel().then {
         $0.numberOfLines = 1
     }
 
-    private var leftSeparator = UIView().then {
+    private let leftSeparator = UIView().then {
         $0.backgroundColor = .green300
     }
 
-    private var rightSeparator = UIView().then {
+    private let rightSeparator = UIView().then {
         $0.backgroundColor = .green300
     }
+
+    private let headerEmptyView = UIView().then {
+        $0.backgroundColor = .white
+        $0.isHidden = true
+    }
+
+    private let emptyLabel = UILabel().then {
+        let paragraphStyle = NSMutableParagraphStyle().then {
+            $0.lineHeightMultiple = 1.08
+            $0.alignment = .center
+        }
+
+        $0.attributedText = NSAttributedString(string: "여기는 마이 챌린지 공간이야 😉\n로그인하면 챌린지 현황을\n한눈에 볼 수 있어!", attributes: [.kern: -0.41, .paragraphStyle: paragraphStyle, .font: AppFont.subtitleBold, .foregroundColor: AppColor.systemBlack])
+        $0.numberOfLines = 0
+    }
+
+    let loginButton = UIButton().then {
+        $0.backgroundColor = .main
+        $0.setAttributedTitle(NSAttributedString(string: "로그인 하러가기", attributes: [.font: AppFont.body1Bold, .foregroundColor: UIColor.white]), for: .normal)
+        $0.layer.cornerRadius = 10
+    }
+
+    var disposeBag = DisposeBag()
 
     private enum Constants {
         static let labelStyle: [NSAttributedString.Key: Any] = [.font: AppFont.body1, .foregroundColor: AppColor.systemBlack]
@@ -116,16 +141,17 @@ final class MyPageHeaderItemCell: UITableViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
+        disposeBag = DisposeBag()
     }
 
     private func configureUI() {
-        addSubviews(profileImageView, nicknameLabel, dateChallengeLabel, challengeStatView)
+        contentView.addSubviews(profileImageView, nicknameLabel, dateChallengeLabel, challengeStatView, headerEmptyView)
         challengeStatView.addSubviews(challengeCountView, leftSeparator, challengeVerifiedView, rightSeparator, challengeWaitingView)
         challengeCountView.addArrangedSubviews(challengeCountStaticLabel, challengeCountLabel)
         challengeVerifiedView.addArrangedSubviews(challengeVerifiedStaticLabel, challengeVerifiedLabel)
         challengeWaitingView.addArrangedSubviews(challengeWaitingStaticLabel, challengeWaitingLabel)
+        headerEmptyView.addSubviews(emptyLabel, loginButton)
         selectionStyle = .none
-        isUserInteractionEnabled = false
     }
 
     private func configureLayout() {
@@ -181,9 +207,30 @@ final class MyPageHeaderItemCell: UITableViewCell {
             $0.width.top.bottom.equalTo(challengeCountView)
             $0.right.equalToSuperview()
         }
+
+        headerEmptyView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.height.equalTo(304)
+        }
+
+        emptyLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(60)
+            $0.centerX.equalToSuperview()
+        }
+
+        loginButton.snp.makeConstraints {
+            $0.top.equalTo(emptyLabel.snp.bottom).offset(40)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(68)
+        }
     }
 
     func bind(viewModel: MyPageHeaderViewModel) {
+        guard viewModel.isLoggedIn else {
+            headerEmptyView.isHidden = false
+            return
+        }
+
         let nicknameString = NSMutableAttributedString(string: viewModel.nickname,
                                                        attributes: [.font: AppFont.body1Bold,
                                                                         .foregroundColor: AppColor.systemBlack])

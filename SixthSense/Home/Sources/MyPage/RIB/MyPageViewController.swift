@@ -33,11 +33,12 @@ final class MyPageViewController: UIViewController, MyPagePresentable, MyPageVie
                 return UITableViewCell()
             }
             cell.bind(viewModel: viewModel)
+            cell.loginButton.rx.tap.bind(to: loginButtonTappged).disposed(by: cell.disposeBag)
             return cell
         }
     }
 
-    private var myPageTableView = UITableView().then {
+    private let myPageTableView = UITableView().then {
         $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = 150
         $0.isScrollEnabled = true
@@ -48,8 +49,8 @@ final class MyPageViewController: UIViewController, MyPagePresentable, MyPageVie
         $0.separatorStyle = .none
     }
 
-    private var logoutButtonTapped: PublishRelay<Void> = PublishRelay.init()
-    private var routeToSignInRelay: PublishRelay<Void> = PublishRelay.init()
+    private let logoutButtonTapped: PublishRelay<Void> = PublishRelay.init()
+    private static let loginButtonTappged: PublishRelay<Void> = PublishRelay.init()
 
     private let disposeBag = DisposeBag()
 
@@ -111,12 +112,6 @@ extension MyPageViewController {
         guard let handler = handler else { return }
         disposeBag.insert {
 
-            handler.presentSignInPopup
-                .withUnretained(self)
-                .bind(onNext: { owner, _ in
-                owner.presentSignIn()
-            })
-
             handler.myPageSections
                 .asDriver(onErrorJustReturn: [])
                 .drive(myPageTableView.rx.items(dataSource: myPageDataSource))
@@ -131,14 +126,6 @@ extension MyPageViewController {
 
     private func logout() {
         logoutButtonTapped.accept(())
-    }
-
-    private func presentSignIn() {
-        showErrorAlert(title: "로그인이 필요합니다", message: "로그인 하세요", actionTitle: "오키")
-            .withUnretained(self)
-            .bind(onNext: { owner, _ in
-            owner.routeToSignInRelay.accept(())
-        }).disposed(by: disposeBag)
     }
 
     private func presentLogout() {
@@ -157,5 +144,5 @@ extension MyPageViewController: MyPagePresenterAction {
         myPageTableView.rx.modelSelected(MyPageSectionItem.self).compactMap(\.rawValue)
     }
     var loggedOut: Observable<Void> { logoutButtonTapped.asObservable() }
-    var routeToSignIn: Observable<Void> { routeToSignInRelay.asObservable() }
+    var didTapLoginButton: Observable<Void> { MyPageViewController.loginButtonTappged.asObservable() }
 }

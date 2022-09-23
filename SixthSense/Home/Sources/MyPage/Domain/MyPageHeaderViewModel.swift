@@ -11,4 +11,17 @@ import Foundation
 struct MyPageHeaderViewModel {
     var nickname: String
     var statData: UserChallengeStatModel
+    var isLoggedIn: Bool
+    
+    init() {
+        nickname = ""
+        statData = UserChallengeStatModel.init()
+        isLoggedIn = false
+    }
+    
+    init(nickname: String, statData: UserChallengeStatModel, isLoggedIn: Bool) {
+        self.nickname = nickname
+        self.statData = statData
+        self.isLoggedIn = isLoggedIn
+    }
 }

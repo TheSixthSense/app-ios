@@ -19,6 +19,7 @@ protocol ChallengeRecommendPresentable: Presentable {
 
 protocol ChallengeRecommendPresenterAction: AnyObject {
     var doneButtonDidTap: Observable<Void> { get }
+    var skipButtonDidTap: Observable<Void> { get }
 }
 
 protocol ChallengeRecommendPresenterHandler: AnyObject {
@@ -63,6 +64,12 @@ final class ChallengeRecommendInteractor: PresentableInteractor<ChallengeRecomme
         guard let action = presenter.action else { return }
 
         action.doneButtonDidTap
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+            owner.listener?.returnToHome()
+        }).disposeOnDeactivate(interactor: self)
+        
+        action.skipButtonDidTap
             .withUnretained(self)
             .bind(onNext: { owner, _ in
             owner.listener?.returnToHome()

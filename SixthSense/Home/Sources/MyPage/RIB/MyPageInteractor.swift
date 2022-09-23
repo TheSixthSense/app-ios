@@ -27,12 +27,11 @@ protocol MyPagePresenterAction: AnyObject {
     var viewWillAppear: Observable<Void> { get }
     var didSelectItem: Observable <MyPageItemCellViewModel> { get }
     var loggedOut: Observable<Void> { get }
-    var routeToSignIn: Observable<Void> { get }
+    var didTapLoginButton: Observable<Void> { get }
 }
 
 protocol MyPagePresenterHandler: AnyObject {
     var myPageSections: Observable<[MyPageSection]> { get }
-    var presentSignInPopup: Observable<Void> { get }
     var presentLogoutPopup: Observable<Void> { get }
 }
 
@@ -48,7 +47,6 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     private var component: MyPageComponent
 
     private let myPageSectionsRelay: PublishRelay<[MyPageSection]> = .init()
-    private let signInPopupRelay: PublishRelay<Void> = .init()
     private let logoutPopupRelay: PublishRelay<Void> = .init()
 
     private lazy var dataObservable = Observable.combineLatest(
@@ -74,13 +72,12 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         guard let action = presenter.action else { return }
 
         action.viewWillAppear
-            .flatMap(isLoggedIn)
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
             owner.makeSection()
         }).disposeOnDeactivate(interactor: self)
 
-        action.routeToSignIn
+        action.didTapLoginButton
             .withUnretained(self)
             .bind(onNext: { owner, _ in
             owner.routeToSignIn()
@@ -109,6 +106,22 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
     }
 
     private func makeSection() {
+        var items = [MyPageSectionItem]()
+
+        items.append(.item(MyPageItemCellViewModel(id: 1, type: .privacyPolicy)))
+        items.append(.item(MyPageItemCellViewModel(id: 2, type: .termsOfService)))
+        items.append(.item(MyPageItemCellViewModel(id: 3, type: .version)))
+        items.append(.item(MyPageItemCellViewModel(id: 4, type: .credits)))
+
+        if !isLoggedIn() {
+            items.insert(.header(MyPageHeaderViewModel.init()), at: 0)
+            myPageSectionsRelay.accept([MyPageSection.init(identity: .item, items: items)])
+            return
+        }
+
+        items.insert(.item(MyPageItemCellViewModel(id: 0, type: .modifyProfile)), at: 0)
+        items.insert(.item(MyPageItemCellViewModel(id: 5, type: .logout)), at: items.count)
+
         dataObservable
             .withUnretained(self)
             .subscribe(onNext: { owner, data in
@@ -116,27 +129,24 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
             let (userData, challengeStatData) = data
             owner.component.userInfoPayload = UserInfoPayload(model: userData)
 
-            owner.myPageSectionsRelay.accept([
-                    .init(identity: .header, items: [
-                        .header(MyPageHeaderViewModel(nickname: userData.nickname,
-                                                      statData: challengeStatData)),
-                        .item(MyPageItemCellViewModel(id: 0, type: .modifyProfile)),
-                        .item(MyPageItemCellViewModel(id: 1, type: .privacyPolicy)),
-                        .item(MyPageItemCellViewModel(id: 2, type: .termsOfService)),
-                        .item(MyPageItemCellViewModel(id: 3, type: .version)),
-                        .item(MyPageItemCellViewModel(id: 4, type: .credits)),
-                        .item(MyPageItemCellViewModel(id: 5, type: .logout)),
-                ])
-            ])
+            items.insert(.header(MyPageHeaderViewModel(nickname: userData.nickname,
+                                                       statData: challengeStatData,
+                                                       isLoggedIn: true)), at: 0)
+
+            owner.myPageSectionsRelay.accept([MyPageSection.init(identity: .item, items: items)])
         }).disposeOnDeactivate(interactor: self)
     }
 
     private func fetchUserData() -> Observable<UserInfoModel> {
-        return component.myPageUseCase.fetchUserData().asObservable()
+        return component.myPageUseCase.fetchUserData()
+            .catch { _ in return .empty() }
+            .asObservable()
     }
 
     private func fetchChallengeUserData() -> Observable<UserChallengeStatModel> {
-        return component.myPageUseCase.fetchUserChallengeStats().asObservable()
+        return component.myPageUseCase.fetchUserChallengeStats()
+            .catch { _ in return .empty() }
+            .asObservable()
     }
 
     private func loggedOut() {
@@ -147,13 +157,8 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         }).disposeOnDeactivate(interactor: self)
     }
 
-    private func isLoggedIn() -> Observable<Bool> {
+    private func isLoggedIn() -> Bool {
         return component.myPageUseCase.isLoggedIn()
-            .do(onNext: { [weak self] in
-            if !$0 {
-                self?.signInPopupRelay.accept(())
-            }
-        })
     }
 
     func popWebView() {
@@ -171,5 +176,4 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
 extension MyPageInteractor: MyPagePresenterHandler {
     var myPageSections: Observable<[MyPageSection]> { myPageSectionsRelay.asObservable() }
     var presentLogoutPopup: Observable<Void> { logoutPopupRelay.map { _ in () }.asObservable() }
-    var presentSignInPopup: Observable<Void> { signInPopupRelay.asObservable() }
 }

@@ -35,7 +35,7 @@ final class HomeComponent: Component<HomeDependency>,
         self.challengeRepository = dependency.challengeRepository
         self.userChallengeRepository = UserChallengeRepositoryImpl(network: dependency.network)
         self.targetDate = .init()
-        self.challengeRegisterUseCase = ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository)
+        self.challengeRegisterUseCase = ChallengeRegisterUseCaseImpl(challengeRepository: dependency.challengeRepository, persistence: dependency.persistence)
         super.init(dependency: dependency)
     }
 }

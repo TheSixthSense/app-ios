@@ -10,7 +10,6 @@ import RxDataSources
 
 struct MyPageSection {
     enum Identity: Int {
-        case header
         case item
     }
     let identity: Identity

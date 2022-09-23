@@ -15,7 +15,7 @@ public protocol MyPageUseCase {
     func fetchUserData() -> Observable<UserInfoModel>
     func fetchUserChallengeStats() -> Observable<UserChallengeStatModel>
     func logout() -> Observable<Void>
-    func isLoggedIn() -> Observable<Bool>
+    func isLoggedIn() -> Bool
 
 }
 final class MyPageUseCaseImpl: MyPageUseCase {
@@ -29,28 +29,30 @@ final class MyPageUseCaseImpl: MyPageUseCase {
     }
 
     func fetchUserData() -> Observable<UserInfoModel> {
+        guard isLoggedIn() else { return .empty() }
         return userRepository.info()
             .compactMap { UserInfoModel(JSONString: $0) }
             .asObservable()
     }
 
     func fetchUserChallengeStats() -> Observable<UserChallengeStatModel> {
+        guard isLoggedIn() else { return .empty() }
         return userRepository.challengeStats()
             .compactMap { UserChallengeStatModel(JSONString: $0) }
             .asObservable()
     }
 
-    func isLoggedIn() -> Observable<Bool> {
-        guard let token: String = persistence.value(on: .accessToken) else { return .just(false) }
-        return .just(!token.isEmpty)
+    func isLoggedIn() -> Bool {
+        guard let token: String = persistence.value(on: .accessToken) else { return false }
+        return !token.isEmpty
     }
 
     func logout() -> Observable<Void> {
         return userRepository.logout()
             .do(onSuccess: { [weak self] _ in
-                self?.persistence.delete(on: .accessToken)
-                self?.persistence.delete(on: .refreshToken)
-            })
+            self?.persistence.delete(on: .accessToken)
+            self?.persistence.delete(on: .refreshToken)
+        })
             .flatMap({ _ in .just(()) })
             .asObservable()
     }
