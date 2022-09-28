@@ -29,9 +29,9 @@ final class ChallengeRecommendViewController: UIViewController, ChallengeRecomme
 
         enum Inset {
             static let base = 20.0
-            static let collectionTop = 32.0
+            static let skipButtonTop = 60.0
             static let collectionBottom = -44.0
-            static let pageControlBottom = -70.0
+            static let pageControlBottom = -65.0
         }
     }
 
@@ -58,7 +58,7 @@ final class ChallengeRecommendViewController: UIViewController, ChallengeRecomme
     private var collectionLayout = UICollectionViewFlowLayout().then {
         $0.estimatedItemSize = .zero
         $0.itemSize = CGSize(width: UIScreen.main.bounds.width,
-                             height: UIScreen.main.bounds.height * 0.435)
+                             height: UIScreen.main.bounds.height)
         $0.scrollDirection = .horizontal
         $0.minimumInteritemSpacing = 0
         $0.minimumLineSpacing = 0
@@ -119,20 +119,18 @@ private extension ChallengeRecommendViewController {
     private func configureUI() {
         view.backgroundColor = .white
         recommendCollectionView.register(RecommendItemCell.self)
-        view.addSubviews(skipButton, recommendCollectionView, pageControl, doneButton)
+        view.addSubviews(recommendCollectionView, skipButton, pageControl, doneButton)
     }
 
     private func configureLayout() {
 
         skipButton.snp.makeConstraints {
             $0.right.equalToSuperview().inset(Constants.Inset.base)
-            $0.top.equalToSuperview().inset(view.safeAreaInsets.top + 11)
+            $0.top.equalToSuperview().inset(Constants.Inset.skipButtonTop)
         }
 
         recommendCollectionView.snp.makeConstraints {
-            $0.left.right.equalToSuperview()
-            $0.top.equalTo(skipButton.snp.bottom).offset(Constants.Inset.collectionTop)
-            $0.bottom.equalTo(pageControl.snp.top).offset(Constants.Inset.collectionBottom)
+            $0.edges.equalToSuperview()
         }
 
         pageControl.snp.makeConstraints {

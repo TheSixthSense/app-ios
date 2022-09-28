@@ -64,9 +64,9 @@ final class RecommendItemCell: UICollectionViewCell {
     private func configureLayout() {
 
         recommendImageView.snp.makeConstraints {
-            $0.top.equalToSuperview()
+            $0.top.equalToSuperview().inset(120)
             $0.left.right.equalToSuperview().inset(56)
-            $0.height.equalTo(250).multipliedBy(262 / 246)
+            $0.height.equalToSuperview().dividedBy(3)
         }
 
         defaultLabel.snp.makeConstraints {
