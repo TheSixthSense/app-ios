@@ -17,45 +17,50 @@ public final class BirthStepViewController: UIViewController {
 
     // MARK: - UI
 
-    private var stepLabel = AppLabel().then {
+    private let stepLabel = AppLabel().then {
         $0.setText("비거너!\n너의 생일을 알려줘", font: AppFont.title2)
     }
 
-    private var birthStackView = UIStackView().then {
+    public let messageLabel = AppLabel().then {
+        $0.setText("👀 이건 선택사항이야", font: AppFont.body2)
+        $0.textColor = .systemGray500
+    }
+
+    private let birthStackView = UIStackView().then {
         $0.spacing = 8
         $0.axis = .horizontal
         $0.distribution = .fill
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
-    public var yearTextField = AppTextField().then {
+    public let yearTextField = AppTextField().then {
         $0.placeholderString = "1990"
         $0.maxLength = 4
         $0.keyboardType = .decimalPad
         $0.errorString = "날짜가 맞는지 다시 확인해줄래?"
     }
 
-    private var yearLabel = AppLabel().then {
+    private let yearLabel = AppLabel().then {
         $0.setText("년", font: AppFont.body1)
     }
 
-    public var monthTextField = AppTextField().then {
+    public let monthTextField = AppTextField().then {
         $0.placeholderString = "01"
         $0.maxLength = 2
         $0.keyboardType = .decimalPad
     }
 
-    private var monthLabel = AppLabel().then {
+    private let monthLabel = AppLabel().then {
         $0.setText("월", font: AppFont.body1)
     }
 
-    public var dayTextField = AppTextField().then {
+    public let dayTextField = AppTextField().then {
         $0.placeholderString = "01"
         $0.maxLength = 2
         $0.keyboardType = .decimalPad
     }
 
-    private var dayLabel = AppLabel().then {
+    private let dayLabel = AppLabel().then {
         $0.setText("일", font: AppFont.body1)
     }
 
@@ -87,7 +92,7 @@ public final class BirthStepViewController: UIViewController {
 private extension BirthStepViewController {
 
     private func configureUI() {
-        view.addSubviews([stepLabel, birthStackView])
+        view.addSubviews([stepLabel, messageLabel, birthStackView])
         birthStackView.addArrangedSubviews([yearTextField,
                                             yearLabel,
                                             monthTextField,
@@ -97,27 +102,26 @@ private extension BirthStepViewController {
     }
 
     private func configureLayout() {
-        stepLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(24)
-            make.left.right.equalToSuperview().inset(32)
+        stepLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(24)
+            $0.left.right.equalToSuperview().inset(32)
         }
 
-        birthStackView.snp.makeConstraints { make in
-            make.top.equalTo(stepLabel.snp.bottom).offset(24)
-            make.left.right.equalTo(stepLabel)
-            make.height.equalTo(44)
+        messageLabel.snp.makeConstraints {
+            $0.top.equalTo(stepLabel.snp.bottom).offset(10)
+            $0.left.right.equalToSuperview().inset(32)
         }
 
-        yearTextField.snp.makeConstraints { make in
-            make.width.equalTo(100)
+        birthStackView.snp.makeConstraints {
+            $0.top.equalTo(messageLabel.snp.bottom).offset(24)
+            $0.left.right.equalTo(stepLabel)
+            $0.height.equalTo(44)
         }
 
-        monthTextField.snp.makeConstraints { make in
-            make.width.equalTo(60)
-        }
+        yearTextField.snp.makeConstraints { $0.width.equalTo(100) }
 
-        dayTextField.snp.makeConstraints { make in
-            make.width.equalTo(60)
-        }
+        monthTextField.snp.makeConstraints { $0.width.equalTo(60) }
+
+        dayTextField.snp.makeConstraints { $0.width.equalTo(60) }
     }
 }
