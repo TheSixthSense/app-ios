@@ -13,7 +13,7 @@ import ObjectMapper
 public struct SignUpRequest: Mappable {
 
     public var appleId: String
-    public var birthDay: String
+    public var birthDay: String?
     public var clientSecret: String
     public var gender: String
     public var nickname: String
@@ -22,7 +22,6 @@ public struct SignUpRequest: Mappable {
 
     public init() {
         appleId = ""
-        birthDay = ""
         clientSecret = ""
         gender = ""
         nickname = ""
@@ -32,7 +31,6 @@ public struct SignUpRequest: Mappable {
 
     public init?(map: Map) {
         appleId = ""
-        birthDay = ""
         clientSecret = ""
         gender = ""
         nickname = ""
@@ -50,7 +48,7 @@ public struct SignUpRequest: Mappable {
         vegannerStage <- map["vegannerStage"]
     }
 
-    func asBody(_ defaultBody: [String: Any]) -> [String: Any] {
+    func asBody(_ defaultBody: [String: Any?]) -> [String: Any?] {
         return defaultBody.with {
             $0.merge(dict: [
                 "appleId": appleId,
