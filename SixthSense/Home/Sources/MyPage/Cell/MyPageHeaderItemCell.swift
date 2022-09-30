@@ -112,7 +112,21 @@ final class MyPageHeaderItemCell: UITableViewCell {
             $0.alignment = .center
         }
 
-        $0.attributedText = NSAttributedString(string: "여기는 마이 챌린지 공간이야 😉\n로그인하면 챌린지 현황을\n한눈에 볼 수 있어!", attributes: [.kern: -0.41, .paragraphStyle: paragraphStyle, .font: AppFont.subtitleBold, .foregroundColor: AppColor.systemBlack])
+        let titleText = NSAttributedString(string: "여기는 마이 챌린지 공간이야 😉", attributes: [.kern: -0.41, .paragraphStyle: paragraphStyle, .font: AppFont.subtitleBold, .foregroundColor: AppColor.systemBlack])
+
+        $0.attributedText = titleText
+        $0.numberOfLines = 0
+    }
+
+    private let emptySubLabel = UILabel().then {
+        let paragraphStyle = NSMutableParagraphStyle().then {
+            $0.lineHeightMultiple = 1.08
+            $0.alignment = .center
+        }
+
+        let subTitleText = NSAttributedString(string: "로그인하면 챌린지 현황을\n한눈에 볼 수 있어!", attributes: [.kern: -0.41, .paragraphStyle: paragraphStyle, .font: AppFont.body1, .foregroundColor: AppColor.systemBlack])
+
+        $0.attributedText = subTitleText
         $0.numberOfLines = 0
     }
 
@@ -150,7 +164,7 @@ final class MyPageHeaderItemCell: UITableViewCell {
         challengeCountView.addArrangedSubviews(challengeCountStaticLabel, challengeCountLabel)
         challengeVerifiedView.addArrangedSubviews(challengeVerifiedStaticLabel, challengeVerifiedLabel)
         challengeWaitingView.addArrangedSubviews(challengeWaitingStaticLabel, challengeWaitingLabel)
-        headerEmptyView.addSubviews(emptyLabel, loginButton)
+        headerEmptyView.addSubviews(emptyLabel, emptySubLabel, loginButton)
         selectionStyle = .none
     }
 
@@ -217,9 +231,14 @@ final class MyPageHeaderItemCell: UITableViewCell {
             $0.top.equalToSuperview().offset(60)
             $0.centerX.equalToSuperview()
         }
+        
+        emptySubLabel.snp.makeConstraints {
+            $0.top.equalTo(emptyLabel.snp.bottom).offset(10)
+            $0.centerX.equalToSuperview()
+        }
 
         loginButton.snp.makeConstraints {
-            $0.top.equalTo(emptyLabel.snp.bottom).offset(40)
+            $0.top.equalTo(emptySubLabel.snp.bottom).offset(40)
             $0.left.right.equalToSuperview()
             $0.height.equalTo(68)
         }
