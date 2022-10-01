@@ -161,8 +161,7 @@ private extension SignUpInteractor {
 
         Observable.merge([
             action.nicknameViewDidAppear,
-            action.genderViewDidAppear,
-            action.birthDateViewDidAppear
+            action.genderViewDidAppear
         ]).subscribe(onNext: { [weak self] in
             self?.fetchEnableButton(false)
         })

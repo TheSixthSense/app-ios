@@ -40,7 +40,9 @@ final class MyPageModifyInfoViewController: UIViewController, MyPageModifyInfoPr
 
     let nicknameView: NicknameStepViewController = .init()
     let genderView: GenderStepViewController = .init()
-    let birthView: BirthStepViewController = .init()
+    let birthView = BirthStepViewController().then {
+        $0.messageLabel.isHidden = true
+    }
     let veganStageView: VeganStepViewController = .init()
 
     var currentView: UIViewController?
