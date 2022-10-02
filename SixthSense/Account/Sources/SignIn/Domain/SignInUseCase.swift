@@ -13,7 +13,7 @@ import Repository
 import Storage
 
 public protocol SignInUseCase {
-    func continueWithApple() -> Observable<SignType>
+    func continueWithApple() -> Observable<Void>
 }
 
 public struct SignInUseCaseImpl: SignInUseCase {
@@ -28,11 +28,11 @@ public struct SignInUseCaseImpl: SignInUseCase {
         self.persistence = persistence
     }
     
-    public func continueWithApple() -> Observable<SignType> {
+    public func continueWithApple() -> Observable<Void> {
         return requestAppleLogin()
             .compactMap(makePayload)
             .do(onNext: { persistence.save(value: $0.id, on: .appleID) })
-            .flatMap(signInIfNeeded)
+            .flatMap(requestSignIn)
     }
     
     private func requestAppleLogin() -> Observable<ASAuthorizationAppleIDCredential> {
@@ -50,35 +50,19 @@ public struct SignInUseCaseImpl: SignInUseCase {
         return SignInfo(id: credential.user, token: token, email: credential.email)
     }
     
-    private func signInIfNeeded(_ info: SignInfo) -> Observable<SignType> {
-        if shouldSignIn(info) {
-            return requestSignIn(info)
-        } else {
-            return .just(.signUp(info))
-        }
-    }
-    
-    private func shouldSignIn(_ info: SignInfo) -> Bool {
-        return info.email == nil
-    }
-        
-    private func requestSignIn(_ info: SignInfo) -> Observable<SignType> {
+    private func requestSignIn(_ info: SignInfo) -> Observable<Void> {
         let request = LoginRequest(appleID: info.id, clientSecret: info.token)
         return self.userRepository.login(request: request)
-            .debug("😀")
             .asObservable()
-            .do(onNext: {
-                print("🦊 \($0)")
-            })
-            .map { _ in .signIn }
+            .map { _ in () }
+            .catch {  _ in
+                return .error(SignInUseCaseError.signInError(.init(id: info.id, token: info.token)))
+            }
     }
-    
-//    private func saveAccessToken(token: )
 }
 
-public enum SignType {
-    case signIn
-    case signUp(SignInfo)
+public enum SignInUseCaseError: Error {
+    case signInError(SignInfo)
 }
 
 public struct SignInfo {
