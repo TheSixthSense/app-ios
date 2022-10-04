@@ -28,6 +28,7 @@ final class MyPageModifyUseCaseImpl: MyPageModifyUseCase {
     func withdrawUser() -> Observable<Void> {
         return userRepository.withdraw()
             .do(onSuccess: { [weak self] _ in
+                self?.persistence.delete(on: .appleID)
                 self?.persistence.delete(on: .accessToken)
                 self?.persistence.delete(on: .refreshToken)
             })
