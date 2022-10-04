@@ -100,8 +100,13 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
         }).disposeOnDeactivate(interactor: self)
 
         action.loggedOut
-            .withUnretained(self)
-            .subscribe(onNext: { owner, _ in owner.loggedOut() })
+            .debug("🦊 : Interactor - before")
+            .flatMap { [weak self] _ -> Observable<Void> in
+                return self?.loggedOut() ?? .empty()
+            }
+            .subscribe(onNext: { [weak self] _ in
+                self?.routeToSignIn()
+            })
             .disposeOnDeactivate(interactor: self)
     }
 
@@ -148,15 +153,13 @@ final class MyPageInteractor: PresentableInteractor<MyPagePresentable>, MyPageIn
             .catch { _ in return .empty() }
             .asObservable()
     }
-
-    private func loggedOut() {
-        component.myPageUseCase.logout()
-            .withUnretained(self)
-            .bind(onNext: { owner, _ in
-            owner.routeToSignIn()
-        }).disposeOnDeactivate(interactor: self)
+    
+    private func loggedOut() -> Observable<Void> {
+        return component.myPageUseCase.logout()
+            .debug("🦊 : Interactor - after")
+            .catchAndReturn(())
     }
-
+    
     private func isLoggedIn() -> Bool {
         return component.myPageUseCase.isLoggedIn()
     }

@@ -2,6 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>SERVER_BASE_URL</key>
+	<string>$(SERVER_BASE_URL)</string>
+	<key>SWIFTYBEAVER_APP_ID</key>
+	<string>$(SWIFTYBEAVER_APP_ID)</string>
+	<key>SWIFTYBEAVER_APP_SECRET</key>
+	<string>$(SWIFTYBEAVER_APP_SECRET)</string>
+	<key>SWIFTYBEAVER_ENCRYPT_KEY</key>
+	<string>$(SWIFTYBEAVER_ENCRYPT_KEY)</string>
 	<key>TEMP_URL</key>
 	<string>$(TEMP_URL)</string>
 	<key>UIApplicationSceneManifest</key>
@@ -9,17 +19,9 @@
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
-	<key>SWIFTYBEAVER_APP_ID</key>
-	<string>$(SWIFTYBEAVER_APP_ID)</string>
-	<key>SWIFTYBEAVER_APP_SECRET</key>
-	<string>$(SWIFTYBEAVER_APP_SECRET)</string>
-	<key>SWIFTYBEAVER_ENCRYPT_KEY</key>
-	<string>$(SWIFTYBEAVER_ENCRYPT_KEY)</string>
-	<key>SERVER_BASE_URL</key>
-	<string>$(SERVER_BASE_URL)</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>챌린지 인증 시, 사진을 촬영하거나 라이브러리 내 사진을 등록할 수 있도록 접근을 허용합니다.</string>
 	<key>NSCameraUsageDescription</key>
+	<string>챌린지 인증 시, 사진을 촬영하거나 라이브러리 내 사진을 등록할 수 있도록 접근을 허용합니다.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
 	<string>챌린지 인증 시, 사진을 촬영하거나 라이브러리 내 사진을 등록할 수 있도록 접근을 허용합니다.</string>
 </dict>
 </plist>

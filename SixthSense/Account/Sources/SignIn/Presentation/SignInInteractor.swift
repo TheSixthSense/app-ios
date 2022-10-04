@@ -53,19 +53,16 @@ final class SignInInteractor: PresentableInteractor<SignInPresentable>, SignInIn
         dependency.usecase
             .continueWithApple()
             .catch { [weak self] error in
-                self?.presenter.showAlert(title: nil, message: error.localizedDescription)
+                guard case let SignInUseCaseError.signInError(info) = error else {
+                    self?.presenter.showAlert(title: nil, message: error.localizedDescription)
+                    return .empty()
+                }
+                self?.router?.routeToSignUp(payload: .init(id: info.id, token: info.token))
                 return .empty()
             }
-            .subscribe(onNext: { [weak self] in
-                switch $0 {
-                    case .signIn:
-                        self?.listener?.signInDidTapClose()
-                    case .signUp(let info):
-                        self?.router?.routeToSignUp(
-                            payload: .init(id: info.id,
-                                           token: info.token,
-                                           email: info.email))
-                }
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                owner.listener?.signInDidTapClose()
             })
             .disposeOnDeactivate(interactor: self)
     }
