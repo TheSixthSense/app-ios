@@ -17,13 +17,15 @@ protocol MyPageDependency: Dependency {
 
 final class MyPageComponent: Component<MyPageDependency>, MyPageModifyDependency, MyPageWebViewDependency {
     var userRepository: UserRepository { dependency.userRepository }
-    var myPageUseCase: MyPageUseCase { MyPageUseCaseImpl(userRepository: dependency.userRepository,
-                                                         persistence: dependency.persistence) }
+    var myPageUseCase: MyPageUseCase
     var userInfoPayload: UserInfoPayload
-    var persistence: LocalPersistence { dependency.persistence }
+    var persistence: LocalPersistence
 
     override init(dependency: MyPageDependency) {
         self.userInfoPayload = UserInfoPayload.init()
+        myPageUseCase = MyPageUseCaseImpl(userRepository: dependency.userRepository,
+                                          persistence: dependency.persistence)
+        persistence = dependency.persistence
         super.init(dependency: dependency)
     }
 }

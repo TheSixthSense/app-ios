@@ -18,14 +18,16 @@ protocol MyPageModifyDependency: Dependency {
 
 final class MyPageModifyComponent: Component<MyPageModifyDependency>, MyPageModifyInfoDependency {
     var userRepository: UserRepository { dependency.userRepository }
-    var useCase: MyPageModifyUseCase { MyPageModifyUseCaseImpl(
-        userRepository: dependency.userRepository,
-        persistence: dependency.persistence
-    ) }
+    var useCase: MyPageModifyUseCase
     var userInfoPayload: UserInfoPayload
 
     override init(dependency: MyPageModifyDependency) {
         self.userInfoPayload = dependency.userInfoPayload
+        self.useCase = MyPageModifyUseCaseImpl(
+            userRepository: dependency.userRepository,
+            persistence: dependency.persistence
+        )
+        
         super.init(dependency: dependency)
     }
 }
